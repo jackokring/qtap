@@ -109,9 +109,18 @@ void MainWindow::open()
 //! [7] //! [8]
 {
     if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this);
-        if (!fileName.isEmpty())
-            loadFile(fileName);
+        QFileDialog dialog(this, tr("Open File"));
+        dialog.setWindowModality(Qt::WindowModal);
+        dialog.setAcceptMode(QFileDialog::AcceptOpen);
+
+        QStringList mimeTypes;
+        mimeTypes << "text/plain";
+        dialog.setMimeTypeFilters(mimeTypes);
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+        //TODO: maybe need to do view transform on type
+        if (!dialog.selectedFiles().first().isEmpty())
+            loadFile(dialog.selectedFiles().first());
     }
 }
 //! [8]
@@ -132,11 +141,16 @@ bool MainWindow::save()
 bool MainWindow::saveAs()
 //! [11] //! [12]
 {
-    QFileDialog dialog(this);
+    QFileDialog dialog(this, tr("Save File"));
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    QStringList mimeTypes;
+    mimeTypes << "text/plain";
+    dialog.setMimeTypeFilters(mimeTypes);
     if (dialog.exec() != QDialog::Accepted)
         return false;
+    //TODO: maybe need to do view transform on type
     return saveFile(dialog.selectedFiles().first());
 }
 //! [12]
