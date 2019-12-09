@@ -84,6 +84,7 @@ private slots:
     void commitData(QSessionManager &);
 #endif
     void publish();
+    void subscribe();
 
 private:
     void createActions();

@@ -8,5 +8,6 @@
         <file>images/edit-copy.png</file>
         <file>images/view-text.png</file>
         <file>images/sync-publish.png</file>
+        <file>images/sync-read.png</file>
     </qresource>
 </RCC>

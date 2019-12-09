@@ -150,6 +150,15 @@ void MainWindow::publish() {
     statusBar()->showMessage(tr("Published"), 2000);
 }
 
+void MainWindow::subscribe() {
+    if(QProcess::execute("git add . && git stash && git pull && git stash pop") != 0) { //incorporate
+        QMessageBox::critical(this, tr("Reading Error"),
+                 tr("The repository could not be read."));
+        return;
+    }
+    statusBar()->showMessage(tr("Read"), 2000);
+}
+
 //! [11]
 bool MainWindow::saveAs()
 //! [11] //! [12]
@@ -296,11 +305,18 @@ void MainWindow::createActions()
     syncAct->setShortcuts(QKeySequence::Print);
     syncAct->setStatusTip(tr("Publish with services"));//the main action
     connect(syncAct, &QAction::triggered, this, &MainWindow::publish);
-
-    // TODO: No menu
-
     syncMenu->addAction(syncAct);
     syncToolBar->addAction(syncAct);
+
+    const QIcon readIcon = QIcon::fromTheme("sync-read", QIcon(":/images/sync-read.png"));
+    QAction *readAct = new QAction(readIcon, tr("&Read"), this);
+    readAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+    readAct->setStatusTip(tr("Read from services"));//the main action
+    connect(readAct, &QAction::triggered, this, &MainWindow::subscribe);
+    syncMenu->addAction(readAct);
+    syncToolBar->addAction(readAct);
+
+    // TODO: No menu
 
     menuBar()->addSeparator();
 
