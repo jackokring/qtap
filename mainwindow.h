@@ -83,6 +83,7 @@ private slots:
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
+    void publish();
 
 private:
     void createActions();

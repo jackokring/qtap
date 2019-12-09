@@ -6,5 +6,7 @@
         <file>images/edit-paste.png</file>
         <file>images/edit-cut.png</file>
         <file>images/edit-copy.png</file>
+        <file>images/view-text.png</file>
+        <file>images/sync-publish.png</file>
     </qresource>
 </RCC>

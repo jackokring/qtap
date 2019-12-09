@@ -138,6 +138,18 @@ bool MainWindow::save()
 }
 //! [10]
 
+void MainWindow::publish() {
+    maybeSave();
+    QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
+    if(QProcess::execute("git add . && git stash && git pull && git stash pop" //incorporate
+        "git commit -m \"" + now + "\" && git push") != 0) {
+        QMessageBox::critical(this, tr("Publication Error"),
+                 tr("The repository could not be published."));
+        return;
+    }
+    statusBar()->showMessage(tr("Published"), 2000);
+}
+
 //! [11]
 bool MainWindow::saveAs()
 //! [11] //! [12]
@@ -264,11 +276,10 @@ void MainWindow::createActions()
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     QToolBar *viewToolBar = addToolBar(tr("View"));
 
-    const QIcon viewIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/edit-paste.png"));
-    QAction *viewAct = new QAction(pasteIcon, tr("&Paste"), this);
-    pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    const QIcon viewTextIcon = QIcon::fromTheme("view-text", QIcon(":/images/view-text.png"));
+    QAction *viewAct = new QAction(viewTextIcon, tr("&Text"), this);
+    viewAct->setShortcuts(QKeySequence::AddTab);
+    viewAct->setStatusTip(tr("Show editable text view"));//the base view
 
     // TODO: No menu
 
@@ -280,11 +291,11 @@ void MainWindow::createActions()
     QMenu *syncMenu = menuBar()->addMenu(tr("&Sync"));
     QToolBar *syncToolBar = addToolBar(tr("Sync"));
 
-    const QIcon syncIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/edit-paste.png"));
-    QAction *syncAct = new QAction(pasteIcon, tr("&Paste"), this);
-    pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
+    const QIcon syncIcon = QIcon::fromTheme("sync-publish", QIcon(":/images/sync-publish.png"));
+    QAction *syncAct = new QAction(syncIcon, tr("&Publish"), this);
+    syncAct->setShortcuts(QKeySequence::Print);
+    syncAct->setStatusTip(tr("Publish with services"));//the main action
+    connect(syncAct, &QAction::triggered, this, &MainWindow::publish);
 
     // TODO: No menu
 
