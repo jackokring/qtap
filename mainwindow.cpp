@@ -97,8 +97,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::newFile()
 //! [5] //! [6]
 {
-    if (maybeSave()) {
+    if (maybeSave()) {//TODO: maybe make new doc
         textEdit->clear();
+        //TODO: select base type
         setCurrentFile(QString());
     }
 }
@@ -354,7 +355,7 @@ bool MainWindow::maybeSave()
     if (!textEdit->document()->isModified())
         return true;
     const QMessageBox::StandardButton ret
-        = QMessageBox::warning(this, tr("Application"),
+        = QMessageBox::warning(this, tr("Save Changes"),
                                tr("The document has been modified.\n"
                                   "Do you want to save your changes?"),
                                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -376,7 +377,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(fileName), file.errorString()));
         return;
@@ -402,7 +403,7 @@ bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(fileName),
                                   file.errorString()));
@@ -434,7 +435,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
     QString shownName = curFile;
     if (curFile.isEmpty())
-        shownName = "untitled.txt";
+        shownName = "untitled.txt";//default to text
+    //TODO: set default as note taking
     setWindowFilePath(shownName);
 }
 //! [47]
