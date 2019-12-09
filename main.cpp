@@ -60,20 +60,30 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(application);
 
     QApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setApplicationName("Application Example");
-    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    QCoreApplication::setOrganizationName("K Ring Technologies Ltd.");
+    QCoreApplication::setApplicationName("QtAp");
+    QCoreApplication::setApplicationVersion("0.0.1");
     QCommandLineParser parser;
-    parser.setApplicationDescription(QCoreApplication::applicationName());
+    parser.setApplicationDescription("Document Editor");
     parser.addHelpOption();
     parser.addVersionOption();
-    parser.addPositionalArgument("file", "The file to open.");
+    parser.addPositionalArgument("file", "The file to open.", "[file");
+    parser.addPositionalArgument("view", "The view(s) to make.", "[view ...]]");
     parser.process(app);
 
     MainWindow mainWin;
-    if (!parser.positionalArguments().isEmpty())
+    bool show = true;
+    if(!parser.positionalArguments().isEmpty()) {
         mainWin.loadFile(parser.positionalArguments().first());
-    mainWin.show();
+        parser.positionalArguments().removeFirst();
+        if(parser.positionalArguments().isEmpty()) {
+            //not a background job
+        } else {
+            //background job processing
+            show = false;
+        }
+    }
+    if(show) mainWin.show();//maybe needs removing
     return app.exec();
 }
 //! [0]

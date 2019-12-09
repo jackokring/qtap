@@ -145,10 +145,9 @@ bool MainWindow::saveAs()
 void MainWindow::about()
 //! [13] //! [14]
 {
-   QMessageBox::about(this, tr("About Application"),
-            tr("The <b>Application</b> example demonstrates how to "
-               "write modern GUI applications using Qt, with a menu bar, "
-               "toolbars, and a status bar."));
+   QMessageBox::about(this, tr("About QtAp"),
+            tr("<b>QtAp</b> for document control. "
+               "Writen in C++ using Qt. "));
 }
 //! [14]
 
@@ -167,7 +166,8 @@ void MainWindow::createActions()
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QToolBar *fileToolBar = addToolBar(tr("File"));
-    const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(":/images/new.png"));
+
+    const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(":/images/file-new.png"));
     QAction *newAct = new QAction(newIcon, tr("&New"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
@@ -176,7 +176,7 @@ void MainWindow::createActions()
     fileToolBar->addAction(newAct);
 
 //! [19]
-    const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/open.png"));
+    const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/file-open.png"));
     QAction *openAct = new QAction(openIcon, tr("&Open..."), this);
     openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Open an existing file"));
@@ -185,7 +185,7 @@ void MainWindow::createActions()
     fileToolBar->addAction(openAct);
 //! [18] //! [19]
 
-    const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/images/save.png"));
+    const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/images/file-save.png"));
     QAction *saveAct = new QAction(saveIcon, tr("&Save"), this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(tr("Save the document to disk"));
@@ -197,6 +197,7 @@ void MainWindow::createActions()
     QAction *saveAsAct = fileMenu->addAction(saveAsIcon, tr("Save &As..."), this, &MainWindow::saveAs);
     saveAsAct->setShortcuts(QKeySequence::SaveAs);
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
+    /* TODO: No action?? */
 
 //! [20]
 
@@ -213,7 +214,7 @@ void MainWindow::createActions()
     QToolBar *editToolBar = addToolBar(tr("Edit"));
 //!
 #ifndef QT_NO_CLIPBOARD
-    const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(":/images/cut.png"));
+    const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(":/images/edit-cut.png"));
     QAction *cutAct = new QAction(cutIcon, tr("Cu&t"), this);
 //! [21]
     cutAct->setShortcuts(QKeySequence::Cut);
@@ -223,7 +224,7 @@ void MainWindow::createActions()
     editMenu->addAction(cutAct);
     editToolBar->addAction(cutAct);
 
-    const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(":/images/copy.png"));
+    const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(":/images/edit-copy.png"));
     QAction *copyAct = new QAction(copyIcon, tr("&Copy"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
@@ -232,7 +233,7 @@ void MainWindow::createActions()
     editMenu->addAction(copyAct);
     editToolBar->addAction(copyAct);
 
-    const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/paste.png"));
+    const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/edit-paste.png"));
     QAction *pasteAct = new QAction(pasteIcon, tr("&Paste"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
@@ -244,6 +245,38 @@ void MainWindow::createActions()
     menuBar()->addSeparator();
 
 #endif // !QT_NO_CLIPBOARD
+
+    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
+    QToolBar *viewToolBar = addToolBar(tr("View"));
+
+    const QIcon viewIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/edit-paste.png"));
+    QAction *viewAct = new QAction(pasteIcon, tr("&Paste"), this);
+    pasteAct->setShortcuts(QKeySequence::Paste);
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
+                              "selection"));
+
+    // TODO: No menu
+
+    viewMenu->addAction(viewAct);
+    viewToolBar->addAction(viewAct);
+
+    menuBar()->addSeparator();
+
+    QMenu *syncMenu = menuBar()->addMenu(tr("&Sync"));
+    QToolBar *syncToolBar = addToolBar(tr("Sync"));
+
+    const QIcon syncIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/edit-paste.png"));
+    QAction *syncAct = new QAction(pasteIcon, tr("&Paste"), this);
+    pasteAct->setShortcuts(QKeySequence::Paste);
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
+                              "selection"));
+
+    // TODO: No menu
+
+    syncMenu->addAction(syncAct);
+    syncToolBar->addAction(syncAct);
+
+    menuBar()->addSeparator();
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction *aboutAct = helpMenu->addAction(tr("&About"), this, &MainWindow::about);
