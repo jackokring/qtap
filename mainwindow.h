@@ -76,9 +76,10 @@ protected:
 private slots:
     void newFile();
     void open();
-    bool save();
-    bool saveAs();
+    void save();
+    void saveAs();
     void about();
+    void close();
     void documentWasModified();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
@@ -89,6 +90,9 @@ private slots:
 private:
     void createActions();
     void createStatusBar();
+    void addMenu(QMenu *menu, QToolBar *toolbar, void(MainWindow::*fp)(),
+         QString named, QString entry, QKeySequence::StandardKey shorty,
+         QString help, bool noBar = false);
     void readSettings();
     void writeSettings();
     bool maybeSave();

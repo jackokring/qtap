@@ -127,13 +127,13 @@ void MainWindow::open()
 //! [8]
 
 //! [9]
-bool MainWindow::save()
+void MainWindow::save()
 //! [9] //! [10]
 {
     if (curFile.isEmpty()) {
-        return saveAs();
+        saveAs();
     } else {
-        return saveFile(curFile);
+        saveFile(curFile);
     }
 }
 //! [10]
@@ -160,7 +160,7 @@ void MainWindow::subscribe() {
 }
 
 //! [11]
-bool MainWindow::saveAs()
+void MainWindow::saveAs()
 //! [11] //! [12]
 {
     QFileDialog dialog(this, tr("Save File"));
@@ -171,9 +171,9 @@ bool MainWindow::saveAs()
     mimeTypes << "text/plain";
     dialog.setMimeTypeFilters(mimeTypes);
     if (dialog.exec() != QDialog::Accepted)
-        return false;
+        return;
     //TODO: maybe need to do view transform on type
-    return saveFile(dialog.selectedFiles().first());
+    saveFile(dialog.selectedFiles().first());
 }
 //! [12]
 
@@ -194,7 +194,22 @@ void MainWindow::documentWasModified()
     setWindowModified(textEdit->document()->isModified());
 }
 //! [16]
-
+void MainWindow::addMenu(QMenu *menu, QToolBar *toolbar, void(MainWindow::*fp)(),
+                         QString named, QString entry,
+                         QKeySequence::StandardKey shorty,
+                         QString help, bool noBar) {
+    const QIcon newIcon = QIcon::fromTheme(named, QIcon(":/images/" + named + ".png"));
+    QAction *newAct = new QAction(newIcon, entry, this);
+    newAct->setShortcuts(shorty);
+    newAct->setStatusTip(help);
+    connect(newAct, &QAction::triggered, this, fp);
+    menu->addAction(newAct);
+    if(noBar) return;
+    toolbar->addAction(newAct);
+}
+void MainWindow::close() {
+    QWidget::close();
+}
 //! [17]
 void MainWindow::createActions()
 //! [17] //! [18]
@@ -202,57 +217,29 @@ void MainWindow::createActions()
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QToolBar *fileToolBar = addToolBar(tr("File"));
-
-    const QIcon newIcon = QIcon::fromTheme("document-new", QIcon(":/images/file-new.png"));
-    QAction *newAct = new QAction(newIcon, tr("&New"), this);
-    newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, &QAction::triggered, this, &MainWindow::newFile);
-    fileMenu->addAction(newAct);
-    fileToolBar->addAction(newAct);
-
-//! [19]
-    const QIcon openIcon = QIcon::fromTheme("document-open", QIcon(":/images/file-open.png"));
-    QAction *openAct = new QAction(openIcon, tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, &QAction::triggered, this, &MainWindow::open);
-    fileMenu->addAction(openAct);
-    fileToolBar->addAction(openAct);
-//! [18] //! [19]
-
-    const QIcon saveIcon = QIcon::fromTheme("document-save", QIcon(":/images/file-save.png"));
-    QAction *saveAct = new QAction(saveIcon, tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    connect(saveAct, &QAction::triggered, this, &MainWindow::save);
-    fileMenu->addAction(saveAct);
-    fileToolBar->addAction(saveAct);
-
-    const QIcon saveAsIcon = QIcon::fromTheme("document-save-as");
-    QAction *saveAsAct = fileMenu->addAction(saveAsIcon, tr("Save &As..."), this, &MainWindow::saveAs);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    /* TODO: No action?? */
-
-//! [20]
-
+    addMenu(fileMenu, fileToolBar, &MainWindow::newFile,
+            "document-new", tr("&New"), QKeySequence::New,
+            tr("Create a new file"));
+    addMenu(fileMenu, fileToolBar, &MainWindow::open,
+            "document-open", tr("&Open..."), QKeySequence::Open,
+            tr("Open an existing file"));
+    addMenu(fileMenu, fileToolBar, &MainWindow::save,
+            "document-save", tr("&Save"), QKeySequence::Save,
+            tr("Save the document to disk"));
+    addMenu(fileMenu, fileToolBar, &MainWindow::saveAs,
+            "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,
+            tr("Save the document under a new name"), true);//no bar entry
     fileMenu->addSeparator();
+    addMenu(fileMenu, fileToolBar, &MainWindow::close,
+            "application-exit", tr("E&xit"), QKeySequence::Quit,
+            tr("Exit the application"), true);//no bar entry
 
-    const QIcon exitIcon = QIcon::fromTheme("application-exit");
-    QAction *exitAct = fileMenu->addAction(exitIcon, tr("E&xit"), this, &QWidget::close);
-    exitAct->setShortcuts(QKeySequence::Quit);
-//! [20]
-    exitAct->setStatusTip(tr("Exit the application"));
-
-//! [21]
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     QToolBar *editToolBar = addToolBar(tr("Edit"));
-//!
 #ifndef QT_NO_CLIPBOARD
     const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(":/images/edit-cut.png"));
     QAction *cutAct = new QAction(cutIcon, tr("Cu&t"), this);
-//! [21]
+
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
                             "clipboard"));
@@ -388,7 +375,8 @@ bool MainWindow::maybeSave()
                                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     switch (ret) {
     case QMessageBox::Save:
-        return save();
+        save();
+        return true;
     case QMessageBox::Cancel:
         return false;
     default:
