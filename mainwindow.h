@@ -86,12 +86,17 @@ private slots:
 #endif
     void publish();
     void subscribe();
+    void cut();
+    void copy();
+    void paste();
+    void viewText();
+    void aboutQt();
 
 private:
     void createActions();
     void createStatusBar();
     QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
-         QString named, QString entry, QKeySequence::StandardKey shorty,
+         QString named, QString entry, QKeySequence shorty,
          QString help, bool noBar = false);
     void readSettings();
     void writeSettings();
@@ -102,6 +107,7 @@ private:
 
     QPlainTextEdit *textEdit;
     QString curFile;
+    bool saved;
 };
 //! [0]
 
