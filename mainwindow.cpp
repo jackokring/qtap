@@ -194,18 +194,30 @@ void MainWindow::documentWasModified()
     setWindowModified(textEdit->document()->isModified());
 }
 //! [16]
-void MainWindow::addMenu(QMenu *menu, QToolBar *toolbar, void(MainWindow::*fp)(),
+QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence::StandardKey shorty,
                          QString help, bool noBar) {
+    static QMenu *aMenu;
+    static QToolBar *aToolBar;
+    if(menu != nullptr) {
+        aMenu = menuBar()->addMenu(menu);
+        aToolBar = addToolBar(menu.replace('&', ""));
+    }
+    if(aMenu == nullptr) {
+        aMenu = menuBar()->addMenu("&Menu");
+        aToolBar = addToolBar("Menu");
+    }
+
     const QIcon newIcon = QIcon::fromTheme(named, QIcon(":/images/" + named + ".png"));
     QAction *newAct = new QAction(newIcon, entry, this);
     newAct->setShortcuts(shorty);
     newAct->setStatusTip(help);
     connect(newAct, &QAction::triggered, this, fp);
-    menu->addAction(newAct);
-    if(noBar) return;
-    toolbar->addAction(newAct);
+    aMenu->addAction(newAct);
+    if(noBar) return aMenu;
+    aToolBar->addAction(newAct);
+    return aMenu;
 }
 void MainWindow::close() {
     QWidget::close();
@@ -214,23 +226,19 @@ void MainWindow::close() {
 void MainWindow::createActions()
 //! [17] //! [18]
 {
-
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    QToolBar *fileToolBar = addToolBar(tr("File"));
-    addMenu(fileMenu, fileToolBar, &MainWindow::newFile,
+    addMenu(tr("&File"), &MainWindow::newFile,
             "document-new", tr("&New"), QKeySequence::New,
             tr("Create a new file"));
-    addMenu(fileMenu, fileToolBar, &MainWindow::open,
+    addMenu(nullptr, &MainWindow::open,
             "document-open", tr("&Open..."), QKeySequence::Open,
             tr("Open an existing file"));
-    addMenu(fileMenu, fileToolBar, &MainWindow::save,
+    addMenu(nullptr, &MainWindow::save,
             "document-save", tr("&Save"), QKeySequence::Save,
             tr("Save the document to disk"));
-    addMenu(fileMenu, fileToolBar, &MainWindow::saveAs,
+    addMenu(nullptr, &MainWindow::saveAs,
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,
-            tr("Save the document under a new name"), true);//no bar entry
-    fileMenu->addSeparator();
-    addMenu(fileMenu, fileToolBar, &MainWindow::close,
+            tr("Save the document under a new name"), true)->addSeparator();//no bar entry
+    addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,
             tr("Exit the application"), true);//no bar entry
 

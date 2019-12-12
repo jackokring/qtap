@@ -90,7 +90,7 @@ private slots:
 private:
     void createActions();
     void createStatusBar();
-    void addMenu(QMenu *menu, QToolBar *toolbar, void(MainWindow::*fp)(),
+    QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
          QString named, QString entry, QKeySequence::StandardKey shorty,
          QString help, bool noBar = false);
     void readSettings();
