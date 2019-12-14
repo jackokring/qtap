@@ -288,11 +288,14 @@ void MainWindow::readSettings() {
     } else {
         restoreGeometry(geometry);
     }
+    const QString dir = settings.value("directory").toString();
 }
 
 void MainWindow::writeSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
+    if(directory == nullptr) directory = QString("~");//home dir
+    settings.setValue("directory", directory);
 }
 
 bool MainWindow::maybeSave() {

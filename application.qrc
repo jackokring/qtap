@@ -10,5 +10,6 @@
         <file>images/sync-publish.png</file>
         <file>images/sync-read.png</file>
         <file>images/document-save-as.png</file>
+        <file>images/void.png</file>
     </qresource>
 </RCC>

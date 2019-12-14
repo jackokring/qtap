@@ -108,6 +108,7 @@ private:
     QString curFile;
     bool saved;
     Libkqfn handle;
+    QString directory;
 };
 
 #endif
