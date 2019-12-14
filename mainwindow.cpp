@@ -53,7 +53,7 @@
 
 MainWindow::MainWindow()
     : textEdit(new QPlainTextEdit) {
-    setCentralWidget(textEdit);
+    setCentralWidget(textEdit);            
 
     createActions();
     createStatusBar();
@@ -166,7 +166,7 @@ void MainWindow::documentWasModified() {
 QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence shorty,
-                         QString help, bool noBar) {
+                         QString help, bool noBar, bool copyCan) {
     static QMenu *aMenu;
     static QToolBar *aToolBar;
     if(menu != nullptr) {
@@ -187,6 +187,10 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     newAct->setStatusTip(help);
     connect(newAct, &QAction::triggered, this, fp);
     aMenu->addAction(newAct);
+    if(copyCan) {
+        newAct->setEnabled(false);
+        connect(textEdit, &QPlainTextEdit::copyAvailable, newAct, &QAction::setEnabled);
+    }
     if(noBar) return aMenu;
     aToolBar->addAction(newAct);
     return aMenu;
@@ -237,10 +241,10 @@ void MainWindow::createActions() {
 #ifndef QT_NO_CLIPBOARD
     addMenu(tr("&Edit"), &MainWindow::cut,
             "edit-cut",  tr("Cu&t"), QKeySequence::Cut,
-            tr("Cut the current selection's contents to the clipboard"));
+            tr("Cut the current selection's contents to the clipboard"), false, true);
     addMenu(nullptr, &MainWindow::copy,
             "edit-copy", tr("&Copy"), QKeySequence::Copy,
-            tr("Copy the current selection's contents to the clipboard"));
+            tr("Copy the current selection's contents to the clipboard"), false, true);
     addMenu(nullptr, &MainWindow::paste,
             "edit-paste", tr("&Paste"), QKeySequence::Paste,
             tr("Paste the clipboard's contents into the current selection"));
@@ -267,16 +271,6 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::aboutQt,
             nullptr, tr("About &Qt"), 0,
             tr("Show the Qt library's About box"), true);
-//! [22]
-
-//! [23]
-#ifndef QT_NO_CLIPBOARD
-    //cutAct->setEnabled(false);
-//! [23] //! [24]
-    //copyAct->setEnabled(false);
-    //connect(textEdit, &QPlainTextEdit::copyAvailable, cutAct, &QAction::setEnabled);
-    //connect(textEdit, &QPlainTextEdit::copyAvailable, copyAct, &QAction::setEnabled);
-#endif // !QT_NO_CLIPBOARD
 }
 
 void MainWindow::createStatusBar() {
@@ -344,11 +338,17 @@ void MainWindow::loadFile(const QString &fileName) {
 }
 
 bool MainWindow::saveFile(const QString &fileName) {
-    QFile file(fileName);
+    QString name;
+    if(QString::compare(fileName.split('.').last(), "txt", Qt::CaseInsensitive) != true) {
+        name = QString(fileName + ".txt");
+    } else {
+        name = fileName;
+    }
+    QFile file(name);
     if (!file.open(QFile::WriteOnly)) {
         QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot write file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName),
+                             .arg(QDir::toNativeSeparators(name),
                                   file.errorString()));
         return false;
     }
@@ -362,7 +362,7 @@ bool MainWindow::saveFile(const QString &fileName) {
     QApplication::restoreOverrideCursor();
 #endif
 
-    setCurrentFile(fileName);
+    setCurrentFile(name);
     statusBar()->showMessage(tr("File saved"), 2000);
     return true;
 }

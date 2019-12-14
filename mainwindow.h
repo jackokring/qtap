@@ -52,6 +52,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "./libkqfn/libkqfn.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -60,14 +61,12 @@ class QPlainTextEdit;
 class QSessionManager;
 QT_END_NAMESPACE
 
-//! [0]
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
     MainWindow();
-
     void loadFile(const QString &fileName);
 
 protected:
@@ -97,7 +96,7 @@ private:
     void createStatusBar();
     QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
          QString named, QString entry, QKeySequence shorty,
-         QString help, bool noBar = false);
+         QString help, bool noBar = false, bool copyCan = false);
     void readSettings();
     void writeSettings();
     bool maybeSave();
@@ -108,7 +107,7 @@ private:
     QPlainTextEdit *textEdit;
     QString curFile;
     bool saved;
+    Libkqfn handle;
 };
-//! [0]
 
 #endif
