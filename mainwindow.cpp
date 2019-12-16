@@ -115,13 +115,21 @@ void MainWindow::setRepo() {
         directory = dialog.selectedFiles().first();
 }
 
-void MainWindow::checkClipboard()
-{
+void MainWindow::checkClipboard() {
     bool hasText = false;
-    if(QGuiApplication::clipboard()->mimeData()->hasText()) {
+    if(QGuiApplication::clipboard()->mimeData()->hasText() &&
+            centralWidget() == textEdit &&
+            QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
         hasText = true;
     }
     setPaste(hasText);
+}
+
+void MainWindow::checkSelected(bool active) {
+    if(centralWidget() != textEdit) {//inhibit
+        active = false;
+    }
+    setCopy(active);
 }
 
 void MainWindow::open() {
@@ -231,7 +239,9 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     aMenu->addAction(newAct);
     if(option & canCopy) {
         newAct->setEnabled(false);
-        connect(textEdit, &QPlainTextEdit::copyAvailable, newAct, &QAction::setEnabled);
+        connect(textEdit, &QPlainTextEdit::copyAvailable,
+                this, &MainWindow::checkSelected);
+        connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
     }
     if(option & canPaste) {
         newAct->setEnabled(false);

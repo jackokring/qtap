@@ -93,7 +93,8 @@ private slots:
     void publish();
     void subscribe();
     void setRepo();
-    void checkClipboard();
+    void checkClipboard();//for paste
+    void checkSelected(bool active);//for copy
     void cut();
     void copy();
     void paste();
@@ -102,6 +103,7 @@ private slots:
 
 signals:
     void setPaste(bool active);
+    void setCopy(bool active);
 
 private:
     void createActions();
