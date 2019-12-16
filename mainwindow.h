@@ -61,6 +61,12 @@ class QPlainTextEdit;
 class QSessionManager;
 QT_END_NAMESPACE
 
+enum Spec : unsigned int {
+    none = 0,
+    noBar = 1,
+    canCopy = 2,
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -97,8 +103,8 @@ private:
     void createStatusBar();
     static QIcon getIconRC(QString named);
     QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
-         QString named, QString entry, QKeySequence shorty,
-         QString help, bool noBar = false, bool copyCan = false);
+         QString named, QString entry, QKeySequence shorty = 0,
+         QString help = nullptr, Spec option = none);
     void readSettings();
     void writeSettings();
     bool maybeSave();

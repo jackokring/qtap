@@ -51,6 +51,15 @@
 #include <QtWidgets>
 #include "mainwindow.h"
 
+constexpr Spec operator|(Spec X, Spec Y) {
+    return static_cast<Spec>(
+        static_cast<unsigned int>(X) | static_cast<unsigned int>(Y));
+}
+
+Spec& operator|=(Spec& X, Spec Y) {
+    X = X | Y; return X;
+}
+
 MainWindow::MainWindow()
     : textEdit(new QPlainTextEdit) {
     setWindowIcon(getIconRC("view-text"));
@@ -95,7 +104,7 @@ void MainWindow::setRepo() {
     QFileDialog dialog(this, tr("Set Sync"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setFileMode(QFileDialog::DirectoryOnly);
-    dialog.setOption(QFileDialog::HideNameFilterDetails);
+    dialog.setNameFilterDetailsVisible(false);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setLabelText(QFileDialog::Accept, tr("Set"));
 
@@ -134,8 +143,9 @@ void MainWindow::save() {
 void MainWindow::publish() {
     maybeSave();
     QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(QProcess::execute("git add . && git stash && git pull && git stash pop" //incorporate
-        "git commit -m \"" + now + "\" && git push") != 0) {
+    if(QProcess::execute("cd " + directory +"&&"
+        "git add .&&git stash&&git pull&&git stash pop&&" //incorporate
+        "git commit -m \"" + now + "\"&&git push") != 0) {
         QMessageBox::critical(this, tr("Publication Error"),
                  tr("The repository could not be published."));
         return;
@@ -144,7 +154,8 @@ void MainWindow::publish() {
 }
 
 void MainWindow::subscribe() {
-    if(QProcess::execute("git add . && git stash && git pull && git stash pop") != 0) { //incorporate
+    if(QProcess::execute("cd " + directory +"&&"
+        "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read."));
         return;
@@ -172,7 +183,8 @@ void MainWindow::saveAs() {
 void MainWindow::about() {
    QMessageBox::about(this, tr("About QtAp"),
             tr("<b>QtAp</b> for document control. "
-               "Writen in C++ using Qt. "));
+               "Writen in C++ using Qt. "
+               "It requires Git for sync to work. "));
 }
 
 void MainWindow::documentWasModified() {
@@ -186,7 +198,7 @@ QIcon MainWindow::getIconRC(QString named) {
 QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence shorty,
-                         QString help, bool noBar, bool copyCan) {
+                         QString help, Spec option) {
     static QMenu *aMenu;
     static QToolBar *aToolBar;
     if(menu != nullptr) {
@@ -200,18 +212,19 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 
     if(named == nullptr) {
         named = QString("void");
+        option |= noBar;//as sensible
     }
     const QIcon newIcon = getIconRC(named);
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
-    newAct->setStatusTip(help);
+    if(help != nullptr) newAct->setStatusTip(help);
     connect(newAct, &QAction::triggered, this, fp);
     aMenu->addAction(newAct);
-    if(copyCan) {
+    if(option & canCopy) {
         newAct->setEnabled(false);
         connect(textEdit, &QPlainTextEdit::copyAvailable, newAct, &QAction::setEnabled);
     }
-    if(noBar) return aMenu;
+    if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
     return aMenu;
 }
@@ -252,19 +265,19 @@ void MainWindow::createActions() {
             tr("Save the document to disk"));
     addMenu(nullptr, &MainWindow::saveAs,
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,
-            tr("Save the document under a new name"), true)->addSeparator();//no bar entry
+            tr("Save the document under a new name"), noBar)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,
-            tr("Exit the application"), true);//no bar entry
+            tr("Exit the application"), noBar);//no bar entry
     menuBar()->addSeparator();
 
 #ifndef QT_NO_CLIPBOARD
     addMenu(tr("&Edit"), &MainWindow::cut,
             "edit-cut",  tr("Cu&t"), QKeySequence::Cut,
-            tr("Cut the current selection's contents to the clipboard"), false, true);
+            tr("Cut the current selection's contents to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::copy,
             "edit-copy", tr("&Copy"), QKeySequence::Copy,
-            tr("Copy the current selection's contents to the clipboard"), false, true);
+            tr("Copy the current selection's contents to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::paste,
             "edit-paste", tr("&Paste"), QKeySequence::Paste,
             tr("Paste the clipboard's contents into the current selection"));
@@ -285,15 +298,15 @@ void MainWindow::createActions() {
             tr("Read from services"))->addSeparator();
     addMenu(nullptr, &MainWindow::setRepo,
             nullptr, tr("&Set Sync..."), QKeySequence(Qt::CTRL + Qt::Key_H),
-            tr("Publish with services"), true);
+            tr("Publish with services"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
             nullptr, tr("&About"), 0,
-            tr("Show the application's About box"), true);
+            tr("Show the application's About box"));
     addMenu(nullptr, &MainWindow::aboutQt,
             nullptr, tr("About &Qt"), 0,
-            tr("Show the Qt library's About box"), true);
+            tr("Show the Qt library's About box"));
 }
 
 void MainWindow::createStatusBar() {
