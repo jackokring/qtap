@@ -115,6 +115,15 @@ void MainWindow::setRepo() {
         directory = dialog.selectedFiles().first();
 }
 
+void MainWindow::checkClipboard()
+{
+    bool hasText = false;
+    if(QGuiApplication::clipboard()->mimeData()->hasText()) {
+        hasText = true;
+    }
+    setPaste(hasText);
+}
+
 void MainWindow::open() {
     if (maybeSave()) {
         QFileDialog dialog(this, tr("Open File"), directory);
@@ -224,6 +233,13 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         newAct->setEnabled(false);
         connect(textEdit, &QPlainTextEdit::copyAvailable, newAct, &QAction::setEnabled);
     }
+    if(option & canPaste) {
+        newAct->setEnabled(false);
+        connect(QGuiApplication::clipboard(),
+                &QClipboard::dataChanged, this, &MainWindow::checkClipboard);
+        connect(this, &MainWindow::setPaste, newAct, &QAction::setEnabled);
+    }
+    //more options
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
     return aMenu;
@@ -280,7 +296,7 @@ void MainWindow::createActions() {
             tr("Copy the current selection's contents to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::paste,
             "edit-paste", tr("&Paste"), QKeySequence::Paste,
-            tr("Paste the clipboard's contents into the current selection"));
+            tr("Paste the clipboard's contents into the current selection"), canPaste);
     menuBar()->addSeparator();
 
 #endif // !QT_NO_CLIPBOARD

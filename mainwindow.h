@@ -65,6 +65,7 @@ enum Spec : unsigned int {
     none = 0,
     noBar = 1,
     canCopy = 2,
+    canPaste = 4,
 };
 
 class MainWindow : public QMainWindow
@@ -92,11 +93,15 @@ private slots:
     void publish();
     void subscribe();
     void setRepo();
+    void checkClipboard();
     void cut();
     void copy();
     void paste();
     void viewText();
     void aboutQt();
+
+signals:
+    void setPaste(bool active);
 
 private:
     void createActions();
