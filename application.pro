@@ -1,9 +1,11 @@
 QT += widgets
 requires(qtConfig(filedialog))
 
-HEADERS       = mainwindow.h
+HEADERS       = mainwindow.h \
+    settings.h
 SOURCES       = main.cpp \
-                mainwindow.cpp
+                mainwindow.cpp \
+                settings.cpp
 #! [0]
 RESOURCES     = application.qrc
 #! [0]
@@ -18,3 +20,6 @@ else:unix: LIBS += -L$$PWD/../build-libkqfn-Desktop_Qt_5_12_6_GCC_64bit-Debug/ -
 
 INCLUDEPATH += $$PWD/../libkqfn
 DEPENDPATH += $$PWD/../libkqfn
+
+FORMS += \
+    settings.ui
