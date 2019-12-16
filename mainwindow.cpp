@@ -53,6 +53,7 @@
 
 MainWindow::MainWindow()
     : textEdit(new QPlainTextEdit) {
+    setWindowIcon(getIconRC("view-text"));
     setCentralWidget(textEdit);            
 
     createActions();
@@ -90,9 +91,24 @@ void MainWindow::newFile() {
     }
 }
 
+void MainWindow::setRepo() {
+    QFileDialog dialog(this, tr("Set Sync"), directory);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
+    dialog.setOption(QFileDialog::HideNameFilterDetails);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setLabelText(QFileDialog::Accept, tr("Set"));
+
+    if (dialog.exec() != QDialog::Accepted) {
+        return;
+    }
+    if (!dialog.selectedFiles().first().isEmpty())
+        directory = dialog.selectedFiles().first();
+}
+
 void MainWindow::open() {
     if (maybeSave()) {
-        QFileDialog dialog(this, tr("Open File"));
+        QFileDialog dialog(this, tr("Open File"), directory);
         dialog.setWindowModality(Qt::WindowModal);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
@@ -137,7 +153,7 @@ void MainWindow::subscribe() {
 }
 
 void MainWindow::saveAs() {
-    QFileDialog dialog(this, tr("Save File"));
+    QFileDialog dialog(this, tr("Save File"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
 
@@ -163,6 +179,10 @@ void MainWindow::documentWasModified() {
     setWindowModified(textEdit->document()->isModified());
 }
 
+QIcon MainWindow::getIconRC(QString named) {
+    return QIcon::fromTheme(named, QIcon(":/images/" + named + ".png"));
+}
+
 QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence shorty,
@@ -181,7 +201,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(named == nullptr) {
         named = QString("void");
     }
-    const QIcon newIcon = QIcon::fromTheme(named, QIcon(":/images/" + named + ".png"));
+    const QIcon newIcon = getIconRC(named);
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
     newAct->setStatusTip(help);
@@ -262,7 +282,10 @@ void MainWindow::createActions() {
             tr("Publish with services"));
     addMenu(nullptr, &MainWindow::subscribe,
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
-            tr("Read from services"));
+            tr("Read from services"))->addSeparator();
+    addMenu(nullptr, &MainWindow::setRepo,
+            nullptr, tr("&Set Sync..."), QKeySequence(Qt::CTRL + Qt::Key_H),
+            tr("Publish with services"), true);
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
@@ -288,13 +311,12 @@ void MainWindow::readSettings() {
     } else {
         restoreGeometry(geometry);
     }
-    const QString dir = settings.value("directory").toString();
+    directory = settings.value("directory", "").toString();
 }
 
 void MainWindow::writeSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
-    if(directory == nullptr) directory = QString("~");//home dir
     settings.setValue("directory", directory);
 }
 
@@ -342,7 +364,7 @@ void MainWindow::loadFile(const QString &fileName) {
 
 bool MainWindow::saveFile(const QString &fileName) {
     QString name;
-    if(QString::compare(fileName.split('.').last(), "txt", Qt::CaseInsensitive) != true) {
+    if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
         name = QString(fileName + ".txt");
     } else {
         name = fileName;

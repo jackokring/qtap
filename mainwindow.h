@@ -85,6 +85,7 @@ private slots:
 #endif
     void publish();
     void subscribe();
+    void setRepo();
     void cut();
     void copy();
     void paste();
@@ -94,6 +95,7 @@ private slots:
 private:
     void createActions();
     void createStatusBar();
+    static QIcon getIconRC(QString named);
     QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
          QString named, QString entry, QKeySequence shorty,
          QString help, bool noBar = false, bool copyCan = false);
