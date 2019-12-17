@@ -289,6 +289,8 @@ void MainWindow::viewSettings() {
         textEdit = new QPlainTextEdit();//copy it
         textEdit->setPlainText(old->toPlainText());
         textEdit->document()->setModified(old->document()->isModified());
+        connect(textEdit->document(), &QTextDocument::contentsChanged,
+                this, &MainWindow::documentWasModified);
         holdWhileSettings = true;
     } else {
         setCentralWidget(textEdit);
