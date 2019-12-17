@@ -61,8 +61,9 @@ Spec& operator|=(Spec& X, Spec Y) {
 }
 
 MainWindow::MainWindow()
-    : textEdit(new QPlainTextEdit) {
+    : textEdit(new QPlainTextEdit(this)) {
     setWindowIcon(getIconRC("view-text"));
+    holdWhileSettings = false;
     setCentralWidget(textEdit);            
 
     createActions();
@@ -118,7 +119,7 @@ void MainWindow::setRepo() {
 void MainWindow::checkClipboard() {
     bool hasText = false;
     if(QGuiApplication::clipboard()->mimeData()->hasText() &&
-            centralWidget() == textEdit &&
+            !holdWhileSettings &&
             QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
         hasText = true;
     }
@@ -126,7 +127,7 @@ void MainWindow::checkClipboard() {
 }
 
 void MainWindow::checkSelected(bool active) {
-    if(centralWidget() != textEdit) {//inhibit
+    if(!holdWhileSettings) {//inhibit
         active = false;
     }
     setCopy(active);
@@ -279,6 +280,22 @@ void MainWindow::aboutQt() {
     qApp->aboutQt();
 }
 
+void MainWindow::viewSettings() {
+    //TODO restore text etc
+    if(!holdWhileSettings) {
+        settings = new Settings();
+        QPlainTextEdit *old = textEdit;
+        setCentralWidget(settings);
+        textEdit = new QPlainTextEdit();//copy it
+        textEdit->setPlainText(old->toPlainText());
+        textEdit->document()->setModified(old->document()->isModified());
+        holdWhileSettings = true;
+    } else {
+        setCentralWidget(textEdit);
+        holdWhileSettings = false;
+    }
+}
+
 void MainWindow::createActions() {
     addMenu(tr("&File"), &MainWindow::newFile,
             "document-new", tr("&New"), QKeySequence::New,
@@ -313,7 +330,10 @@ void MainWindow::createActions() {
 
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,
-            tr("Show editable text view"));
+            tr("Show editable text view"))->addSeparator();
+    addMenu(nullptr, &MainWindow::viewSettings,
+            "system-run", tr("&Settings"), QKeySequence(Qt::CTRL + Qt::Key_D),
+            tr("Show and hide settings view"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Sync"), &MainWindow::publish,
@@ -323,7 +343,7 @@ void MainWindow::createActions() {
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
             tr("Read from services"))->addSeparator();
     addMenu(nullptr, &MainWindow::setRepo,
-            nullptr, tr("&Set Sync..."), QKeySequence(Qt::CTRL + Qt::Key_H),
+            nullptr, tr("&Set Sync..."), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Publish with services"));
     menuBar()->addSeparator();
 

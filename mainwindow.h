@@ -53,6 +53,7 @@
 
 #include <QMainWindow>
 #include "./libkqfn/libkqfn.h"
+#include "settings.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -100,6 +101,7 @@ private slots:
     void paste();
     void viewText();
     void aboutQt();
+    void viewSettings();
 
 signals:
     void setPaste(bool active);
@@ -124,6 +126,8 @@ private:
     bool saved;
     Libkqfn handle;
     QString directory;
+    bool holdWhileSettings;
+    Settings *settings;
 };
 
 #endif

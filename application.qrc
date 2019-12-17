@@ -11,5 +11,6 @@
         <file>images/sync-read.png</file>
         <file>images/document-save-as.png</file>
         <file>images/void.png</file>
+        <file>images/system-run.png</file>
     </qresource>
 </RCC>
