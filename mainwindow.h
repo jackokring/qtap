@@ -52,6 +52,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTextDocument>
+#include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
 
@@ -67,6 +69,8 @@ enum Spec : unsigned int {
     noBar = 1,
     canCopy = 2,
     canPaste = 4,
+    canUndo = 8,
+    canRedo = 16,
 };
 
 class MainWindow : public QMainWindow
@@ -96,6 +100,8 @@ private slots:
     void setRepo();
     void checkClipboard();//for paste
     void checkSelected(bool active);//for copy
+    void undo();
+    void redo();
     void cut();
     void copy();
     void paste();
@@ -111,8 +117,8 @@ private:
     void createActions();
     void createStatusBar();
     static QIcon getIconRC(QString named);
-    QMenu* addMenu(QString menu, void(MainWindow::*fp)(),
-         QString named, QString entry, QKeySequence shorty = 0,
+    QMenu* addMenu(QString menu = nullptr, void(MainWindow::*fp)() = nullptr,
+         QString named = nullptr, QString entry = nullptr, QKeySequence shorty = 0,
          QString help = nullptr, Spec option = none);
     void readSettings();
     void writeSettings();
@@ -121,7 +127,7 @@ private:
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 
-    QPlainTextEdit *textEdit;
+    ATextEdit *textEdit;
     QString curFile;
     bool saved;
     Libkqfn handle;

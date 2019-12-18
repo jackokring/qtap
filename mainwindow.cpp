@@ -61,7 +61,7 @@ Spec& operator|=(Spec& X, Spec Y) {
 }
 
 MainWindow::MainWindow()
-    : textEdit(new QPlainTextEdit(this)) {
+    : textEdit(new ATextEdit(this)) {
     setWindowIcon(getIconRC("view-text"));
     holdWhileSettings = false;
     setCentralWidget(textEdit);            
@@ -233,16 +233,27 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         option |= noBar;//as sensible
     }
     const QIcon newIcon = getIconRC(named);
+    if(entry == nullptr) entry = "Blank";
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
     if(help != nullptr) newAct->setStatusTip(help);
-    connect(newAct, &QAction::triggered, this, fp);
+    if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
     aMenu->addAction(newAct);
     if(option & canCopy) {
         newAct->setEnabled(false);
         connect(textEdit, &QPlainTextEdit::copyAvailable,
                 this, &MainWindow::checkSelected);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
+    }
+    if(option & canUndo) {
+        newAct->setEnabled(false);
+        connect(textEdit, &QPlainTextEdit::undoAvailable,
+                newAct, &QAction::setEnabled);
+    }
+    if(option & canRedo) {
+        newAct->setEnabled(false);
+        connect(textEdit, &QPlainTextEdit::redoAvailable,
+                newAct, &QAction::setEnabled);
     }
     if(option & canPaste) {
         newAct->setEnabled(false);
@@ -258,6 +269,14 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 
 void MainWindow::close() {
     QWidget::close();
+}
+
+void MainWindow::undo() {
+    textEdit->undo();
+}
+
+void MainWindow::redo() {
+    textEdit->redo();
 }
 
 void MainWindow::cut() {
@@ -283,70 +302,78 @@ void MainWindow::aboutQt() {
 void MainWindow::viewSettings() {
     //TODO restore text etc
     if(!holdWhileSettings) {
-        settings = new Settings();
-        QPlainTextEdit *old = textEdit;
+        settings = new Settings(this);
+        textEdit->saveDoc();
         setCentralWidget(settings);
-        textEdit = new QPlainTextEdit();//copy it
-        textEdit->setPlainText(old->toPlainText());
-        textEdit->document()->setModified(old->document()->isModified());
-        connect(textEdit->document(), &QTextDocument::contentsChanged,
-                this, &MainWindow::documentWasModified);
         holdWhileSettings = true;
     } else {
+        textEdit = new ATextEdit(this);
         setCentralWidget(textEdit);
+        textEdit->restoreDoc();
+        connect(textEdit->document(), &QTextDocument::contentsChanged,
+                this, &MainWindow::documentWasModified);
         holdWhileSettings = false;
     }
 }
 
 void MainWindow::createActions() {
     addMenu(tr("&File"), &MainWindow::newFile,
-            "document-new", tr("&New"), QKeySequence::New,
+            "document-new", tr("&New"), QKeySequence::New,//N
             tr("Create a new file"));
     addMenu(nullptr, &MainWindow::open,
-            "document-open", tr("&Open..."), QKeySequence::Open,
+            "document-open", tr("&Open..."), QKeySequence::Open,//O
             tr("Open an existing file"));
     addMenu(nullptr, &MainWindow::save,
-            "document-save", tr("&Save"), QKeySequence::Save,
+            "document-save", tr("&Save"), QKeySequence::Save,//S
             tr("Save the document to disk"));
     addMenu(nullptr, &MainWindow::saveAs,
-            "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,
+            "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
             tr("Save the document under a new name"), noBar)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::close,
-            "application-exit", tr("E&xit"), QKeySequence::Quit,
+            "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
             tr("Exit the application"), noBar);//no bar entry
     menuBar()->addSeparator();
 
+    addMenu(tr("&Edit"), &MainWindow::undo,
+            "edit-undo", tr("&Undo"), QKeySequence::Undo,//Z
+            tr("Undo the last edit"), noBar | canUndo);
+    addMenu(nullptr, &MainWindow::redo,
+            "edit-redo", tr("&Redo"), QKeySequence::Redo,//+Z
+            tr("Redo the last undo"), noBar | canRedo)->addSeparator();
 #ifndef QT_NO_CLIPBOARD
-    addMenu(tr("&Edit"), &MainWindow::cut,
-            "edit-cut",  tr("Cu&t"), QKeySequence::Cut,
-            tr("Cut the current selection's contents to the clipboard"), canCopy);
+    addMenu(nullptr, &MainWindow::cut,
+            "edit-cut",  tr("Cu&t"), QKeySequence::Cut,//X
+            tr("Cut the current selection to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::copy,
-            "edit-copy", tr("&Copy"), QKeySequence::Copy,
-            tr("Copy the current selection's contents to the clipboard"), canCopy);
+            "edit-copy", tr("&Copy"), QKeySequence::Copy,//C
+            tr("Copy the current selection to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::paste,
-            "edit-paste", tr("&Paste"), QKeySequence::Paste,
-            tr("Paste the clipboard's contents into the current selection"), canPaste);
+            "edit-paste", tr("&Paste"), QKeySequence::Paste,//V
+            tr("Paste the clipboard into the current selection"), canPaste);
     menuBar()->addSeparator();
 
 #endif // !QT_NO_CLIPBOARD
 
     addMenu(tr("&View"), &MainWindow::viewText,
-            "view-text", tr("&Text"), QKeySequence::AddTab,
+            "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();
     addMenu(nullptr, &MainWindow::viewSettings,
-            "system-run", tr("&Settings"), QKeySequence(Qt::CTRL + Qt::Key_D),
+            "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Show and hide settings view"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Sync"), &MainWindow::publish,
-            "sync-publish", tr("&Publish"), QKeySequence::Print,
+            "sync-publish", tr("&Publish"), QKeySequence::Print,//P
             tr("Publish with services"));
     addMenu(nullptr, &MainWindow::subscribe,
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
             tr("Read from services"))->addSeparator();
     addMenu(nullptr, &MainWindow::setRepo,
-            nullptr, tr("&Set Sync..."), QKeySequence(Qt::CTRL + Qt::Key_G),
-            tr("Publish with services"));
+            nullptr, tr("Set &Directory..."), QKeySequence(Qt::CTRL + Qt::Key_D),
+            tr("Set work and synchronization directory"));
+    addMenu(nullptr, nullptr,
+            nullptr, tr("C&lone Remote..."), QKeySequence(Qt::CTRL + Qt::Key_L),
+            tr("Clone a remote repository"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,

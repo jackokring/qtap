@@ -2,8 +2,10 @@ QT += widgets
 requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
+    atextedit.h \
     settings.h
 SOURCES       = main.cpp \
+                atextedit.cpp \
                 mainwindow.cpp \
                 settings.cpp
 #! [0]
