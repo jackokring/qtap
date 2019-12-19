@@ -51,13 +51,33 @@
 #include <QtWidgets>
 #include "mainwindow.h"
 
-constexpr Spec operator|(Spec X, Spec Y) {
-    return static_cast<Spec>(
-        static_cast<unsigned int>(X) | static_cast<unsigned int>(Y));
+//===================================================
+// HELP
+//===================================================
+void MainWindow::aboutQt() {
+    qApp->aboutQt();
 }
 
-Spec& operator|=(Spec& X, Spec Y) {
-    X = X | Y; return X;
+void MainWindow::about() {
+   QMessageBox::about(this, tr("About QtAp"),
+            tr("<b>QtAp</b> for document control. "
+               "Writen in C++ using Qt. "
+               "It requires Git for sync to work. "));
+}
+
+//===================================================
+// MAIN WINDOW MANAGEMENT
+//===================================================
+void MainWindow::setDocPopEssentials() {
+    connect(textEdit->document(), &QTextDocument::contentsChanged,
+            this, &MainWindow::documentWasModified);
+    connect(textEdit, &QPlainTextEdit::copyAvailable,
+            this, &MainWindow::checkSelected);
+
+    connect(textEdit->document(), &QTextDocument::undoAvailable,
+            this, &MainWindow::checkUndo);
+    connect(textEdit->document(), &QTextDocument::redoAvailable,
+            this, &MainWindow::checkRedo);
 }
 
 MainWindow::MainWindow()
@@ -70,9 +90,7 @@ MainWindow::MainWindow()
     createStatusBar();
 
     readSettings();
-
-    connect(textEdit->document(), &QTextDocument::contentsChanged,
-            this, &MainWindow::documentWasModified);
+    setDocPopEssentials();
 
 #ifndef QT_NO_SESSIONMANAGER
     QGuiApplication::setFallbackSessionManagementEnabled(false);
@@ -84,21 +102,64 @@ MainWindow::MainWindow()
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event) {
-    if (maybeSave()) {
-        writeSettings();
-        event->accept();
-    } else {
-        event->ignore();
-    }
+//===================================================
+// PROXY ENABLE ACTION CHECKS
+//===================================================
+void MainWindow::checkClipboard() {
+    bool hasText = false;
+    if(!holdWhileSettings) //text view
+        if(QGuiApplication::clipboard()->mimeData()->hasText() &&
+                QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
+            hasText = true;
+        }
+    setPaste(hasText);
 }
 
-void MainWindow::newFile() {
-    if (maybeSave()) {//TODO: maybe make new doc
-        textEdit->clear();
-        //TODO: select base type
-        setCurrentFile(QString());
+void MainWindow::checkSelected(bool active) {
+    if(holdWhileSettings) {//inhibit
+        active = false;
     }
+    setCopy(active);
+}
+
+void MainWindow::checkUndo(bool active) {
+    if(holdWhileSettings) {//inhibit
+        active = false;
+    }
+    setUndo(active);
+}
+
+void MainWindow::checkRedo(bool active) {
+    if(holdWhileSettings) {//inhibit
+        active = false;
+    }
+    setRedo(active);
+}
+
+//===================================================
+// GIT MANAGEMENT
+//===================================================
+void MainWindow::publish() {
+    maybeSave();
+    QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
+    if(QProcess::execute("cd " + directory +"&&"
+        "git add .&&git stash&&git pull&&git stash pop&&" //incorporate
+        "git commit -m \"" + now + "\"&&git push") != 0) {
+        QMessageBox::critical(this, tr("Publication Error"),
+                 tr("The repository could not be published."));
+        return;
+    }
+    statusBar()->showMessage(tr("Published"), 2000);
+}
+
+void MainWindow::subscribe() {
+    if(QProcess::execute("cd " + directory +"&&"
+        "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
+        QMessageBox::critical(this, tr("Reading Error"),
+                 tr("The repository could not be read."));
+        return;
+    }
+    statusBar()->showMessage(tr("Read"), 2000);
 }
 
 void MainWindow::setRepo() {
@@ -116,21 +177,15 @@ void MainWindow::setRepo() {
         directory = dialog.selectedFiles().first();
 }
 
-void MainWindow::checkClipboard() {
-    bool hasText = false;
-    if(QGuiApplication::clipboard()->mimeData()->hasText() &&
-            !holdWhileSettings &&
-            QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
-        hasText = true;
+//===================================================
+// NEW, OPEN AND SAVE ACTIONS
+//===================================================
+void MainWindow::newFile() {
+    if (maybeSave()) {//TODO: maybe make new doc
+        textEdit->clear();
+        //TODO: select base type
+        setCurrentFile(QString());
     }
-    setPaste(hasText);
-}
-
-void MainWindow::checkSelected(bool active) {
-    if(!holdWhileSettings) {//inhibit
-        active = false;
-    }
-    setCopy(active);
 }
 
 void MainWindow::open() {
@@ -158,29 +213,6 @@ void MainWindow::save() {
     }
 }
 
-void MainWindow::publish() {
-    maybeSave();
-    QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(QProcess::execute("cd " + directory +"&&"
-        "git add .&&git stash&&git pull&&git stash pop&&" //incorporate
-        "git commit -m \"" + now + "\"&&git push") != 0) {
-        QMessageBox::critical(this, tr("Publication Error"),
-                 tr("The repository could not be published."));
-        return;
-    }
-    statusBar()->showMessage(tr("Published"), 2000);
-}
-
-void MainWindow::subscribe() {
-    if(QProcess::execute("cd " + directory +"&&"
-        "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
-        QMessageBox::critical(this, tr("Reading Error"),
-                 tr("The repository could not be read."));
-        return;
-    }
-    statusBar()->showMessage(tr("Read"), 2000);
-}
-
 void MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save File"), directory);
     dialog.setWindowModality(Qt::WindowModal);
@@ -198,15 +230,20 @@ void MainWindow::saveAs() {
     saveFile(dialog.selectedFiles().first());
 }
 
-void MainWindow::about() {
-   QMessageBox::about(this, tr("About QtAp"),
-            tr("<b>QtAp</b> for document control. "
-               "Writen in C++ using Qt. "
-               "It requires Git for sync to work. "));
-}
-
 void MainWindow::documentWasModified() {
     setWindowModified(textEdit->document()->isModified());
+}
+
+//===================================================
+// MENU AND ICON UTILITIES
+//===================================================
+constexpr Spec operator|(Spec X, Spec Y) {
+    return static_cast<Spec>(
+        static_cast<unsigned int>(X) | static_cast<unsigned int>(Y));
+}
+
+Spec& operator|=(Spec& X, Spec Y) {
+    X = X | Y; return X;
 }
 
 QIcon MainWindow::getIconRC(QString named) {
@@ -241,19 +278,15 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     aMenu->addAction(newAct);
     if(option & canCopy) {
         newAct->setEnabled(false);
-        connect(textEdit, &QPlainTextEdit::copyAvailable,
-                this, &MainWindow::checkSelected);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
     }
     if(option & canUndo) {
         newAct->setEnabled(false);
-        connect(textEdit, &QPlainTextEdit::undoAvailable,
-                newAct, &QAction::setEnabled);
+        connect(this, &MainWindow::setUndo, newAct, &QAction::setEnabled);
     }
     if(option & canRedo) {
         newAct->setEnabled(false);
-        connect(textEdit, &QPlainTextEdit::redoAvailable,
-                newAct, &QAction::setEnabled);
+        connect(this, &MainWindow::setRedo, newAct, &QAction::setEnabled);
     }
     if(option & canPaste) {
         newAct->setEnabled(false);
@@ -265,6 +298,18 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
     return aMenu;
+}
+
+//===================================================
+// BASIC PROXY ACTIONS
+//===================================================
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if (maybeSave()) {
+        writeSettings();
+        event->accept();
+    } else {
+        event->ignore();
+    }
 }
 
 void MainWindow::close() {
@@ -291,31 +336,33 @@ void MainWindow::paste() {
     textEdit->paste();
 }
 
+//===================================================
+// VIEW MANAGEMENT
+//===================================================
 void MainWindow::viewText() {
     //TODO
-}
-
-void MainWindow::aboutQt() {
-    qApp->aboutQt();
 }
 
 void MainWindow::viewSettings() {
     //TODO restore text etc
     if(!holdWhileSettings) {
         settings = new Settings(this);
-        textEdit->saveDoc();
+        textEdit->pushDoc();
+        textEdit = new ATextEdit(this);
+        textEdit->popDoc();
+        setDocPopEssentials();
         setCentralWidget(settings);
         holdWhileSettings = true;
     } else {
-        textEdit = new ATextEdit(this);
         setCentralWidget(textEdit);
-        textEdit->restoreDoc();
-        connect(textEdit->document(), &QTextDocument::contentsChanged,
-                this, &MainWindow::documentWasModified);
+        textEdit->setFocus();//to front
         holdWhileSettings = false;
     }
 }
 
+//===================================================
+// MENU AND STATUS BAR CREATION
+//===================================================
 void MainWindow::createActions() {
     addMenu(tr("&File"), &MainWindow::newFile,
             "document-new", tr("&New"), QKeySequence::New,//N
@@ -388,8 +435,12 @@ void MainWindow::createStatusBar() {
     statusBar()->showMessage(tr("Ready"));
 }
 
+//===================================================
+// SETTINGS IO (DEFAULTS)
+//===================================================
 void MainWindow::readSettings() {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings settings(QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (geometry.isEmpty()) {
         const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
@@ -403,11 +454,15 @@ void MainWindow::readSettings() {
 }
 
 void MainWindow::writeSettings() {
-    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QSettings settings(QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
     settings.setValue("directory", directory);
 }
 
+//===================================================
+// FILE IO
+//===================================================
 bool MainWindow::maybeSave() {
     if (!textEdit->document()->isModified())
         return true;

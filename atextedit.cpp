@@ -1,35 +1,31 @@
 #include "atextedit.h"
 
 ATextEdit::ATextEdit(QWidget *parent) : QPlainTextEdit(parent) {
-}
-
-ATextEdit::~ATextEdit() {
 
 }
 
-void ATextEdit::saveCursor() {
+void ATextEdit::pushCursor() {
     currPos = textCursor().position();
 }
 
-void ATextEdit::restoreCursor() {
+void ATextEdit::popCursor() {
     QTextCursor cursor = textCursor();
-    cursor.setPosition(currPos, QTextCursor::MoveAnchor);
+    cursor.setPosition(currPos, QTextCursor::MoveAnchor);//non select
     setTextCursor(cursor);
 }
 
-void ATextEdit::saveDoc() {
-    text = document()->toPlainText();
-    saveCursor();
-    isModified = document()->isModified();
+void ATextEdit::pushDoc() {
+    text = document()->clone();
+    pushCursor();
 }
 
-void ATextEdit::restoreDoc() {
-    document()->setPlainText(text);
-    restoreCursor();
-    document()->setModified(isModified);
-    setFocus();
+void ATextEdit::popDoc() {
+    QPlainTextDocumentLayout *layout = new QPlainTextDocumentLayout(text);
+    text->setDocumentLayout(layout);
+    setDocument(text);
+    popCursor();
 }
 
 int ATextEdit::currPos = 0;
-QString ATextEdit::text = "";
-bool ATextEdit::isModified = false;
+QTextDocument *ATextEdit::text = nullptr;
+

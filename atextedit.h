@@ -7,17 +7,15 @@ class ATextEdit : public QPlainTextEdit
 {
 public:
     ATextEdit(QWidget *parent);
-    ~ATextEdit();
 
-    void saveCursor();
-    void restoreCursor();
-    void saveDoc();
-    void restoreDoc();
+    void pushCursor();
+    void popCursor();
+    void pushDoc();
+    void popDoc();
 
 private:
     static int currPos;
-    static QString text;
-    static bool isModified;
+    static QTextDocument *text;
 };
 
 #endif // ATEXTEDIT_H
