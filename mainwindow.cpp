@@ -68,29 +68,39 @@ void MainWindow::about() {
 //===================================================
 // MAIN WINDOW MANAGEMENT
 //===================================================
-void MainWindow::setDocPopEssentials() {
+void MainWindow::setMain(QWidget *widget) {
+    if(center->indexOf(widget) == -1) {
+        center->addWidget(widget);
+    }
+    center->setCurrentWidget(widget);
+
+    //plus some repair?
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
     connect(textEdit, &QPlainTextEdit::copyAvailable,
             this, &MainWindow::checkSelected);
-
     connect(textEdit->document(), &QTextDocument::undoAvailable,
             this, &MainWindow::checkUndo);
     connect(textEdit->document(), &QTextDocument::redoAvailable,
             this, &MainWindow::checkRedo);
+    connect(textEdit->document(), &QTextDocument::modificationChanged,
+            this, &MainWindow::checkSave);
 }
 
 MainWindow::MainWindow()
     : textEdit(new ATextEdit(this)) {
     setWindowIcon(getIconRC("view-text"));
-    holdWhileSettings = false;
-    setCentralWidget(textEdit);            
-
     createActions();
     createStatusBar();
-
     readSettings();
-    setDocPopEssentials();
+
+    center = new QStackedWidget(this);
+    setCentralWidget(center);
+
+    holdWhileSettings = false;
+    settings = new Settings();
+
+    setMain(textEdit);
 
 #ifndef QT_NO_SESSIONMANAGER
     QGuiApplication::setFallbackSessionManagementEnabled(false);
@@ -136,6 +146,10 @@ void MainWindow::checkRedo(bool active) {
     setRedo(active);
 }
 
+void MainWindow::checkSave(bool active) {
+    setSave(active);
+}
+
 //===================================================
 // GIT MANAGEMENT
 //===================================================
@@ -169,6 +183,7 @@ void MainWindow::setRepo() {
     dialog.setNameFilterDetailsVisible(false);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setLabelText(QFileDialog::Accept, tr("Set"));
+    dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     if (dialog.exec() != QDialog::Accepted) {
         return;
@@ -193,6 +208,7 @@ void MainWindow::open() {
         QFileDialog dialog(this, tr("Open File"), directory);
         dialog.setWindowModality(Qt::WindowModal);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
+        dialog.setOption(QFileDialog::DontUseNativeDialog);
 
         QStringList mimeTypes;
         mimeTypes << "text/plain";
@@ -217,6 +233,7 @@ void MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save File"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     QStringList mimeTypes;
     mimeTypes << "text/plain";
@@ -294,6 +311,10 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                 &QClipboard::dataChanged, this, &MainWindow::checkClipboard);
         connect(this, &MainWindow::setPaste, newAct, &QAction::setEnabled);
     }
+    if(option & canSave) {
+        newAct->setEnabled(false);
+        connect(this, &MainWindow::setSave, newAct, &QAction::setEnabled);
+    }
     //more options
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
@@ -346,16 +367,11 @@ void MainWindow::viewText() {
 void MainWindow::viewSettings() {
     //TODO restore text etc
     if(!holdWhileSettings) {
-        settings = new Settings(this);
-        textEdit->pushDoc();
-        textEdit = new ATextEdit(this);
-        textEdit->popDoc();
-        setDocPopEssentials();
-        setCentralWidget(settings);
+        setMain(settings);
         holdWhileSettings = true;
     } else {
-        setCentralWidget(textEdit);
-        textEdit->setFocus();//to front
+        setMain(textEdit);
+        //textEdit->setFocus();//to front
         holdWhileSettings = false;
     }
 }
@@ -372,10 +388,10 @@ void MainWindow::createActions() {
             tr("Open an existing file"));
     addMenu(nullptr, &MainWindow::save,
             "document-save", tr("&Save"), QKeySequence::Save,//S
-            tr("Save the document to disk"));
+            tr("Save the document to disk"), canSave);
     addMenu(nullptr, &MainWindow::saveAs,
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
-            tr("Save the document under a new name"), noBar)->addSeparator();//no bar entry
+            tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
             tr("Exit the application"), noBar);//no bar entry

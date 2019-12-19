@@ -53,6 +53,7 @@
 
 #include <QMainWindow>
 #include <QTextDocument>
+#include <QStackedWidget>
 #include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
@@ -74,6 +75,7 @@ enum Spec : unsigned int {
     canPaste = 4,
     canUndo = 8,
     canRedo = 16,
+    canSave = 32,
 };
 
 class MainWindow : public QMainWindow
@@ -90,7 +92,7 @@ private slots:
     // MAIN WINDOW MANAGEMENT
     //===================================================
 private:
-    void setDocPopEssentials();
+    void setMain(QWidget *widget);
 public:
     MainWindow();
 
@@ -102,6 +104,7 @@ private slots:
     void checkSelected(bool active);//for copy
     void checkUndo(bool active);
     void checkRedo(bool active);
+    void checkSave(bool active);
 
     //===================================================
     // GIT MANAGEMENT
@@ -183,6 +186,7 @@ signals:
     void setCopy(bool active);
     void setUndo(bool active);
     void setRedo(bool active);
+    void setSave(bool active);
 
     //===================================================
     // CONFIGURATION VARIABLES
@@ -195,6 +199,7 @@ private:
     QString directory;//directory default for open save etc
     bool holdWhileSettings;//prevents edits while edit not displayed
     Settings *settings;//a settings UI
+    QStackedWidget *center;//multi view handling
 };
 
 #endif
