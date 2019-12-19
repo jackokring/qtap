@@ -156,7 +156,7 @@ void MainWindow::checkSave(bool active) {
 void MainWindow::publish() {
     maybeSave();
     QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(QProcess::execute("cd " + directory +"&&"
+    if(QProcess::execute("cd " + directory + "&&"
         "git add .&&git stash&&git pull&&git stash pop&&" //incorporate
         "git commit -m \"" + now + "\"&&git push") != 0) {
         QMessageBox::critical(this, tr("Publication Error"),
@@ -167,7 +167,7 @@ void MainWindow::publish() {
 }
 
 void MainWindow::subscribe() {
-    if(QProcess::execute("cd " + directory +"&&"
+    if(QProcess::execute("cd " + directory + "&&"
         "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read."));
