@@ -52,6 +52,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QTranslator>
 
 #include "mainwindow.h"
 
@@ -62,9 +63,14 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("K Ring Technologies Ltd.");
     QCoreApplication::setApplicationName("QtAp");
-    QCoreApplication::setApplicationVersion("0.0.1");
+    QCoreApplication::setApplicationVersion("0.0.2");
+
+    QTranslator translator;
+    translator.load("QtAp_" + QLocale::system().name());
+    app.installTranslator(&translator);
+
     QCommandLineParser parser;
-    parser.setApplicationDescription("Document Editor");
+    parser.setApplicationDescription("Document Editor?");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("file", "The file to open.", "[file");

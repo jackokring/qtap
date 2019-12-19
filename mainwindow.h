@@ -95,6 +95,7 @@ private:
     void setMain(QWidget *widget);
 public:
     MainWindow();
+    QString loadStyle();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS

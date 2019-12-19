@@ -25,3 +25,6 @@ DEPENDPATH += $$PWD/../libkqfn
 
 FORMS += \
     settings.ui
+
+DISTFILES += \
+    style.css

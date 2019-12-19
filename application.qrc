@@ -15,5 +15,6 @@
         <file>images/edit-redo.png</file>
         <file>images/edit-undo.png</file>
         <file>images/application-exit.png</file>
+        <file>style.css</file>
     </qresource>
 </RCC>

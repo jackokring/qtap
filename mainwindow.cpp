@@ -90,7 +90,7 @@ void MainWindow::setMain(QWidget *widget) {
 MainWindow::MainWindow()
     : textEdit(new ATextEdit(this)) {
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    //QIcon::setThemeName("default");
+    setStyleSheet(loadStyle());
 
     setWindowIcon(getIconRC("view-text"));
     createActions();
@@ -113,6 +113,13 @@ MainWindow::MainWindow()
 
     setCurrentFile(QString());
     setUnifiedTitleAndToolBarOnMac(true);
+}
+
+QString MainWindow::loadStyle() {
+    QFile file(":/style.css");
+    if(!file.open(QFile::ReadOnly)) return "";
+    QTextStream in(&file);
+    return in.readAll();
 }
 
 //===================================================
@@ -504,7 +511,7 @@ bool MainWindow::maybeSave() {
 
 void MainWindow::loadFile(const QString &fileName) {
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly)) {
+    if(!file.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(fileName), file.errorString()));
@@ -560,7 +567,7 @@ void MainWindow::setCurrentFile(const QString &fileName) {
     setWindowModified(false);
 
     QString shownName = curFile;
-    if (curFile.isEmpty())
+    if(curFile.isEmpty())
         shownName = "untitled.txt";//default to text
     //TODO: set default as note taking
     setWindowFilePath(shownName);
@@ -572,7 +579,7 @@ QString MainWindow::strippedName(const QString &fullFileName) {
 
 #ifndef QT_NO_SESSIONMANAGER
 void MainWindow::commitData(QSessionManager &manager) {
-    if (manager.allowsInteraction()) {
+    if(manager.allowsInteraction()) {
         if (!maybeSave())
             manager.cancel();
     } else {
