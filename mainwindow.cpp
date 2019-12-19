@@ -89,6 +89,9 @@ void MainWindow::setMain(QWidget *widget) {
 
 MainWindow::MainWindow()
     : textEdit(new ATextEdit(this)) {
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    //QIcon::setThemeName("default");
+
     setWindowIcon(getIconRC("view-text"));
     createActions();
     createStatusBar();
