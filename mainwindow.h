@@ -54,6 +54,7 @@
 #include <QMainWindow>
 #include <QTextDocument>
 #include <QStackedWidget>
+#include <QSystemTrayIcon>
 #include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
@@ -76,6 +77,7 @@ enum Spec : unsigned int {
     canUndo = 8,
     canRedo = 16,
     canSave = 32,
+    inTray = 64,
 };
 
 class MainWindow : public QMainWindow
@@ -201,6 +203,7 @@ private:
     bool holdWhileSettings;//prevents edits while edit not displayed
     Settings *settings;//a settings UI
     QStackedWidget *center;//multi view handling
+    QSystemTrayIcon *tray;
 };
 
 #endif

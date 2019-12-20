@@ -92,7 +92,11 @@ MainWindow::MainWindow()
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     setStyleSheet(loadStyle());
 
-    setWindowIcon(getIconRC("view-text"));
+    QIcon ico = getIconRC("view-text");
+    setWindowIcon(ico);
+    tray = new QSystemTrayIcon(this);
+    tray->setIcon(ico);
+    tray->setToolTip(QCoreApplication::applicationName());
     createActions();
     createStatusBar();
     readSettings();
@@ -282,6 +286,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QKeySequence shorty,
                          QString help, Spec option) {
     static QMenu *aMenu;
+    static QMenu *trayMenu = new QMenu(this);
     static QToolBar *aToolBar;
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
@@ -303,6 +308,11 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(help != nullptr) newAct->setStatusTip(help);
     if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
     aMenu->addAction(newAct);
+    if(option & inTray) {
+        tray->setContextMenu(trayMenu);
+        tray->setVisible(true);
+        trayMenu->addAction(newAct);
+    }
     if(option & canCopy) {
         newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
@@ -404,7 +414,7 @@ void MainWindow::createActions() {
             tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
-            tr("Exit the application"), noBar);//no bar entry
+            tr("Exit the application"), noBar | inTray);//no bar entry
     menuBar()->addSeparator();
 
     addMenu(tr("&Edit"), &MainWindow::undo,
