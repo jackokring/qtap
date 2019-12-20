@@ -106,8 +106,8 @@ MainWindow::MainWindow()
     center = new QStackedWidget(this);
     setCentralWidget(center);
 
-    holdWhileSettings = false;
     settings = new Settings();
+    holdWhileSettings = settings;
 
     setMain(textEdit);
 
@@ -394,13 +394,13 @@ void MainWindow::viewText() {
 
 void MainWindow::viewSettings() {
     //TODO restore text etc
-    if(!holdWhileSettings) {
+    if(holdWhileSettings == settings) {
+        holdWhileSettings = center->currentWidget();//for restore
         setMain(settings);
-        holdWhileSettings = true;
     } else {
-        setMain(textEdit);
+        setMain(holdWhileSettings);
         //textEdit->setFocus();//to front
-        holdWhileSettings = false;
+        holdWhileSettings = settings;
     }
 }
 

@@ -201,7 +201,7 @@ private:
     bool saved;//used in save cancel logic
     Libkqfn handle;//library handle
     QString directory;//directory default for open save etc
-    bool holdWhileSettings;//prevents edits while edit not displayed
+    QWidget *holdWhileSettings;//prevents edits while edit not displayed
     Settings *settings;//a settings UI
     QStackedWidget *center;//multi view handling
     QSystemTrayIcon *tray;
