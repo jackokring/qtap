@@ -97,6 +97,7 @@ MainWindow::MainWindow()
     tray = new QSystemTrayIcon(this);
     tray->setIcon(ico);
     tray->setToolTip(QCoreApplication::applicationName());
+    connect(tray, &QSystemTrayIcon::activated, this, &MainWindow::checkTray);
     createActions();
     createStatusBar();
     readSettings();
@@ -162,6 +163,12 @@ void MainWindow::checkRedo(bool active) {
 
 void MainWindow::checkSave(bool active) {
     setSave(active);
+}
+
+void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
+    if(reason == QSystemTrayIcon::Trigger) {
+        setVisible(!isVisible());
+    }
 }
 
 //===================================================

@@ -108,6 +108,7 @@ private slots:
     void checkUndo(bool active);
     void checkRedo(bool active);
     void checkSave(bool active);
+    void checkTray(QSystemTrayIcon::ActivationReason reason);
 
     //===================================================
     // GIT MANAGEMENT
