@@ -1,6 +1,7 @@
 #ifndef LIBKQFN_H
 #define LIBKQFN_H
 
+#include <QCoreApplication>
 #include "libkqfn_global.h"
 
 extern "C" class LIBKQFN_EXPORT Libkqfn

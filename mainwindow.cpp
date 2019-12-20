@@ -89,6 +89,7 @@ void MainWindow::setMain(QWidget *widget) {
 
 MainWindow::MainWindow()
     : textEdit(new ATextEdit(this)) {
+    handle = new Libkqfn();
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     setStyleSheet(loadStyle());
 
@@ -133,7 +134,7 @@ QString MainWindow::loadStyle() {
 //===================================================
 void MainWindow::checkClipboard() {
     bool hasText = false;
-    if(!holdWhileSettings) //text view
+    if(holdWhileSettings != settings) //TODO text view
         if(QGuiApplication::clipboard()->mimeData()->hasText() &&
                 QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
             hasText = true;
@@ -142,21 +143,21 @@ void MainWindow::checkClipboard() {
 }
 
 void MainWindow::checkSelected(bool active) {
-    if(holdWhileSettings) {//inhibit
+    if(holdWhileSettings == settings) {//inhibit
         active = false;
     }
     setCopy(active);
 }
 
 void MainWindow::checkUndo(bool active) {
-    if(holdWhileSettings) {//inhibit
+    if(holdWhileSettings == settings) {//inhibit
         active = false;
     }
     setUndo(active);
 }
 
 void MainWindow::checkRedo(bool active) {
-    if(holdWhileSettings) {//inhibit
+    if(holdWhileSettings == settings) {//inhibit
         active = false;
     }
     setRedo(active);
@@ -393,13 +394,11 @@ void MainWindow::viewText() {
 }
 
 void MainWindow::viewSettings() {
-    //TODO restore text etc
     if(holdWhileSettings == settings) {
         holdWhileSettings = center->currentWidget();//for restore
         setMain(settings);
     } else {
         setMain(holdWhileSettings);
-        //textEdit->setFocus();//to front
         holdWhileSettings = settings;
     }
 }

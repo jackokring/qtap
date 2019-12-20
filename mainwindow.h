@@ -199,7 +199,7 @@ private:
     ATextEdit *textEdit;//the main edit area
     QString curFile;//current file name
     bool saved;//used in save cancel logic
-    Libkqfn handle;//library handle
+    Libkqfn *handle;//library handle
     QString directory;//directory default for open save etc
     QWidget *holdWhileSettings;//prevents edits while edit not displayed
     Settings *settings;//a settings UI

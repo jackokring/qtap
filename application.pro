@@ -3,11 +3,13 @@ requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
     atextedit.h \
-    settings.h
+    settings.h \
+    statsview.h
 SOURCES       = main.cpp \
                 atextedit.cpp \
                 mainwindow.cpp \
-                settings.cpp
+                settings.cpp \
+                statsview.cpp
 #! [0]
 RESOURCES     = application.qrc
 #! [0]
@@ -24,7 +26,8 @@ INCLUDEPATH += $$PWD/../libkqfn
 DEPENDPATH += $$PWD/../libkqfn
 
 FORMS += \
-    settings.ui
+    settings.ui \
+    statsview.ui
 
 DISTFILES += \
     style.css
