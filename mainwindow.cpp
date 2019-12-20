@@ -92,6 +92,7 @@ MainWindow::MainWindow()
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     setStyleSheet(loadStyle());
 
+    QIcon::setThemeName("gnome");//TODO maybe become a setting
     QIcon ico = getIconRC("view-text");
     setWindowIcon(ico);
     tray = new QSystemTrayIcon(this);
