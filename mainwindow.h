@@ -114,8 +114,9 @@ private slots:
     // GIT MANAGEMENT
     //===================================================
     void publish();
+    void read();
+    void root();
     void subscribe();
-    void setRepo();
 
     //===================================================
     // NEW, OPEN AND SAVE ACTIONS

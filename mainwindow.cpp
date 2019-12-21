@@ -62,7 +62,8 @@ void MainWindow::about() {
    QMessageBox::about(this, tr("About QtAp"),
             tr("<b>QtAp</b> for document control. "
                "Writen in C++ using Qt. "
-               "It requires Git for sync to work. "));
+               "It requires GIT for sync to work, "
+               "which in turn depends on SSH."));
 }
 
 //===================================================
@@ -186,33 +187,51 @@ void MainWindow::publish() {
                  tr("The repository could not be published."));
         return;
     }
-    statusBar()->showMessage(tr("Published"), 2000);
+    statusBar()->showMessage(tr("Published all edits"), 2000);
 }
 
-void MainWindow::subscribe() {
+void MainWindow::read() {
     if(QProcess::execute("cd " + directory + "&&"
         "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read."));
         return;
     }
-    statusBar()->showMessage(tr("Read"), 2000);
+    statusBar()->showMessage(tr("Read all updates and restored active edits"), 2000);
 }
 
-void MainWindow::setRepo() {
-    QFileDialog dialog(this, tr("Set Sync"), directory);
+void MainWindow::root() {
+    QFileDialog dialog(this, tr("Set Sync Working Directory"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setFileMode(QFileDialog::DirectoryOnly);
     dialog.setNameFilterDetailsVisible(false);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
     dialog.setLabelText(QFileDialog::Accept, tr("Set"));
-    dialog.setOption(QFileDialog::DontUseNativeDialog);
+    //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     if (dialog.exec() != QDialog::Accepted) {
         return;
     }
-    if (!dialog.selectedFiles().first().isEmpty())
+    if (!dialog.selectedFiles().first().isEmpty()) {
         directory = dialog.selectedFiles().first();
+        statusBar()->showMessage(tr("Working directory set"), 2000);
+    }
+}
+
+void MainWindow::subscribe() {
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Clone with SSH"),
+        tr("GIT repository identifier"), QLineEdit::Normal,
+        "git@github.com:jackokring/qtap.git", &ok);
+
+    if (!ok) return;
+    if(QProcess::execute("cd " + directory + "&&"
+        "git clone " + text + " .") != 0) {
+        QMessageBox::critical(this, tr("Subscription Error"),
+                 tr("The repository could not be subscribed."));
+        return;
+    }
+    statusBar()->showMessage(tr("Subscription created by cloning repository"), 2000);
 }
 
 //===================================================
@@ -231,7 +250,7 @@ void MainWindow::open() {
         QFileDialog dialog(this, tr("Open File"), directory);
         dialog.setWindowModality(Qt::WindowModal);
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
-        dialog.setOption(QFileDialog::DontUseNativeDialog);
+        //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
         QStringList mimeTypes;
         mimeTypes << "text/plain";
@@ -256,7 +275,7 @@ void MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save File"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setOption(QFileDialog::DontUseNativeDialog);
+    //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     QStringList mimeTypes;
     mimeTypes << "text/plain";
@@ -297,9 +316,12 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     static QMenu *aMenu;
     static QMenu *trayMenu = new QMenu(this);
     static QToolBar *aToolBar;
+    static int count = 0;
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
         aToolBar = addToolBar(menu.replace('&', ""));
+        if(count > 0) trayMenu->addSeparator();
+        count = 0;
     }
     if(aMenu == nullptr) {
         aMenu = menuBar()->addMenu("&Menu");
@@ -307,11 +329,11 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
 
     if(named == nullptr) {
-        named = QString("void");
+        named = QString("void");//icon name
         option |= noBar;//as sensible
     }
     const QIcon newIcon = getIconRC(named);
-    if(entry == nullptr) entry = "Blank";
+    if(entry == nullptr) entry = "Blank entry???";
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
     if(help != nullptr) newAct->setStatusTip(help);
@@ -321,6 +343,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         tray->setContextMenu(trayMenu);
         tray->setVisible(true);
         trayMenu->addAction(newAct);
+        count++;
     }
     if(option & canCopy) {
         newAct->setEnabled(false);
@@ -409,10 +432,10 @@ void MainWindow::viewSettings() {
 void MainWindow::createActions() {
     addMenu(tr("&File"), &MainWindow::newFile,
             "document-new", tr("&New"), QKeySequence::New,//N
-            tr("Create a new file"));
+            tr("Create a new file"), inTray);
     addMenu(nullptr, &MainWindow::open,
             "document-open", tr("&Open..."), QKeySequence::Open,//O
-            tr("Open an existing file"));
+            tr("Open an existing file"), inTray);
     addMenu(nullptr, &MainWindow::save,
             "document-save", tr("&Save"), QKeySequence::Save,//S
             tr("Save the document to disk"), canSave);
@@ -455,15 +478,15 @@ void MainWindow::createActions() {
     addMenu(tr("&Sync"), &MainWindow::publish,
             "sync-publish", tr("&Publish"), QKeySequence::Print,//P
             tr("Publish with services"));
-    addMenu(nullptr, &MainWindow::subscribe,
+    addMenu(nullptr, &MainWindow::read,
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
-            tr("Read from services"))->addSeparator();
-    addMenu(nullptr, &MainWindow::setRepo,
-            nullptr, tr("Set &Directory..."), QKeySequence(Qt::CTRL + Qt::Key_D),
-            tr("Set work and synchronization directory"));
-    addMenu(nullptr, nullptr,
-            nullptr, tr("C&lone Remote..."), QKeySequence(Qt::CTRL + Qt::Key_L),
-            tr("Clone a remote repository"));
+            tr("Read from services"), inTray)->addSeparator();
+    addMenu(nullptr, &MainWindow::root,
+            nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),
+            tr("Set default working directory"));
+    addMenu(nullptr, &MainWindow::subscribe,
+            nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),
+            tr("Subscribe to a remote git ssh repository and clone it"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
