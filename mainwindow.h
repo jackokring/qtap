@@ -122,6 +122,7 @@ private slots:
     //===================================================
     // NEW, OPEN AND SAVE ACTIONS
     //===================================================
+    void asNewShow();
     void newFile();
     void open();
     void save();

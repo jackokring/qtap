@@ -1,4 +1,4 @@
-QT += widgets
+QT += core gui network webengine widgets webenginewidgets
 requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \

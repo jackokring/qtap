@@ -1,5 +1,4 @@
 #include "libkqfn.h"
-#include <QtWebEngineWidgets/QWebEngineView>
 
 Libkqfn::Libkqfn()
 {
@@ -7,6 +6,6 @@ Libkqfn::Libkqfn()
 }
 
 TYPE_LIBPTR Libkqfn::getJSHost() {
-    //QWebEngineView *view = new QWebEngineView();
-    return nullptr;// view;
+    QWebEngineView *view = new QWebEngineView();
+    return view;
 }

@@ -241,7 +241,12 @@ void MainWindow::subscribe() {
 //===================================================
 // NEW, OPEN AND SAVE ACTIONS
 //===================================================
+void MainWindow::asNewShow() {
+    show();
+}
+
 void MainWindow::newFile() {
+    asNewShow();
     if (maybeSave()) {//TODO: maybe make new doc
         textEdit->clear();
         //TODO: select base type
@@ -250,6 +255,7 @@ void MainWindow::newFile() {
 }
 
 void MainWindow::open() {
+    asNewShow();
     if (maybeSave()) {
         QFileDialog dialog(this, tr("Open File"), directory);
         dialog.setWindowModality(Qt::WindowModal);
@@ -324,6 +330,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
         aToolBar = addToolBar(menu.replace('&', ""));
+        aToolBar->setMovable(false);
         if(count > 0) trayMenu->addSeparator();
         count = 0;
     }
@@ -381,11 +388,17 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 // BASIC PROXY ACTIONS
 //===================================================
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (maybeSave()) {
-        writeSettings();
-        event->accept();
+    if(isVisible() && QSystemTrayIcon::isSystemTrayAvailable()) {
+        setVisible(false);
+        event->ignore();//to tray
     } else {
-        event->ignore();
+        setVisible(true);
+        if (maybeSave()) {
+            writeSettings();
+            event->accept();
+        } else {
+            event->ignore();
+        }
     }
 }
 
@@ -447,8 +460,8 @@ void MainWindow::createActions() {
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
             tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::close,
-            "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
-            tr("Exit the application"), noBar | inTray);//no bar entry
+            "application-exit", tr("E&xit Tray"), QKeySequence::Quit,//Q
+            tr("Send to tray or exit from tray"), noBar | inTray);//no bar entry
     menuBar()->addSeparator();
 
     addMenu(tr("&Edit"), &MainWindow::undo,
@@ -524,8 +537,8 @@ void MainWindow::readSettings() {
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (!toolbars.isEmpty()) {
         QToolBar *tb = toolbars.takeFirst();
-        QByteArray geometry = settings.value("tb" + tb->windowTitle(), QByteArray()).toByteArray();
-        if(!geometry.isEmpty()) tb->restoreGeometry(geometry);
+        bool visible = settings.value("tbv" + tb->windowTitle(), true).toBool();
+        tb->setVisible(visible);
     }
 }
 
@@ -535,9 +548,9 @@ void MainWindow::writeSettings() {
     settings.setValue("geometry", saveGeometry());
     settings.setValue("directory", directory);
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
-    while (!toolbars.isEmpty()) {
+    while (isVisible() && !toolbars.isEmpty()) {//prevents setting background mangling
         QToolBar *tb = toolbars.takeFirst();
-        settings.setValue("tb" + tb->windowTitle(), tb->geometry());
+        settings.setValue("tbv" + tb->windowTitle(), tb->isVisible());
     }
 }
 
@@ -618,14 +631,16 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 void MainWindow::setCurrentFile(const QString &fileName) {
     curFile = fileName;
+    textEdit->document()->clearUndoRedoStacks();//makes more sense
     textEdit->document()->setModified(false);
     setWindowModified(false);
 
-    QString shownName = curFile;
+    QString shownName = strippedName(curFile);
     if(curFile.isEmpty())
         shownName = "untitled.txt";//default to text
-    //TODO: set default as note taking
     setWindowFilePath(shownName);
+    tray->setToolTip(QCoreApplication::applicationName() +
+                     " " + shownName);
 }
 
 QString MainWindow::strippedName(const QString &fullFileName) {

@@ -2,6 +2,7 @@
 #define LIBKQFN_H
 
 #include <QCoreApplication>
+#include <QtWebEngineWidgets/QWebEngineView>
 #include "libkqfn_global.h"
 #define LIBPTR(X) ((void *)X)
 #define QWIDGETPTR(X) ((QWidget *)X)
