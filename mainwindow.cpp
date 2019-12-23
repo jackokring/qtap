@@ -130,6 +130,10 @@ QString MainWindow::loadStyle() {
     return in.readAll();
 }
 
+QWidget *MainWindow::getQWebEngineView() {
+    return QWIDGETPTR(handle->getJSHost());
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================

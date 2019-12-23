@@ -98,6 +98,7 @@ private:
 public:
     MainWindow();
     QString loadStyle();
+    QWidget *getQWebEngineView();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS

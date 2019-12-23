@@ -1,4 +1,4 @@
-QT -= gui
+QT += core gui network webengine widgets
 
 TEMPLATE = lib
 DEFINES += LIBKQFN_LIBRARY
@@ -22,6 +22,7 @@ SOURCES += \
 HEADERS += \
     libkqfn_global.h \
     libkqfn.h
+
 
 # Default rules for deployment.
 unix {
