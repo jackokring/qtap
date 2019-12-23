@@ -7,6 +7,6 @@ Libkqfn::Libkqfn()
 }
 
 TYPE_LIBPTR Libkqfn::getJSHost() {
-    QWebEngineView *view = new QWebEngineView();
-    return view;
+    //QWebEngineView *view = new QWebEngineView();
+    return nullptr;// view;
 }

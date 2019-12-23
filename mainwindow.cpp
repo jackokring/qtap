@@ -521,6 +521,12 @@ void MainWindow::readSettings() {
         restoreGeometry(geometry);
     }
     directory = settings.value("directory", "").toString();
+    QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+    while (!toolbars.isEmpty()) {
+        QToolBar *tb = toolbars.takeFirst();
+        QByteArray geometry = settings.value("tb" + tb->windowTitle(), QByteArray()).toByteArray();
+        if(!geometry.isEmpty()) tb->restoreGeometry(geometry);
+    }
 }
 
 void MainWindow::writeSettings() {
@@ -528,6 +534,11 @@ void MainWindow::writeSettings() {
                        QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
     settings.setValue("directory", directory);
+    QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+    while (!toolbars.isEmpty()) {
+        QToolBar *tb = toolbars.takeFirst();
+        settings.setValue("tb" + tb->windowTitle(), tb->geometry());
+    }
 }
 
 //===================================================

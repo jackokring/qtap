@@ -1,4 +1,4 @@
-QT += core gui network webengine widgets
+QT += core gui network webengine widgets webenginewidgets
 
 TEMPLATE = lib
 DEFINES += LIBKQFN_LIBRARY
