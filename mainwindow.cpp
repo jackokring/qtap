@@ -388,14 +388,16 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 // BASIC PROXY ACTIONS
 //===================================================
 void MainWindow::closeEvent(QCloseEvent *event) {
+    if(event == nullptr) QApplication::exit();//straight out end
     if(isVisible() && QSystemTrayIcon::isSystemTrayAvailable()) {
         setVisible(false);
         event->ignore();//to tray
     } else {
-        setVisible(true);
         if (maybeSave()) {
+            setVisible(true);
             writeSettings();
             event->accept();
+            setVisible(false);//and so to accept a close event from the background
         } else {
             event->ignore();
         }
