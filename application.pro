@@ -18,16 +18,14 @@ RESOURCES     = application.qrc
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/mainwindows/application
 INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../build-libkqfn-Desktop_Qt_5_12_6_GCC_64bit-Debug/release/ -llibkqfn
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build-libkqfn-Desktop_Qt_5_12_6_GCC_64bit-Debug/debug/ -llibkqfn
-else:unix: LIBS += -L$$PWD/../build-libkqfn-Desktop_Qt_5_12_6_GCC_64bit-Debug/ -llibkqfn
-
-INCLUDEPATH += $$PWD/../libkqfn
-DEPENDPATH += $$PWD/../libkqfn
-
 FORMS += \
     settings.ui \
     statsview.ui
 
 DISTFILES += \
     style.css
+
+unix:!macx: LIBS += -L$$PWD/../Builds/ -llibkqfn
+
+INCLUDEPATH += $$PWD/../Builds
+DEPENDPATH += $$PWD/../Builds
