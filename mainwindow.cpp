@@ -90,9 +90,12 @@ void MainWindow::setMain(QWidget *widget) {
 
 MainWindow::MainWindow()
     : textEdit(new ATextEdit(this)) {
-    handle = new Libkqfn();
+    QLOAD;
+    handle = QRESOLVE("handle");
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-    setStyleSheet(loadStyle());
+    QString style = styleSheet();
+    if(style == nullptr) style = QString();
+    setStyleSheet(style + "\n" + loadStyle());
 
     //QIcon::setThemeName("gnome");//TODO maybe become a setting
     QIcon ico = getIconRC("view-text");

@@ -9,12 +9,24 @@
 #define HANDLE(X) ((Libkqfn *)X)
 #define TYPE_LIBPTR void *
 
-/* extern "C" */ class LIBKQFN_EXPORT Libkqfn
+//===================================================
+// MAIN PROCESSING CLASS
+//===================================================
+extern "C" class LIBKQFN_EXPORT Libkqfn
 {
 public:
     Libkqfn();
 
     TYPE_LIBPTR getJSHost();
 };
+
+//===================================================
+// HANDLE DYNAMIC LOADER
+//===================================================
+extern "C" LIBKQFN_EXPORT Libkqfn *handle();
+typedef Libkqfn *(*LibHandle)();
+
+#define QLOAD QLibrary L_libkqfn("liblibkqfn.so");if (!L_libkqfn.load())qDebug() << L_libkqfn.errorString();
+#define QRESOLVE(X) ((LibHandle)L_libkqfn.resolve(X))();
 
 #endif // LIBKQFN_H

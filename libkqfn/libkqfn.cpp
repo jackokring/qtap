@@ -9,3 +9,7 @@ TYPE_LIBPTR Libkqfn::getJSHost() {
     QWebEngineView *view = new QWebEngineView();
     return view;
 }
+
+Libkqfn *handle() {
+    return new Libkqfn();
+}
