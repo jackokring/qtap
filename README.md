@@ -1,37 +1,5 @@
-## Welcome to GitHub Pages for QtAp a Generic Qt App
+# Welcome to QtAp a Generic Qt App
 
-You can use the [editor on GitHub](https://github.com/jackokring/qtap/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+A simple app which has simplicity of design as the build goal. Central to the app is an editor which although simple has easy access to git repositories. As the app is extended with more views to provide greater functionality, the library included will expand to cover some processing tasks. The library itself is written in a Qt agnostic way. Although some functions may accept and return `(void *)` which have to be cast using the header macros into the Qt names.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/jackokring/qtap/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+This hopefully avoids having to have too much linker hastle.
