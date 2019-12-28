@@ -267,9 +267,9 @@ void MainWindow::open() {
         dialog.setAcceptMode(QFileDialog::AcceptOpen);
         //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
-        QStringList mimeTypes;
-        mimeTypes << "text/plain";
-        dialog.setMimeTypeFilters(mimeTypes);
+        QStringList kinds;
+        kinds << "Text files (*.txt)";
+        dialog.setNameFilters(kinds);
         if (dialog.exec() != QDialog::Accepted)
             return;
         //TODO: maybe need to do view transform on type
@@ -292,9 +292,9 @@ void MainWindow::saveAs() {
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
-    QStringList mimeTypes;
-    mimeTypes << "text/plain";
-    dialog.setMimeTypeFilters(mimeTypes);
+    QStringList kinds;
+    kinds << "Text files (*.txt)";
+    dialog.setNameFilters(kinds);
     saved = true;
     if (dialog.exec() != QDialog::Accepted) {
         saved = false;
