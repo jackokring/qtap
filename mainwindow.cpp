@@ -97,6 +97,7 @@ MainWindow::MainWindow()
     if(style == nullptr) style = QString();
     setStyleSheet(style + "\n" + loadStyle());
 
+    exitCheck = false;
     //QIcon::setThemeName("gnome");//TODO maybe become a setting
     QIcon ico = getIconRC("view-text");
     setWindowIcon(ico);
@@ -246,10 +247,11 @@ void MainWindow::subscribe() {
 //===================================================
 void MainWindow::asNewShow() {
     show();
+    //(this->*fp)();
 }
 
 void MainWindow::newFile() {
-    asNewShow();
+    //asNewShow();
     if (maybeSave()) {//TODO: maybe make new doc
         textEdit->clear();
         //TODO: select base type
@@ -258,7 +260,7 @@ void MainWindow::newFile() {
 }
 
 void MainWindow::open() {
-    asNewShow();
+    //asNewShow();
     if (maybeSave()) {
         QFileDialog dialog(this, tr("Open File"), directory);
         dialog.setWindowModality(Qt::WindowModal);
@@ -351,14 +353,17 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
     if(help != nullptr) newAct->setStatusTip(help);
-    if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
     aMenu->addAction(newAct);
     if(option & inTray) {
         tray->setContextMenu(trayMenu);
         tray->setVisible(true);
         trayMenu->addAction(newAct);
         count++;
+        //tray show on selection
+        connect(newAct, &QAction::triggered, this, &MainWindow::asNewShow);
     }
+    //must be done after show. maybe bad but is automatic for menu build.
+    if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
     if(option & canCopy) {
         newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
@@ -392,22 +397,22 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 //===================================================
 void MainWindow::closeEvent(QCloseEvent *event) {
     if(event == nullptr) QApplication::exit();//straight out end
-    if(isVisible() && QSystemTrayIcon::isSystemTrayAvailable()) {
-        setVisible(false);
+    if(!exitCheck && QSystemTrayIcon::isSystemTrayAvailable()) {
+        hide();
         event->ignore();//to tray
     } else {
         if (maybeSave()) {
-            setVisible(true);
             writeSettings();
             event->accept();
-            setVisible(false);//and so to accept a close event from the background
         } else {
             event->ignore();
+            exitCheck = false;
         }
     }
 }
 
 void MainWindow::close() {
+    exitCheck = true;
     QWidget::close();
 }
 
@@ -464,9 +469,12 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::saveAs,
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
             tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
+    addMenu(nullptr, &MainWindow::hide,
+            "application-exit", tr("&Tray"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_T),//+T
+            tr("Place app in tray"), noBar);//no bar entry
     addMenu(nullptr, &MainWindow::close,
-            "application-exit", tr("E&xit Tray"), QKeySequence::Quit,//Q
-            tr("Send to tray or exit from tray"), noBar | inTray);//no bar entry
+            "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
+            tr("Exit app"), noBar | inTray);//no bar entry
     menuBar()->addSeparator();
 
     addMenu(tr("&Edit"), &MainWindow::undo,

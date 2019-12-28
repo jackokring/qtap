@@ -208,6 +208,7 @@ private:
     Settings *settings;//a settings UI
     QStackedWidget *center;//multi view handling
     QSystemTrayIcon *tray;
+    bool exitCheck;
 };
 
 #endif
