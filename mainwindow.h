@@ -78,6 +78,8 @@ enum Spec : unsigned int {
     canRedo = 16,
     canSave = 32,
     inTray = 64,
+    canClone = 128,
+    canSync = 256,
 };
 
 class MainWindow : public QMainWindow
@@ -114,10 +116,12 @@ private slots:
     //===================================================
     // GIT MANAGEMENT
     //===================================================
+    int bash(QString proc);
     void publish();
     void read();
     void root();
     void subscribe();
+    bool hasRepo();
 
     //===================================================
     // NEW, OPEN AND SAVE ACTIONS
@@ -194,6 +198,8 @@ signals:
     void setUndo(bool active);
     void setRedo(bool active);
     void setSave(bool active);
+    void setSync(bool active);
+    void setClone(bool active);
 
     //===================================================
     // CONFIGURATION VARIABLES

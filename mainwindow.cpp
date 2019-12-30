@@ -60,10 +60,16 @@ void MainWindow::aboutQt() {
 
 void MainWindow::about() {
    QMessageBox::about(this, tr("About QtAp"),
-            tr("<b>QtAp</b> for document control. "
-               "Writen in C++ using Qt. "
-               "It requires GIT for sync to work, "
-               "which in turn depends on SSH."));
+            tr("<b>QtAp</b> for document control. Wrote in C++ using Qt. "
+               "It requires GIT for sync to work, which in turn depends on SSH. "
+               "(C) K Ring Technologies Ltd, BSD Licence terms extending a "
+               "copyrighted work of The Qt Company Ltd.<br>"
+               "The main work of the application has been to build a framework "
+               "to run a library of code, which in turn could be using some "
+               "calls to some other libraries of code released under different "
+               "terms. Nothing in the code base is currently prohibited from "
+               "extension under the BSD Licence."
+               ));
 }
 
 //===================================================
@@ -108,6 +114,7 @@ MainWindow::MainWindow()
     createActions();
     createStatusBar();
     readSettings();
+    hasRepo();
 
     center = new QStackedWidget(this);
     setCentralWidget(center);
@@ -185,27 +192,36 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 //===================================================
 // GIT MANAGEMENT
 //===================================================
+int MainWindow::bash(QString proc) {
+    proc = proc.replace("\"", "\\\"");//literalize a quote
+    return QProcess::execute("bash -c \"" + proc + "\"");
+}
+
 void MainWindow::publish() {
     maybeSave();
     QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(QProcess::execute("cd " + directory + "&&"
-        "git add .&&git stash&&git pull&&git stash pop&&" //incorporate
-        "git commit -m \"" + now + "\"&&git push") != 0) {
+    if(bash("cd \"" + directory + "\" && "
+        "git add . && git stash && git pull && git stash pop && " //incorporate
+        "git commit -m \"" + now + "\" && git push") != 0) {
         QMessageBox::critical(this, tr("Publication Error"),
-                 tr("The repository could not be published."));
+                 tr("The repository could not be published. "
+                    "There maybe a complex data merge issue if many users "
+                    "update the same documents."));
         return;
     }
-    statusBar()->showMessage(tr("Published all edits"), 2000);
+    statusBar()->showMessage(tr("Published all saved edits"), 2000);
 }
 
 void MainWindow::read() {
-    if(QProcess::execute("cd " + directory + "&&"
-        "git add .&&git stash&&git pull&&git stash pop") != 0) { //incorporate
+    if(bash("cd \"" + directory + "\" && "
+        "git add . && git stash && git pull && git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
-                 tr("The repository could not be read."));
+                 tr("The repository could not be read. "
+                    "There maybe a complex data merge issue if many users "
+                    "update the same documents."));
         return;
     }
-    statusBar()->showMessage(tr("Read all updates and restored active edits"), 2000);
+    statusBar()->showMessage(tr("Read all updates and restored saved edits"), 2000);
 }
 
 void MainWindow::root() {
@@ -223,6 +239,7 @@ void MainWindow::root() {
     if (!dialog.selectedFiles().first().isEmpty()) {
         directory = dialog.selectedFiles().first();
         statusBar()->showMessage(tr("Working directory set"), 2000);
+        hasRepo();
     }
 }
 
@@ -233,13 +250,28 @@ void MainWindow::subscribe() {
         "git@github.com:jackokring/qtap.git", &ok);
 
     if (!ok) return;
-    if(QProcess::execute("cd " + directory + "&&"
-        "git clone " + text + " .") != 0) {
+    if(bash("git clone \"" + text + "\" \"" + directory + "\"") != 0) {
         QMessageBox::critical(this, tr("Subscription Error"),
-                 tr("The repository could not be subscribed."));
+                 tr("The repository could not be subscribed. "
+                    "The working directory may have things in "
+                    "which prevent a clone subscription as that "
+                    "requires the working directory to be empty."));
         return;
     }
     statusBar()->showMessage(tr("Subscription created by cloning repository"), 2000);
+    hasRepo();
+}
+
+bool MainWindow::hasRepo() {
+    if(bash("cd \"" + directory + "\" && "
+        "git status") != 0) {
+        setClone(true);
+        setSync(false);
+        return false;
+    }
+    setSync(true);
+    setClone(false);
+    return true;
 }
 
 //===================================================
@@ -349,7 +381,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         option |= noBar;//as sensible
     }
     const QIcon newIcon = getIconRC(named);
-    if(entry == nullptr) entry = "Blank entry???";
+    if(entry == nullptr) entry = ">>Blank entry<<";
     QAction *newAct = new QAction(newIcon, entry, this);
     if(shorty > 0) newAct->setShortcut(shorty);
     if(help != nullptr) newAct->setStatusTip(help);
@@ -385,6 +417,14 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(option & canSave) {
         newAct->setEnabled(false);
         connect(this, &MainWindow::setSave, newAct, &QAction::setEnabled);
+    }
+    if(option & canClone) {
+        newAct->setEnabled(false);
+        connect(this, &MainWindow::setClone, newAct, &QAction::setEnabled);
+    }
+    if(option & canSync) {
+        newAct->setEnabled(false);
+        connect(this, &MainWindow::setSync, newAct, &QAction::setEnabled);
     }
     //more options
     if(option & noBar) return aMenu;
@@ -470,7 +510,7 @@ void MainWindow::createActions() {
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
             tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::hide,
-            "application-exit", tr("&Tray"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_T),//+T
+            "view-restore", tr("&Tray"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_T),//+T
             tr("Place app in tray"), noBar);//no bar entry
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
@@ -507,16 +547,16 @@ void MainWindow::createActions() {
 
     addMenu(tr("&Sync"), &MainWindow::publish,
             "sync-publish", tr("&Publish"), QKeySequence::Print,//P
-            tr("Publish with services"));
+            tr("Publish with services"), canSync);
     addMenu(nullptr, &MainWindow::read,
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
-            tr("Read from services"), inTray)->addSeparator();
+            tr("Read from services"), canSync | inTray)->addSeparator();
     addMenu(nullptr, &MainWindow::root,
             nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),
             tr("Set default working directory"));
     addMenu(nullptr, &MainWindow::subscribe,
             nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),
-            tr("Subscribe to a remote git ssh repository and clone it"));
+            tr("Subscribe to a remote git ssh repository and clone it"), canClone);
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
@@ -595,7 +635,8 @@ void MainWindow::loadFile(const QString &fileName) {
     if(!file.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
+                             .arg(QDir::toNativeSeparators(fileName),
+                                  file.errorString()));
         return;
     }
 

@@ -16,5 +16,6 @@
         <file>images/edit-undo.png</file>
         <file>images/application-exit.png</file>
         <file>style.css</file>
+        <file>images/view-restore.png</file>
     </qresource>
 </RCC>
