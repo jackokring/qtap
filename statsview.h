@@ -2,7 +2,7 @@
 #define STATSVIEW_H
 
 #include <QWidget>
-#include "mainwindow.h"
+//#include "mainwindow.h"
 
 namespace Ui {
 class StatsView;
@@ -19,14 +19,14 @@ public:
     virtual QString getIconName();
     virtual QKeySequence getShortCut();
     virtual QString getToolTipHelp();
-    static void setMainWindow(MainWindow *mw);
+    static void setMainWindow(void *mw);
 
 public slots:
     virtual void selectView();
 
 private:
     Ui::StatsView *ui;
-    static MainWindow *main;
+    static void *main;
 };
 
 #endif // STATSVIEW_H
