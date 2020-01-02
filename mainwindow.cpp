@@ -49,8 +49,8 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-#include "mainwindow.h"
 #include "statsview.h"
+#include "mainwindow.h"
 
 //===================================================
 // HELP
@@ -102,6 +102,11 @@ MainWindow::MainWindow()
     tray->setIcon(ico);
     tray->setToolTip(QCoreApplication::applicationName());
     connect(tray, &QSystemTrayIcon::activated, this, &MainWindow::checkTray);
+    //add in the extra views
+    listOfViews.append(new StatsView(this));
+
+    StatsView::setMainWindow(this);
+    //create menus
     createActions();
     createStatusBar();
     readSettings();
@@ -439,11 +444,15 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     return aMenu;
 }
 
-QMenu* MainWindow::addViewMenu(StatsView *view, Spec option) {
-    listOfViews.append(view);//build pointer chain
-    //setMain(view);//to add to render
-    return addMenu(nullptr, &MainWindow::viewText, view->getIconName(), view->getViewName(),
-                   view->getShortCut(), view->getToolTipHelp(), option, view);
+QMenu* MainWindow::addViewMenu(Spec option) {
+    QList<StatsView *>::iterator i;
+    QMenu *menu;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        menu = addMenu(nullptr, &MainWindow::viewText,
+                       (*i)->getIconName(), (*i)->getViewName(),
+                       (*i)->getShortCut(), (*i)->getToolTipHelp(), option, *i);
+    }
+    return menu;
 }
 
 //===================================================
@@ -554,12 +563,7 @@ void MainWindow::createActions() {
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();
-    //addViewMenu(new StatsView(this));
-    StatsView *view = new StatsView(this);
-    addMenu(nullptr, &MainWindow::viewText, view->getIconName(), view->getViewName(),
-                       view->getShortCut(), view->getToolTipHelp(), none, view);
-    //not until the statsview gets shown does the menus unlock, and then trying
-    //to show it more than once is a crash course.
+    addViewMenu();
     addMenu(nullptr, &MainWindow::viewSettings,
             "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Show and hide settings view"));

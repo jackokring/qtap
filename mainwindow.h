@@ -143,7 +143,7 @@ private:
     QMenu* addMenu(QString menu = nullptr, void(MainWindow::*fp)() = nullptr,
          QString named = nullptr, QString entry = nullptr, QKeySequence shorty = 0,
          QString help = nullptr, Spec option = none, StatsView *view = nullptr);
-    QMenu* addViewMenu(StatsView *view, Spec option = none);
+    QMenu* addViewMenu(Spec option = none);
 
     //===================================================
     // BASIC PROXY ACTIONS

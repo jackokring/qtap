@@ -1,5 +1,4 @@
 #include "statsview.h"
-#include "mainwindow.h"
 #include "ui_statsview.h"
 
 StatsView::StatsView(QWidget *parent) :
@@ -30,6 +29,10 @@ QString StatsView::getToolTipHelp() {
     return tr("Show the ") + getViewName().replace("&", "") + tr(" view.");
 }
 
+void StatsView::setMainWindow(MainWindow *mw) {
+    main = mw;
+}
+
 void StatsView::selectView() {
-    ((MainWindow *)parentWidget())->setMain(this);
+    if(main != nullptr) main->setMain(this);
 }
