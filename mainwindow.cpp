@@ -566,7 +566,7 @@ void MainWindow::createActions() {
             tr("Show editable text view"))->addSeparator();
     addViewMenu()->addSeparator();
     addMenu(nullptr, &MainWindow::viewSettings,
-            "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
+            "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),//G
             tr("Show and hide settings view"));
     menuBar()->addSeparator();
 
@@ -574,13 +574,13 @@ void MainWindow::createActions() {
             "sync-publish", tr("&Publish"), QKeySequence::Print,//P
             tr("Publish with services"), canSync);
     addMenu(nullptr, &MainWindow::read,
-            "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),
+            "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),//R
             tr("Read from services"), canSync | inTray)->addSeparator();
     addMenu(nullptr, &MainWindow::root,
-            nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),
+            nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),//D
             tr("Set default working directory"));
     addMenu(nullptr, &MainWindow::subscribe,
-            nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),
+            nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),//L
             tr("Subscribe to a remote git ssh repository and clone it"), canClone);
     menuBar()->addSeparator();
 

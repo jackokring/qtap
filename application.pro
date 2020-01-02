@@ -23,6 +23,7 @@ FORMS += \
     statsview.ui
 
 DISTFILES += \
+    doc/Control Code Assign.txt \
     style.css
 
 unix:!macx: LIBS += -L$$PWD/../Builds/ -llibkqfn

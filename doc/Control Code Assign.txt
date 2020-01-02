@@ -1,0 +1,31 @@
+As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is app level plus SHFT.
+
+
+    CTRL+LTR        CTRL+SHFT+LTR
+    ========        =============
+A   SELECT ALL
+B
+C   COPY
+D   DIRECTORY
+E
+F
+G   SETTINGS
+H
+I
+J
+K
+L   CLONE
+M
+N   NEW
+O   OPEN
+P   PUBLISH
+Q   QUIT
+R   READ
+S   SAVE            SAVE AS
+T   TEXT VIEW       TRAY
+U
+V   PASTE
+W
+X   CUT
+Y
+Z   UNDO            REDO
