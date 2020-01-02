@@ -77,7 +77,7 @@ void MainWindow::about() {
 // MAIN WINDOW MANAGEMENT
 //===================================================
 void MainWindow::setMain(QWidget *widget) {
-    if(center->indexOf(widget) == -1) {
+    if(center->indexOf(widget) < 0) {
         center->addWidget(widget);
     }
     if(center->currentWidget() != widget) {
@@ -554,7 +554,12 @@ void MainWindow::createActions() {
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();
-    addViewMenu(new StatsView(this));
+    //addViewMenu(new StatsView(this));
+    StatsView *view = new StatsView(this);
+    addMenu(nullptr, &MainWindow::viewText, view->getIconName(), view->getViewName(),
+                       view->getShortCut(), view->getToolTipHelp(), none, view);
+    //not until the statsview gets shown does the menus unlock, and then trying
+    //to show it more than once is a crash course.
     addMenu(nullptr, &MainWindow::viewSettings,
             "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Show and hide settings view"));

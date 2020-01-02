@@ -23,11 +23,11 @@ QString StatsView::getIconName() {
 }
 
 QKeySequence StatsView::getShortCut() {
-    return 0;
+    return QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V);
 }
 
 QString StatsView::getToolTipHelp() {
-    return "Show the " + getViewName().replace("&", "") + " view.";
+    return tr("Show the ") + getViewName().replace("&", "") + tr(" view.");
 }
 
 void StatsView::selectView() {
