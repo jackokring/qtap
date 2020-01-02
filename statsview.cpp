@@ -15,11 +15,11 @@ StatsView::~StatsView()
 }
 
 QString StatsView::getViewName() {
-    return tr("Statisti&cs");
+    return tr("&Statistics");
 }
 
 QString StatsView::getIconName() {
-    return "void";
+    return "media-playback-start";
 }
 
 QKeySequence StatsView::getShortCut() {
@@ -30,7 +30,7 @@ QString StatsView::getToolTipHelp() {
     return tr("Show the ") + getViewName().replace("&", "") + tr(" view.");
 }
 
-void StatsView::setMainWindow(void *mw) {
+void StatsView::setMainWindow(QMainWindow *mw) {
     main = mw;
 }
 

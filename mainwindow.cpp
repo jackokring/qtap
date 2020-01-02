@@ -105,7 +105,6 @@ MainWindow::MainWindow()
     //add in the extra views
     listOfViews.append(new StatsView(this));
 
-    StatsView::setMainWindow(this);
     //create menus
     createActions();
     createStatusBar();
@@ -448,9 +447,10 @@ QMenu* MainWindow::addViewMenu(Spec option) {
     QList<StatsView *>::iterator i;
     QMenu *menu;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        menu = addMenu(nullptr, &MainWindow::viewText,
+        menu = addMenu(nullptr, &MainWindow::viewText, //does default before show
                        (*i)->getIconName(), (*i)->getViewName(),
                        (*i)->getShortCut(), (*i)->getToolTipHelp(), option, *i);
+        (*i)->setMainWindow(this);
     }
     return menu;
 }
@@ -503,7 +503,8 @@ void MainWindow::paste() {
 // VIEW MANAGEMENT
 //===================================================
 void MainWindow::viewText() {
-    //TODO
+    setMain(textEdit);
+    holdWhileSettings = settings;
 }
 
 void MainWindow::viewSettings() {
@@ -563,7 +564,7 @@ void MainWindow::createActions() {
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();
-    addViewMenu();
+    addViewMenu()->addSeparator();
     addMenu(nullptr, &MainWindow::viewSettings,
             "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Show and hide settings view"));

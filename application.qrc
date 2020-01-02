@@ -17,5 +17,6 @@
         <file>images/application-exit.png</file>
         <file>style.css</file>
         <file>images/view-restore.png</file>
+        <file>images/media-playback-start.png</file>
     </qresource>
 </RCC>
