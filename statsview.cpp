@@ -1,4 +1,5 @@
 #include "statsview.h"
+#include "mainwindow.h"
 #include "ui_statsview.h"
 
 StatsView::StatsView(QWidget *parent) :
@@ -11,4 +12,24 @@ StatsView::StatsView(QWidget *parent) :
 StatsView::~StatsView()
 {
     delete ui;
+}
+
+QString StatsView::getViewName() {
+    return tr("Statisti&cs");
+}
+
+QString StatsView::getIconName() {
+    return "void";
+}
+
+QKeySequence StatsView::getShortCut() {
+    return 0;
+}
+
+QString StatsView::getToolTipHelp() {
+    return "Show the " + getViewName().replace("&", "") + " view.";
+}
+
+void StatsView::selectView(bool triggered) {
+    ((MainWindow *)parentWidget())->setMain(this);
 }

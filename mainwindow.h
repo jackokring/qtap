@@ -58,6 +58,7 @@
 #include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
+#include "statsview.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -95,9 +96,8 @@ private slots:
     //===================================================
     // MAIN WINDOW MANAGEMENT
     //===================================================
-private:
-    void setMain(QWidget *widget);
 public:
+    void setMain(QWidget *widget);
     MainWindow();
     QString loadStyle();
     QWidget *getQWebEngineView();
@@ -142,7 +142,8 @@ private:
     static QIcon getIconRC(QString named);
     QMenu* addMenu(QString menu = nullptr, void(MainWindow::*fp)() = nullptr,
          QString named = nullptr, QString entry = nullptr, QKeySequence shorty = 0,
-         QString help = nullptr, Spec option = none);
+         QString help = nullptr, Spec option = none, StatsView *view = nullptr);
+    QMenu* addViewMenu(StatsView *view, Spec option = none);
 
     //===================================================
     // BASIC PROXY ACTIONS
@@ -215,6 +216,7 @@ private:
     QStackedWidget *center;//multi view handling
     QSystemTrayIcon *tray;
     bool exitCheck;
+    QList<StatsView *> listOfViews;
 };
 
 #endif

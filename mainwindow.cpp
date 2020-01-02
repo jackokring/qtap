@@ -50,6 +50,7 @@
 
 #include <QtWidgets>
 #include "mainwindow.h"
+#include "statsview.h"
 
 //===================================================
 // HELP
@@ -79,19 +80,9 @@ void MainWindow::setMain(QWidget *widget) {
     if(center->indexOf(widget) == -1) {
         center->addWidget(widget);
     }
-    center->setCurrentWidget(widget);
-
-    //plus some repair?
-    connect(textEdit->document(), &QTextDocument::contentsChanged,
-            this, &MainWindow::documentWasModified);
-    connect(textEdit, &QPlainTextEdit::copyAvailable,
-            this, &MainWindow::checkSelected);
-    connect(textEdit->document(), &QTextDocument::undoAvailable,
-            this, &MainWindow::checkUndo);
-    connect(textEdit->document(), &QTextDocument::redoAvailable,
-            this, &MainWindow::checkRedo);
-    connect(textEdit->document(), &QTextDocument::modificationChanged,
-            this, &MainWindow::checkSave);
+    if(center->currentWidget() != widget) {
+        center->setCurrentWidget(widget);
+    }
 }
 
 MainWindow::MainWindow()
@@ -132,6 +123,17 @@ MainWindow::MainWindow()
 
     setCurrentFile(QString());
     setUnifiedTitleAndToolBarOnMac(true);
+
+    connect(textEdit->document(), &QTextDocument::contentsChanged,
+            this, &MainWindow::documentWasModified);
+    connect(textEdit, &QPlainTextEdit::copyAvailable,
+            this, &MainWindow::checkSelected);
+    connect(textEdit->document(), &QTextDocument::undoAvailable,
+            this, &MainWindow::checkUndo);
+    connect(textEdit->document(), &QTextDocument::redoAvailable,
+            this, &MainWindow::checkRedo);
+    connect(textEdit->document(), &QTextDocument::modificationChanged,
+            this, &MainWindow::checkSave);
 }
 
 QString MainWindow::loadStyle() {
@@ -363,7 +365,7 @@ QIcon MainWindow::getIconRC(QString named) {
 QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence shorty,
-                         QString help, Spec option) {
+                         QString help, Spec option, StatsView *view) {
     static QMenu *aMenu;
     static QMenu *trayMenu = new QMenu(this);
     static QToolBar *aToolBar;
@@ -400,6 +402,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
     //must be done after show. maybe bad but is automatic for menu build.
     if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
+    if(view != nullptr) connect(newAct, &QAction::triggered, view, &StatsView::selectView);
     if(option & canCopy) {
         newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
@@ -434,6 +437,12 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
     return aMenu;
+}
+
+QMenu* MainWindow::addViewMenu(StatsView *view, Spec option) {
+    listOfViews.append(view);//build pointer chain
+    return addMenu(nullptr, nullptr, view->getIconName(), view->getViewName(),
+                   view->getShortCut(), view->getToolTipHelp(), option, view);
 }
 
 //===================================================
@@ -544,6 +553,7 @@ void MainWindow::createActions() {
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();
+    addViewMenu(new StatsView(this));
     addMenu(nullptr, &MainWindow::viewSettings,
             "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),
             tr("Show and hide settings view"));
