@@ -441,7 +441,8 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 
 QMenu* MainWindow::addViewMenu(StatsView *view, Spec option) {
     listOfViews.append(view);//build pointer chain
-    return addMenu(nullptr, nullptr, view->getIconName(), view->getViewName(),
+    //setMain(view);//to add to render
+    return addMenu(nullptr, &MainWindow::viewText, view->getIconName(), view->getViewName(),
                    view->getShortCut(), view->getToolTipHelp(), option, view);
 }
 

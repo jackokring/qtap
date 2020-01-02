@@ -20,7 +20,7 @@ public:
     virtual QString getToolTipHelp();
 
 public slots:
-    virtual void selectView(bool triggered);
+    virtual void selectView();
 
 private:
     Ui::StatsView *ui;

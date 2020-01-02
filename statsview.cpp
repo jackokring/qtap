@@ -30,6 +30,6 @@ QString StatsView::getToolTipHelp() {
     return "Show the " + getViewName().replace("&", "") + " view.";
 }
 
-void StatsView::selectView(bool triggered) {
+void StatsView::selectView() {
     ((MainWindow *)parentWidget())->setMain(this);
 }
