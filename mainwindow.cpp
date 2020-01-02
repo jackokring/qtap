@@ -193,8 +193,9 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 // GIT MANAGEMENT
 //===================================================
 int MainWindow::bash(QString proc) {
-    proc = proc.replace("\"", "\\\"");//literalize a quote
-    return QProcess::execute("bash -c \"" + proc + "\"");
+    return QProcess::execute("bash", QStringList()
+                             << "-c"
+                             << proc);
 }
 
 void MainWindow::publish() {
@@ -206,7 +207,10 @@ void MainWindow::publish() {
         QMessageBox::critical(this, tr("Publication Error"),
                  tr("The repository could not be published. "
                     "There maybe a complex data merge issue if many users "
-                    "update the same documents."));
+                    "update the same documents. If you did not use SSH to "
+                    "clone and used HTTPS instead, you may not have write "
+                    "and update privilages. Are you a member of the repository "
+                    "commit group?"));
         return;
     }
     statusBar()->showMessage(tr("Published all saved edits"), 2000);
@@ -245,9 +249,9 @@ void MainWindow::root() {
 
 void MainWindow::subscribe() {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Clone with SSH"),
+    QString text = QInputDialog::getText(this, tr("Clone (with SSH to write)"),
         tr("GIT repository identifier"), QLineEdit::Normal,
-        "git@github.com:jackokring/qtap.git", &ok);
+        "git@github.com:jackokring/qtap-tests-and-progress.git", &ok);
 
     if (!ok) return;
     if(bash("git clone \"" + text + "\" \"" + directory + "\"") != 0) {
