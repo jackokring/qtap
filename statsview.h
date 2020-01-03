@@ -21,9 +21,14 @@ public:
     virtual QKeySequence getShortCut();
     virtual QString getToolTipHelp();
     void setMainWindow(QMainWindow *mw);
+    virtual void checkAvailable();
+    virtual void defaultAvailable();
 
 public slots:
     virtual void selectView();
+
+signals:
+    void setAvailable(bool isAvail);
 
 private:
     Ui::StatsView *ui;

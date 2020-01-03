@@ -148,6 +148,8 @@ MainWindow::MainWindow()
             this, &MainWindow::checkRedo);
     connect(textEdit->document(), &QTextDocument::modificationChanged,
             this, &MainWindow::checkSave);
+    connect(QGuiApplication::clipboard(), &QClipboard::dataChanged,
+            this, &MainWindow::checkClipboard);
 }
 
 QString MainWindow::loadStyle() {
@@ -196,12 +198,23 @@ void MainWindow::checkRedo(bool active) {
 }
 
 void MainWindow::checkSave(bool active) {
+    checkAvailable(!active);//only views of saved
     setSave(active);
 }
 
 void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
     if(reason == QSystemTrayIcon::Trigger) {
         setVisible(!isVisible());
+    }
+}
+
+void MainWindow::checkAvailable(bool safe) {//TODO - decide when called
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->defaultAvailable();
+    }
+    if(!safe) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->checkAvailable();//restore all possible not safe bets
     }
 }
 
@@ -213,21 +226,23 @@ int MainWindow::bash(QString proc, bool reentry) {
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
     QProgressDialog mb(tr("An longish operation is in progress."),
-                       tr("Cancel"), 0, sl.length() - 1, this);
+                       tr("Cancel"), 0, sl.length(), this);
     if(!reentry) {
         mb.setWindowTitle(tr("Processing"));
         mb.show();
     }
     int j = 0;
     for(int i = 0; i < sl.length(); ++i) {
+        if(!reentry) mb.setValue(i);
         QCoreApplication::processEvents();//botch loop
         j = QProcess::execute("bash", QStringList()
                                  << "-c"
                                  << "cd \"" + directory + "\" && " + sl[i]);
-        mb.setValue(i);
+
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
     if(!reentry) {
+        mb.setValue(sl.length());
         mb.hide();
         hasRepo();//re-entrant catch recursive close
     }
@@ -245,7 +260,7 @@ void MainWindow::publish() {
                     "update the same documents. If you did not use SSH to "
                     "clone and used HTTPS instead, you may not have write "
                     "and update privilages. Are you a member of the repository "
-                    "commit group?"));
+                    "commit group? Is there anything to merge?"));
         return;
     }
     statusBar()->showMessage(tr("Published all saved edits"), 2000);
@@ -256,7 +271,7 @@ void MainWindow::read() {
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read. "
                     "There maybe a complex data merge issue if many users "
-                    "update the same documents."));
+                    "update the same documents. Or has anything changed?"));
         return;
     }
     statusBar()->showMessage(tr("Read all updates and restored saved edits"), 2000);
@@ -433,7 +448,11 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
     //must be done after show. maybe bad but is automatic for menu build.
     if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
-    if(view != nullptr) connect(newAct, &QAction::triggered, view, &StatsView::selectView);
+    if(view != nullptr) {
+        connect(newAct, &QAction::triggered, view, &StatsView::selectView);
+        newAct->setEnabled(false);
+        connect(view, &StatsView::setAvailable, newAct, &QAction::setEnabled);
+    }
     if(option & canCopy) {
         newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
@@ -448,8 +467,6 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
     if(option & canPaste) {
         newAct->setEnabled(false);
-        connect(QGuiApplication::clipboard(),
-                &QClipboard::dataChanged, this, &MainWindow::checkClipboard);
         connect(this, &MainWindow::setPaste, newAct, &QAction::setEnabled);
     }
     if(option & canSave) {

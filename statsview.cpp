@@ -30,6 +30,14 @@ QString StatsView::getToolTipHelp() {
     return tr("Show the ") + getViewName().replace("&", "") + tr(" view.");
 }
 
+void StatsView::checkAvailable() {
+    setAvailable(true);//pass through
+}
+
+void StatsView::defaultAvailable() {
+    setAvailable(false);//pass through (default zero state or unsaved)
+}
+
 void StatsView::setMainWindow(QMainWindow *mw) {
     main = mw;
 }
