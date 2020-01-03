@@ -150,6 +150,12 @@ MainWindow::MainWindow()
             this, &MainWindow::checkSave);
     connect(QGuiApplication::clipboard(), &QClipboard::dataChanged,
             this, &MainWindow::checkClipboard);
+    QProgressDialog mb(tr("An long operation is in progress."),
+                       tr("Cancel"), 0, 10, this);
+    mb.setModal(true);
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
+    timer->start(500);
 }
 
 QString MainWindow::loadStyle() {
@@ -208,14 +214,18 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
     }
 }
 
-void MainWindow::checkAvailable(bool safe) {//TODO - decide when called
+void MainWindow::checkAvailable(bool safe) {
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->defaultAvailable();
     }
-    if(!safe) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->checkAvailable();//restore all possible not safe bets
+    if(safe) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->checkAvailable();//restore all possible not safe (saved) bets
     }
+}
+
+void MainWindow::checkEvents() {
+    if(mb.isVisible()) QCoreApplication::processEvents();//botch loop
 }
 
 //===================================================
@@ -225,24 +235,21 @@ int MainWindow::bash(QString proc, bool reentry) {
     setClone(false);
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
-    QProgressDialog mb(tr("An longish operation is in progress."),
-                       tr("Cancel"), 0, sl.length(), this);
     if(!reentry) {
-        mb.setWindowTitle(tr("Processing"));
+        mb.setWindowTitle(tr("Processing command"));
+        mb.setMaximum(sl.length());
+        mb.setValue(0);
         mb.show();
     }
     int j = 0;
     for(int i = 0; i < sl.length(); ++i) {
-        if(!reentry) mb.setValue(i);
-        QCoreApplication::processEvents();//botch loop
         j = QProcess::execute("bash", QStringList()
                                  << "-c"
                                  << "cd \"" + directory + "\" && " + sl[i]);
-
+        if(!reentry) mb.setValue(i + 1);
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
     if(!reentry) {
-        mb.setValue(sl.length());
         mb.hide();
         hasRepo();//re-entrant catch recursive close
     }
@@ -252,8 +259,8 @@ int MainWindow::bash(QString proc, bool reentry) {
 void MainWindow::publish() {
     maybeSave();
     QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(bash("git add . && git stash && git pull && git stash pop && " //incorporate
-        "git commit -m \"" + now + "\" && git push") != 0) {
+    if(bash("git add . &&& git stash &&& git pull &&& git stash pop &&& " //incorporate
+        "git commit -m \"" + now + "\" &&& git push") != 0) {
         QMessageBox::critical(this, tr("Publication Error"),
                  tr("The repository could not be published. "
                     "There maybe a complex data merge issue if many users "
@@ -267,7 +274,7 @@ void MainWindow::publish() {
 }
 
 void MainWindow::read() {
-    if(bash("git add . && git stash && git pull && git stash pop") != 0) { //incorporate
+    if(bash("git add . &&& git stash &&& git pull &&& git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read. "
                     "There maybe a complex data merge issue if many users "

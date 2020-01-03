@@ -55,6 +55,7 @@
 #include <QTextDocument>
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
+#include <QProgressDialog>
 #include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
@@ -112,7 +113,8 @@ private slots:
     void checkRedo(bool active);
     void checkSave(bool active);
     void checkTray(QSystemTrayIcon::ActivationReason reason);
-    void checkAvailable(bool safe = false);
+    void checkAvailable(bool safe);
+    void checkEvents();
 
     //===================================================
     // GIT MANAGEMENT
@@ -218,6 +220,7 @@ private:
     QSystemTrayIcon *tray;
     bool exitCheck;
     QList<StatsView *> listOfViews;
+    QProgressDialog mb;
+    QTimer *eventLoop;
 };
-
 #endif
