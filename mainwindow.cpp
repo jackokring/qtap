@@ -51,6 +51,8 @@
 #include <QtWidgets>
 #include "statsview.h"
 #include "mainwindow.h"
+#define para "</p><p>"
+#define bold(X) " <b>" + tr(X) + "</b> "
 
 //===================================================
 // HELP
@@ -60,17 +62,25 @@ void MainWindow::aboutQt() {
 }
 
 void MainWindow::about() {
-   QMessageBox::about(this, tr("About QtAp"),
-            tr("<b>QtAp</b> for document control. Wrote in C++ using Qt. "
-               "It requires GIT for sync to work, which in turn depends on SSH. "
-               "(C) K Ring Technologies Ltd, BSD Licence terms extending a "
-               "copyrighted work of The Qt Company Ltd.<br>"
-               "The main work of the application has been to build a framework "
-               "to run a library of code, which in turn could be using some "
-               "calls to some other libraries of code released under different "
-               "terms. Nothing in the code base is currently prohibited from "
-               "extension under the BSD Licence."
-               ));
+    QMessageBox::about(this, tr("About QtAp"),
+        bold("QtAp") +
+        tr("for text document control and "
+         "generation of information views.") +
+        para +
+        tr("Wrote in C++ using Qt5 kit and Creator. "
+         "It requires GIT for sync to work, which in turn depends on SSH.") +
+        para +
+        tr("(C) K Ring Technologies Ltd, BSD Licence terms extending a "
+         "copyrighted work of The Qt Company Ltd.") +
+        para +
+        tr("The main work of the application has been to build a framework "
+         "to run a library of code, which in turn could be using some "
+         "calls to some other libraries of code released under different "
+         "terms. Nothing in the code base is currently prohibited from "
+         "extension under the BSD Licence.") +
+        para +
+        tr("Version: ") + QCoreApplication::applicationVersion()
+        );
 }
 
 //===================================================
@@ -198,10 +208,30 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 //===================================================
 // GIT MANAGEMENT
 //===================================================
-int MainWindow::bash(QString proc) {
-    return QProcess::execute("bash", QStringList()
-                             << "-c"
-                             << proc);
+int MainWindow::bash(QString proc, bool reentry) {
+    setClone(false);
+    setSync(false);
+    QStringList sl = proc.split("&&&");//split notation
+    QProgressDialog mb(tr("An longish operation is in progress."),
+                       tr("Cancel"), 0, sl.length(), this);
+    if(!reentry) {
+        mb.setWindowTitle(tr("Processing"));
+        mb.show();
+    }
+    int j = 0;
+    for(int i = 0; i < sl.length(); ++i) {
+        QCoreApplication::processEvents();//botch loop
+        j = QProcess::execute("bash", QStringList()
+                                 << "-c"
+                                 << sl[i]);
+        mb.setValue(i);
+        if(j != 0 || mb.wasCanceled()) break;//exit early
+    }
+    if(!reentry) {
+        mb.hide();
+        hasRepo();//re-entrant catch recursive close
+    }
+    return j;
 }
 
 void MainWindow::publish() {
@@ -274,7 +304,7 @@ void MainWindow::subscribe() {
 
 bool MainWindow::hasRepo() {
     if(bash("cd \"" + directory + "\" && "
-        "git status") != 0) {
+        "git status", true) != 0) {
         setClone(true);
         setSync(false);
         return false;

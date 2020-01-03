@@ -116,7 +116,7 @@ private slots:
     //===================================================
     // GIT MANAGEMENT
     //===================================================
-    int bash(QString proc);
+    int bash(QString proc, bool reentry = false);
     void publish();
     void read();
     void root();
