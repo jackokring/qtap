@@ -213,7 +213,7 @@ int MainWindow::bash(QString proc, bool reentry) {
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
     QProgressDialog mb(tr("An longish operation is in progress."),
-                       tr("Cancel"), 0, sl.length(), this);
+                       tr("Cancel"), 0, sl.length() - 1, this);
     if(!reentry) {
         mb.setWindowTitle(tr("Processing"));
         mb.show();
@@ -223,7 +223,7 @@ int MainWindow::bash(QString proc, bool reentry) {
         QCoreApplication::processEvents();//botch loop
         j = QProcess::execute("bash", QStringList()
                                  << "-c"
-                                 << sl[i]);
+                                 << "cd \"" + directory + "\" && " + sl[i]);
         mb.setValue(i);
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
@@ -237,8 +237,7 @@ int MainWindow::bash(QString proc, bool reentry) {
 void MainWindow::publish() {
     maybeSave();
     QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(bash("cd \"" + directory + "\" && "
-        "git add . && git stash && git pull && git stash pop && " //incorporate
+    if(bash("git add . && git stash && git pull && git stash pop && " //incorporate
         "git commit -m \"" + now + "\" && git push") != 0) {
         QMessageBox::critical(this, tr("Publication Error"),
                  tr("The repository could not be published. "
@@ -253,8 +252,7 @@ void MainWindow::publish() {
 }
 
 void MainWindow::read() {
-    if(bash("cd \"" + directory + "\" && "
-        "git add . && git stash && git pull && git stash pop") != 0) { //incorporate
+    if(bash("git add . && git stash && git pull && git stash pop") != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read. "
                     "There maybe a complex data merge issue if many users "
@@ -303,8 +301,7 @@ void MainWindow::subscribe() {
 }
 
 bool MainWindow::hasRepo() {
-    if(bash("cd \"" + directory + "\" && "
-        "git status", true) != 0) {
+    if(bash("git status", true) != 0) {
         setClone(true);
         setSync(false);
         return false;
