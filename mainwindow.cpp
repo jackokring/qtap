@@ -150,9 +150,8 @@ MainWindow::MainWindow()
             this, &MainWindow::checkSave);
     connect(QGuiApplication::clipboard(), &QClipboard::dataChanged,
             this, &MainWindow::checkClipboard);
-    QProgressDialog mb(tr("An long operation is in progress."),
-                       tr("Cancel"), 0, 10, this);
-    mb.setModal(true);
+
+    mbp = nullptr;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
     timer->start(500);
@@ -225,7 +224,7 @@ void MainWindow::checkAvailable(bool safe) {
 }
 
 void MainWindow::checkEvents() {
-    if(mb.isVisible()) QCoreApplication::processEvents();//botch loop
+    if(mbp != nullptr && mbp->isVisible()) QCoreApplication::processEvents();//botch loop
 }
 
 //===================================================
@@ -235,6 +234,10 @@ int MainWindow::bash(QString proc, bool reentry) {
     setClone(false);
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
+    QProgressDialog mb(tr("An long operation is in progress."),
+                       tr("Cancel"), 0, sl.length(), this);//still shows blank
+    mbp = &mb;
+    mb.setModal(true);
     if(!reentry) {
         mb.setWindowTitle(tr("Processing command"));
         mb.setMaximum(sl.length());
@@ -253,6 +256,7 @@ int MainWindow::bash(QString proc, bool reentry) {
         mb.hide();
         hasRepo();//re-entrant catch recursive close
     }
+    mbp = nullptr;
     return j;
 }
 

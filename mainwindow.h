@@ -220,7 +220,7 @@ private:
     QSystemTrayIcon *tray;
     bool exitCheck;
     QList<StatsView *> listOfViews;
-    QProgressDialog mb;
+    QProgressDialog *mbp;
     QTimer *eventLoop;
 };
 #endif
