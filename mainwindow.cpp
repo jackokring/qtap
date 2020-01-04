@@ -52,7 +52,7 @@
 #include "statsview.h"
 #include "mainwindow.h"
 #define para "</p><p>"
-#define bold(X) " <b>" + tr(X) + "</b> "
+#define bold(X) " <b>" + X + "</b> "
 
 //===================================================
 // HELP
@@ -63,7 +63,7 @@ void MainWindow::aboutQt() {
 
 void MainWindow::about() {
     QMessageBox::about(this, tr("About QtAp"),
-        bold("QtAp") +
+        bold(tr("QtAp")) +
         tr("for text document control and "
          "generation of information views.") +
         para +
@@ -93,6 +93,7 @@ void MainWindow::setMain(QWidget *widget) {
     if(center->currentWidget() != widget) {
         center->setCurrentWidget(widget);
     }
+    checkAvailable(textEdit->document()->isModified());//test save avail?
 }
 
 MainWindow::MainWindow()
@@ -177,28 +178,22 @@ void MainWindow::checkClipboard() {
 }
 
 void MainWindow::checkSelected(bool active) {
-    if(holdWhileSettings == settings) {//inhibit
-        active = false;
-    }
+    //intecept for selection auto processing
     setCopy(active);
 }
 
 void MainWindow::checkUndo(bool active) {
-    if(holdWhileSettings == settings) {//inhibit
-        active = false;
-    }
+    //intercept to change allowed undo
     setUndo(active);
 }
 
 void MainWindow::checkRedo(bool active) {
-    if(holdWhileSettings == settings) {//inhibit
-        active = false;
-    }
+    //intercept to change allowed redo
     setRedo(active);
 }
 
 void MainWindow::checkSave(bool active) {
-    checkAvailable(!active);//only views of saved
+    checkAvailable(active);//only views of saved
     setSave(active);
 }
 
@@ -208,12 +203,12 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
     }
 }
 
-void MainWindow::checkAvailable(bool safe) {
+void MainWindow::checkAvailable(bool notSaved) {
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->defaultAvailable();
     }
-    if(safe) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    if(!notSaved) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->checkAvailable();//restore all possible not safe (saved) bets
     }
 }
@@ -258,31 +253,43 @@ int MainWindow::bash(QString proc) {
 }
 
 void MainWindow::publish() {
-    maybeSave();
-    QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-    if(bash("git add . &&& git stash &&& git pull &&& git stash pop &&& " //incorporate
-        "git commit -m \"" + now + "\" &&& git push") != 0) {
-        QMessageBox::critical(this, tr("Publication Error"),
-                 tr("The repository could not be published. "
-                    "There maybe a complex data merge issue if many users "
-                    "update the same documents. If you did not use SSH to "
-                    "clone and used HTTPS instead, you may not have write "
-                    "and update privilages. Are you a member of the repository "
-                    "commit group? Is there anything to merge?"));
-        return;
-    }
+    if(maybeSave()) {
+        QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
+        if(bash("git add . &&&"
+                "git stash || exit 0 &&&"
+                "git pull &&&"
+                "git stash pop || exit 0 &&&"
+                "git commit -m \"" + now + "\" &&&"
+                "git push"
+                ) != 0) {
+            QMessageBox::critical(this, tr("Publication Error"),
+                     tr("The repository could not be published. "
+                        "There maybe a complex data merge issue if many users "
+                        "update the same documents. If you did not use SSH to "
+                        "clone and used HTTPS instead, you may not have write "
+                        "and update privilages. Are you a member of the repository "
+                        "commit group? Is there anything to merge?"));
+            return;
+        }
     statusBar()->showMessage(tr("Published all saved edits"), 2000);
+    reload();
+    }
 }
 
 void MainWindow::read() {
-    if(bash("git add . &&& git stash &&& git pull &&& git stash pop") != 0) { //incorporate
+    if(bash("git add . &&&"
+            "git stash || exit 0 &&&"
+            "git pull &&&"
+            "git stash pop || exit 0"
+            ) != 0) { //incorporate
         QMessageBox::critical(this, tr("Reading Error"),
                  tr("The repository could not be read. "
                     "There maybe a complex data merge issue if many users "
-                    "update the same documents. Or has anything changed?"));
+                    "update the same documents."));
         return;
     }
     statusBar()->showMessage(tr("Read all updates and restored saved edits"), 2000);
+    reload();
 }
 
 void MainWindow::root() {
@@ -320,6 +327,7 @@ void MainWindow::subscribe() {
         return;
     }
     statusBar()->showMessage(tr("Subscription created by cloning repository"), 2000);
+    reload();
     hasRepo();
 }
 
@@ -372,6 +380,7 @@ void MainWindow::open() {
 }
 
 void MainWindow::save() {
+    saved = true;
     if (curFile.isEmpty()) {
         saveAs();
     } else {
@@ -395,6 +404,12 @@ void MainWindow::saveAs() {
     }
     //TODO: maybe need to do view transform on type
     saveFile(dialog.selectedFiles().first());
+}
+
+void MainWindow::reload() {
+    if(maybeSave(true)) {//reload message and avoid no change exit
+        loadFile(curFile);
+    }
 }
 
 void MainWindow::documentWasModified() {
@@ -692,11 +707,14 @@ void MainWindow::writeSettings() {
 //===================================================
 // FILE IO
 //===================================================
-bool MainWindow::maybeSave() {
-    if (!textEdit->document()->isModified())
+bool MainWindow::maybeSave(bool reload) {
+    if (!textEdit->document()->isModified() && !reload)
         return true;
     const QMessageBox::StandardButton ret
         = QMessageBox::warning(this, tr("Save Changes"),
+                               reload ?
+                               tr("The document may have been modified by synchronization.\n"
+                                  "Do you want to save any possible changes?") :
                                tr("The document has been modified.\n"
                                   "Do you want to save your changes?"),
                                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);

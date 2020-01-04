@@ -114,7 +114,7 @@ private slots:
     void checkRedo(bool active);
     void checkSave(bool active);
     void checkTray(QSystemTrayIcon::ActivationReason reason);
-    void checkAvailable(bool safe);
+    void checkAvailable(bool notSaved);
     void checkEvents();
 
     //===================================================
@@ -136,6 +136,7 @@ private slots:
     void open();
     void save();
     void saveAs();
+    void reload();
 
     void close();
     void documentWasModified();
@@ -184,7 +185,7 @@ private:
     //===================================================
     // FILE IO
     //===================================================
-    bool maybeSave();
+    bool maybeSave(bool reload = false);
 public:
     void loadFile(const QString &fileName);
 private:

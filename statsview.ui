@@ -1,7 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>StatsView</class>
  <widget class="QWidget" name="StatsView">
   <property name="geometry">
@@ -15,7 +13,42 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QTabWidget" name="statsTabs">
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="basic">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <attribute name="title">
+       <string>Basic</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="standard">
+      <attribute name="title">
+       <string>Standard</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="compression">
+      <attribute name="title">
+       <string>Compression</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="ai">
+      <attribute name="title">
+       <string>AI</string>
+      </attribute>
+     </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>
