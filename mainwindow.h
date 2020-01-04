@@ -82,6 +82,7 @@ enum Spec : unsigned int {
     inTray = 64,
     canClone = 128,
     canSync = 256,
+    canSetdir = 512,
 };
 
 class MainWindow : public QMainWindow
@@ -119,7 +120,8 @@ private slots:
     //===================================================
     // GIT MANAGEMENT
     //===================================================
-    int bash(QString proc, bool reentry = false);
+    int quietBash(QString proc);
+    int bash(QString proc);
     void publish();
     void read();
     void root();
@@ -204,6 +206,7 @@ signals:
     void setSave(bool active);
     void setSync(bool active);
     void setClone(bool active);
+    void setDirectory(bool active);
 
     //===================================================
     // CONFIGURATION VARIABLES
@@ -220,7 +223,5 @@ private:
     QSystemTrayIcon *tray;
     bool exitCheck;
     QList<StatsView *> listOfViews;
-    QProgressDialog *mbp;
-    QTimer *eventLoop;
 };
 #endif

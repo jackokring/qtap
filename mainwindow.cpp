@@ -150,11 +150,6 @@ MainWindow::MainWindow()
             this, &MainWindow::checkSave);
     connect(QGuiApplication::clipboard(), &QClipboard::dataChanged,
             this, &MainWindow::checkClipboard);
-
-    mbp = nullptr;
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
-    timer->start(500);
 }
 
 QString MainWindow::loadStyle() {
@@ -224,39 +219,41 @@ void MainWindow::checkAvailable(bool safe) {
 }
 
 void MainWindow::checkEvents() {
-    if(mbp != nullptr && mbp->isVisible()) QCoreApplication::processEvents();//botch loop
+    QCoreApplication::processEvents();//botch loop
 }
 
 //===================================================
 // GIT MANAGEMENT
 //===================================================
-int MainWindow::bash(QString proc, bool reentry) {
+int MainWindow::quietBash(QString proc) {
+    //NB. NO PROTECTION FROM directory CHANGE
+    return QProcess::execute("bash", QStringList()
+                                     << "-c"
+                                     << "cd \"" + directory + "\" && " + proc);
+}
+
+int MainWindow::bash(QString proc) {
+    setDirectory(false);
     setClone(false);
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
-    QProgressDialog mb(tr("An long operation is in progress."),
-                       tr("Cancel"), 0, sl.length(), this);//still shows blank
-    mbp = &mb;
+    QProgressDialog mb(tr("Please wait."),
+                       tr("Cancel"), 0, sl.length(), this);
     mb.setModal(true);
-    if(!reentry) {
-        mb.setWindowTitle(tr("Processing command"));
-        mb.setMaximum(sl.length());
-        mb.setValue(0);
-        mb.show();
-    }
+    mb.setMaximum(sl.length());
+    mb.setValue(0);
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
+    timer->start(500);
     int j = 0;
     for(int i = 0; i < sl.length(); ++i) {
-        j = QProcess::execute("bash", QStringList()
-                                 << "-c"
-                                 << "cd \"" + directory + "\" && " + sl[i]);
-        if(!reentry) mb.setValue(i + 1);
+        j = quietBash(sl[i]);
+        mb.setValue(i + 1);//update
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
-    if(!reentry) {
-        mb.hide();
-        hasRepo();//re-entrant catch recursive close
-    }
-    mbp = nullptr;
+    timer->stop();
+    mb.hide();
+    hasRepo();//re-entrant catch recursive close
     return j;
 }
 
@@ -327,7 +324,8 @@ void MainWindow::subscribe() {
 }
 
 bool MainWindow::hasRepo() {
-    if(bash("git status", true) != 0) {
+    setDirectory(true);
+    if(quietBash("git status") != 0) {
         setClone(true);
         setSync(false);
         return false;
@@ -492,6 +490,10 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         newAct->setEnabled(false);
         connect(this, &MainWindow::setSync, newAct, &QAction::setEnabled);
     }
+    if(option & canSync) {
+        newAct->setEnabled(false);
+        connect(this, &MainWindow::setDirectory, newAct, &QAction::setEnabled);
+    }
     //more options
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
@@ -633,7 +635,7 @@ void MainWindow::createActions() {
             tr("Read from services"), canSync | inTray)->addSeparator();
     addMenu(nullptr, &MainWindow::root,
             nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),//D
-            tr("Set default working directory"));
+            tr("Set default working directory"), canSetdir);
     addMenu(nullptr, &MainWindow::subscribe,
             nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),//L
             tr("Subscribe to a remote git ssh repository and clone it"), canClone);
