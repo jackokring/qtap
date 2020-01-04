@@ -30,3 +30,9 @@ unix:!macx: LIBS += -L$$PWD/../Builds/ -llibkqfn
 
 INCLUDEPATH += $$PWD/../Builds
 DEPENDPATH += $$PWD/../Builds
+
+TRANSLATIONS = QtAp_de.ts \
+               QtAp_nl.ts \
+               QtAp_en.ts \
+               QtAp_fr.ts \
+               QtAp_pl.ts
