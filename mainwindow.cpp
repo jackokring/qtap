@@ -169,11 +169,10 @@ QWidget *MainWindow::getQWebEngineView() {
 //===================================================
 void MainWindow::checkClipboard() {
     bool hasText = false;
-    if(holdWhileSettings != settings) //TODO text view
-        if(QGuiApplication::clipboard()->mimeData()->hasText() &&
-                QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
-            hasText = true;
-        }
+    if(QGuiApplication::clipboard()->mimeData()->hasText() &&
+            QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
+        hasText = true;
+    }
     setPaste(hasText);
 }
 
@@ -255,11 +254,10 @@ int MainWindow::bash(QString proc) {
 void MainWindow::publish() {
     if(maybeSave()) {
         QString now = QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss");
-        if(bash("git add . &&&"
-                "git stash || exit 0 &&&"
-                "git pull &&&"
-                "git stash pop || exit 0 &&&"
-                "git commit -m \"" + now + "\" &&&"
+        if(bash(//"git stash push &&&"
+                //"git pull &&&"
+                //"git stash pop &&&"
+                "git commit -a -m \"" + now + "\" &&&"
                 "git push"
                 ) != 0) {
             QMessageBox::critical(this, tr("Publication Error"),
@@ -272,13 +270,12 @@ void MainWindow::publish() {
             return;
         }
     statusBar()->showMessage(tr("Published all saved edits"), 2000);
-    reload();
+    //reload();
     }
 }
 
 void MainWindow::read() {
-    if(bash("git add . &&&"
-            "git stash || exit 0 &&&"
+    if(bash("git stash push -a || exit 0 &&&"
             "git pull &&&"
             "git stash pop || exit 0"
             ) != 0) { //incorporate
