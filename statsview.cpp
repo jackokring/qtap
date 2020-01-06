@@ -19,7 +19,7 @@ QString StatsView::getViewName() {
 }
 
 QString StatsView::getIconName() {
-    return "media-playback-start";
+    return "view-statistics";
 }
 
 QKeySequence StatsView::getShortCut() {

@@ -17,6 +17,8 @@
         <file>images/application-exit.png</file>
         <file>style.css</file>
         <file>images/view-restore.png</file>
-        <file>images/media-playback-start.png</file>
+        <file>images/view-statistics.png</file>
+        <file>images/sync-directory.png</file>
+        <file>images/sync-subscribe.png</file>
     </qresource>
 </RCC>

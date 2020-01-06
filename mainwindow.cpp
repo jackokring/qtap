@@ -660,11 +660,11 @@ void MainWindow::createActions() {
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),//R
             tr("Read from services"), canSync | inTray)->addSeparator();
     addMenu(nullptr, &MainWindow::root,
-            nullptr, tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),//D
-            tr("Set default working directory"), canSetdir);
+            "sync-directory", tr("Set &Dir Root..."), QKeySequence(Qt::CTRL + Qt::Key_D),//D
+            tr("Set default working directory"), canSetdir | noBar);
     addMenu(nullptr, &MainWindow::subscribe,
-            nullptr, tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),//L
-            tr("Subscribe to a remote git ssh repository and clone it"), canClone);
+            "sync-subscribe", tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),//L
+            tr("Subscribe to a remote git ssh repository and clone it"), canClone | noBar);
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
