@@ -100,6 +100,8 @@ private slots:
     //===================================================
 public:
     void setMain(QWidget *widget);
+    QWidget *getMain();
+    bool isTextMain();
     MainWindow();
     QString loadStyle();
     QWidget *getQWebEngineView();
@@ -139,7 +141,7 @@ private slots:
     void reload();
 
     void close();
-    void documentWasModified();
+    //void documentWasModified();
 
     //===================================================
     // MENU AND ICON UTILITIES
@@ -224,5 +226,9 @@ private:
     QSystemTrayIcon *tray;
     bool exitCheck;
     QList<StatsView *> listOfViews;
+    //lasts
+    bool lastSelected = false;
+    bool lastUndo = false;
+    bool lastRedo = false;
 };
 #endif

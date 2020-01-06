@@ -38,10 +38,21 @@ void StatsView::defaultAvailable() {
     setAvailable(false);//pass through (default zero state or unsaved)
 }
 
+void StatsView::create() {
+
+}
+
+bool StatsView::needsSave() {
+    return false;
+}
+
 void StatsView::setMainWindow(QMainWindow *mw) {
     main = mw;
 }
 
 void StatsView::selectView() {
-    if(main != nullptr) ((MainWindow *)main)->setMain(this);
+    if(main != nullptr) {
+        create();
+        ((MainWindow *)main)->setMain(this);
+    }
 }

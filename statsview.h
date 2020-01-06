@@ -23,9 +23,11 @@ public:
     void setMainWindow(QMainWindow *mw);
     virtual void checkAvailable();
     virtual void defaultAvailable();
+    virtual void create();
+    virtual bool needsSave();
 
 public slots:
-    virtual void selectView();
+    void selectView();
 
 signals:
     void setAvailable(bool isAvail);

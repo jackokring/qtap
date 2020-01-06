@@ -90,10 +90,22 @@ void MainWindow::setMain(QWidget *widget) {
     if(center->indexOf(widget) < 0) {
         center->addWidget(widget);
     }
-    if(center->currentWidget() != widget) {
+    if(getMain() != widget) {
         center->setCurrentWidget(widget);
     }
-    checkAvailable(textEdit->document()->isModified());//test save avail?
+    checkSave(textEdit->document()->isModified());//test save avail?
+    checkClipboard();
+    checkSelected(lastSelected);
+    checkUndo(lastUndo);
+    checkRedo(lastRedo);
+}
+
+QWidget *MainWindow::getMain() {
+    return center->currentWidget();
+}
+
+bool MainWindow::isTextMain() {
+    return getMain() == textEdit;
 }
 
 MainWindow::MainWindow()
@@ -139,8 +151,6 @@ MainWindow::MainWindow()
     setCurrentFile(QString());
     setUnifiedTitleAndToolBarOnMac(true);
 
-    connect(textEdit->document(), &QTextDocument::contentsChanged,
-            this, &MainWindow::documentWasModified);
     connect(textEdit, &QPlainTextEdit::copyAvailable,
             this, &MainWindow::checkSelected);
     connect(textEdit->document(), &QTextDocument::undoAvailable,
@@ -173,27 +183,35 @@ void MainWindow::checkClipboard() {
             QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
         hasText = true;
     }
-    setPaste(hasText);
+    setPaste(hasText & isTextMain());
 }
 
 void MainWindow::checkSelected(bool active) {
     //intecept for selection auto processing
-    setCopy(active);
+    lastSelected = active;
+    setCopy(active & isTextMain());
 }
 
 void MainWindow::checkUndo(bool active) {
     //intercept to change allowed undo
-    setUndo(active);
+    lastUndo = active;
+    setUndo(active & isTextMain());
 }
 
 void MainWindow::checkRedo(bool active) {
     //intercept to change allowed redo
-    setRedo(active);
+    lastRedo = active;
+    setRedo(active & isTextMain());
 }
 
 void MainWindow::checkSave(bool active) {
     checkAvailable(active);//only views of saved
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        active |= (*i)->needsSave();
+    }
     setSave(active);
+    setWindowModified(active);
 }
 
 void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
@@ -409,10 +427,6 @@ void MainWindow::reload() {
     }
 }
 
-void MainWindow::documentWasModified() {
-    setWindowModified(textEdit->document()->isModified());
-}
-
 //===================================================
 // MENU AND ICON UTILITIES
 //===================================================
@@ -475,35 +489,35 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         connect(view, &StatsView::setAvailable, newAct, &QAction::setEnabled);
     }
     if(option & canCopy) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
     }
     if(option & canUndo) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setUndo, newAct, &QAction::setEnabled);
     }
     if(option & canRedo) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setRedo, newAct, &QAction::setEnabled);
     }
     if(option & canPaste) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setPaste, newAct, &QAction::setEnabled);
     }
     if(option & canSave) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setSave, newAct, &QAction::setEnabled);
     }
     if(option & canClone) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setClone, newAct, &QAction::setEnabled);
     }
     if(option & canSync) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setSync, newAct, &QAction::setEnabled);
     }
     if(option & canSync) {
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(this, &MainWindow::setDirectory, newAct, &QAction::setEnabled);
     }
     //more options
@@ -578,7 +592,7 @@ void MainWindow::viewText() {
 
 void MainWindow::viewSettings() {
     if(holdWhileSettings == settings) {
-        holdWhileSettings = center->currentWidget();//for restore
+        holdWhileSettings = getMain();//for restore
         setMain(settings);
     } else {
         setMain(holdWhileSettings);
@@ -714,7 +728,10 @@ bool MainWindow::maybeSave(bool reload) {
                                   "Do you want to save any possible changes?") :
                                tr("The document has been modified.\n"
                                   "Do you want to save your changes?"),
-                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+                               (reload ?
+                                    QMessageBox::Save | QMessageBox::Discard
+                                  : QMessageBox::Save | QMessageBox::Discard |
+                                    QMessageBox::Cancel));
     switch (ret) {
     case QMessageBox::Save:
         save();
