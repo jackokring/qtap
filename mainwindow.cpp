@@ -717,11 +717,11 @@ void MainWindow::createActions() {
     menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
-            nullptr, tr("&About"), 0,
-            tr("Show the application's About box"));
+            "help-about", tr("&About"), 0,
+            tr("Show the application's About box"), noBar);
     addMenu(nullptr, &MainWindow::aboutQt,
-            nullptr, tr("About &Qt"), 0,
-            tr("Show the Qt library's About box"));
+            "QtIcon", tr("About &Qt"), 0,
+            tr("Show the Qt library's About box"), noBar);
 }
 
 void MainWindow::createStatusBar() {

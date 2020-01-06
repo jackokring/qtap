@@ -20,5 +20,7 @@
         <file>images/view-statistics.png</file>
         <file>images/sync-directory.png</file>
         <file>images/sync-subscribe.png</file>
+        <file>images/help-about.png</file>
+        <file>images/QtIcon.png</file>
     </qresource>
 </RCC>
