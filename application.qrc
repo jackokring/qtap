@@ -11,12 +11,12 @@
         <file>images/sync-read.png</file>
         <file>images/document-save-as.png</file>
         <file>images/void.png</file>
-        <file>images/system-run.png</file>
+        <file>images/view-settings.png</file>
         <file>images/edit-redo.png</file>
         <file>images/edit-undo.png</file>
         <file>images/application-exit.png</file>
         <file>style.css</file>
-        <file>images/view-restore.png</file>
+        <file>images/application-tray.png</file>
         <file>images/view-statistics.png</file>
         <file>images/sync-directory.png</file>
         <file>images/sync-subscribe.png</file>

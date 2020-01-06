@@ -101,10 +101,12 @@ private slots:
 public:
     void setMain(QWidget *widget);
     QWidget *getMain();
-    bool isTextMain();
+    bool isTextMain(bool writeable = true);
     MainWindow();
     QString loadStyle();
     QWidget *getQWebEngineView();
+    void setCommand(QAction *action, StatsView *view);
+    void fillCommands();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
@@ -146,8 +148,9 @@ private slots:
     //===================================================
     // MENU AND ICON UTILITIES
     //===================================================
-private:
+public:
     static QIcon getIconRC(QString named);
+private:
     QMenu* addMenu(QString menu = nullptr, void(MainWindow::*fp)() = nullptr,
          QString named = nullptr, QString entry = nullptr, QKeySequence shorty = 0,
          QString help = nullptr, Spec option = none, StatsView *view = nullptr);
@@ -230,5 +233,8 @@ private:
     bool lastSelected = false;
     bool lastUndo = false;
     bool lastRedo = false;
+    QMap<StatsView *, QList<QAction *>> inViewActions;
+    QMenu *commands;
+    QToolBar *commandToolBar;
 };
 #endif

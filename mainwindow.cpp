@@ -93,6 +93,17 @@ void MainWindow::setMain(QWidget *widget) {
     if(getMain() != widget) {
         center->setCurrentWidget(widget);
     }
+    StatsView *k = (widget != textEdit) ?
+                nullptr :
+                (StatsView *)widget;
+    QMap<StatsView *, QList<QAction *>>::iterator i;
+    for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
+        QList<QAction *>::iterator j;
+        for (j = (*i).begin(); j != (*i).end(); ++j) {
+            (*j)->setVisible(false);
+            if(k == i.key()) (*j)->setVisible(true);//and for view
+        }
+    }
     checkSave(textEdit->document()->isModified());//test save avail?
     checkClipboard();
     checkSelected(lastSelected);
@@ -104,8 +115,8 @@ QWidget *MainWindow::getMain() {
     return center->currentWidget();
 }
 
-bool MainWindow::isTextMain() {
-    return getMain() == textEdit;
+bool MainWindow::isTextMain(bool writable) {
+    return (getMain() == textEdit) && (writable || textEdit->canPaste());
 }
 
 MainWindow::MainWindow()
@@ -125,12 +136,14 @@ MainWindow::MainWindow()
     tray->setIcon(ico);
     tray->setToolTip(QCoreApplication::applicationName());
     connect(tray, &QSystemTrayIcon::activated, this, &MainWindow::checkTray);
+    inViewActions.clear();
     //add in the extra views
     listOfViews.append(new StatsView(this));
 
     //create menus
     createActions();
     createStatusBar();
+    fillCommands();
     readSettings();
     hasRepo();
 
@@ -174,6 +187,19 @@ QWidget *MainWindow::getQWebEngineView() {
     return QWIDGETPTR(handle->getJSHost());
 }
 
+void MainWindow::setCommand(QAction *action, StatsView *view) {
+    inViewActions[view].append(action);
+    commands->addAction(action);
+    commandToolBar->addAction(action);
+}
+
+void MainWindow::fillCommands() {
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->setCommands();
+    }
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
@@ -183,7 +209,7 @@ void MainWindow::checkClipboard() {
             QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
         hasText = true;
     }
-    setPaste(hasText & isTextMain());
+    setPaste(hasText & isTextMain(false));//false forces check to see if paste
 }
 
 void MainWindow::checkSelected(bool active) {
@@ -467,6 +493,11 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         named = QString("void");//icon name
         option |= noBar;//as sensible
     }
+    if(fp == nullptr) {// a blank with not pointer
+        commands = aMenu;
+        commandToolBar = aToolBar;
+        return aMenu;//so don't even add it
+    }
     const QIcon newIcon = getIconRC(named);
     if(entry == nullptr) entry = ">>Blank entry<<";
     QAction *newAct = new QAction(newIcon, entry, this);
@@ -482,7 +513,9 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         connect(newAct, &QAction::triggered, this, &MainWindow::asNewShow);
     }
     //must be done after show. maybe bad but is automatic for menu build.
-    if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
+    if(fp != nullptr) {
+        connect(newAct, &QAction::triggered, this, fp);
+    }
     if(view != nullptr) {
         connect(newAct, &QAction::triggered, view, &StatsView::selectView);
         newAct->setEnabled(false);
@@ -617,7 +650,7 @@ void MainWindow::createActions() {
             "document-save-as", tr("Save &As..."), QKeySequence::SaveAs,//+S
             tr("Save the document under a new name"), noBar | canSave)->addSeparator();//no bar entry
     addMenu(nullptr, &MainWindow::hide,
-            "view-restore", tr("&Tray"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_T),//+T
+            "application-tray", tr("&Tray"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_T),//+T
             tr("Place app in tray"), noBar);//no bar entry
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
@@ -649,8 +682,10 @@ void MainWindow::createActions() {
             tr("Show editable text view"))->addSeparator();
     addViewMenu()->addSeparator();
     addMenu(nullptr, &MainWindow::viewSettings,
-            "system-run", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),//G
+            "view-settings", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),//G
             tr("Show and hide settings view"));
+    menuBar()->addSeparator();
+    addMenu(tr("&Command"));
     menuBar()->addSeparator();
 
     addMenu(tr("&Sync"), &MainWindow::publish,
@@ -788,11 +823,19 @@ bool MainWindow::saveFile(const QString &fileName) {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     out << textEdit->toPlainText();
+
+    setCurrentFile(name);
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        if((*i)->needsSave()) {
+            QFile file(name + "." + (*i)->getExtension());
+            QTextStream out(&file);
+            out << (*i)->blockingSave();//save file
+        }
+    }
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-
-    setCurrentFile(name);
     statusBar()->showMessage(tr("File saved"), 2000);
     return true;
 }

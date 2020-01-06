@@ -14,7 +14,7 @@ class StatsView : public QWidget
     Q_OBJECT
 
 public:
-    explicit StatsView(QWidget *parent);
+    explicit StatsView(QWidget *parent);//construction app start
     ~StatsView();
     virtual QString getViewName();
     virtual QString getIconName();
@@ -23,11 +23,20 @@ public:
     void setMainWindow(QMainWindow *mw);
     virtual void checkAvailable();
     virtual void defaultAvailable();
-    virtual void create();
+    virtual void create();//run on show
     virtual bool needsSave();
+    virtual QString getExtension();
+    virtual QString blockingSave();
+    virtual void setCommands();
 
 public slots:
     void selectView();
+private:
+    void addMenu(void(StatsView::*fp)() = nullptr,
+                 QString named = nullptr,
+                 QString entry = nullptr,
+                 QKeySequence shorty = 0,
+                 QString help = nullptr);
 
 signals:
     void setAvailable(bool isAvail);
