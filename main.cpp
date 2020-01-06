@@ -70,11 +70,12 @@ int main(int argc, char *argv[])
     app.installTranslator(&translator);
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("Document Editor?");
+    parser.setApplicationDescription("Document Editor and Processor");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("file", "The file to open.", "[file");
-    parser.addPositionalArgument("view", "The view(s) to make.", "[view ...]]");
+    parser.addPositionalArgument("view", "The view to make.", "[view");
+    parser.addPositionalArgument("command", "The command to do in background.", "[command]]]");
     parser.process(app);
 
     MainWindow mainWin;
@@ -82,11 +83,15 @@ int main(int argc, char *argv[])
     if(!parser.positionalArguments().isEmpty()) {
         mainWin.loadFile(parser.positionalArguments().first());
         parser.positionalArguments().removeFirst();
-        if(parser.positionalArguments().isEmpty()) {
-            //not a background job
-        } else {
-            //background job processing
-            show = false;
+        if(!parser.positionalArguments().isEmpty()) {
+            //background view
+            QString view = parser.positionalArguments().first();
+            parser.positionalArguments().removeFirst();
+            if(!parser.positionalArguments().isEmpty()) {
+                //background cmd
+                mainWin.setInBackground(view, parser.positionalArguments().first());
+                show = false;
+            }
         }
     }
     if(show) mainWin.show();//maybe needs removing

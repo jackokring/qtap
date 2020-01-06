@@ -25,8 +25,10 @@ public:
     virtual void defaultAvailable();
     virtual void create();//run on show
     virtual bool needsSave();
+    virtual bool canCache();
     virtual QString getExtension();
     virtual QString blockingSave();
+    virtual void cacheLoad(QString input);
     virtual void setCommands();
 
 public slots:

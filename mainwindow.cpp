@@ -200,6 +200,20 @@ void MainWindow::fillCommands() {
     }
 }
 
+void MainWindow::setInBackground(QString view, QString command) {
+    backgrounded = true;//sets for auto save and other options
+    QMap<StatsView *, QList<QAction *>>::iterator i;
+    for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
+        if(i.key()->getViewName().toLower() == view) {
+            QList<QAction *>::iterator j;
+            for (j = (*i).begin(); j != (*i).end(); ++j) {
+                if((*j)->text().toLower().replace("&", "") == command)
+                    (*j)->trigger();//and for view
+            }
+        }
+    }
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
@@ -780,11 +794,17 @@ bool MainWindow::maybeSave(bool reload) {
 }
 
 void MainWindow::loadFile(const QString &fileName) {
-    QFile file(fileName);
+    QString name;
+    if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
+        name = QString(fileName + ".txt");
+    } else {
+        name = fileName;
+    }
+    QFile file(name);
     if(!file.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName),
+                             .arg(QDir::toNativeSeparators(file.fileName()),
                                   file.errorString()));
         return;
     }
@@ -794,11 +814,26 @@ void MainWindow::loadFile(const QString &fileName) {
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     textEdit->setPlainText(in.readAll());
+
+    setCurrentFile(fileName);
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        if((*i)->canCache()) {
+            QFile file(name + "." + (*i)->getExtension());
+            if(!file.open(QFile::ReadOnly)) {
+                QMessageBox::warning(this, tr("File Error"),
+                                     tr("Cannot read file %1:\n%2.")
+                                     .arg(QDir::toNativeSeparators(file.fileName()),
+                                          file.errorString()));
+                return;
+            }
+            QTextStream in(&file);
+            (*i)->cacheLoad(in.readAll());//load file
+        }
+    }
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-
-    setCurrentFile(fileName);
     statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
@@ -813,7 +848,7 @@ bool MainWindow::saveFile(const QString &fileName) {
     if (!file.open(QFile::WriteOnly)) {
         QMessageBox::warning(this, tr("File Error"),
                              tr("Cannot write file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(name),
+                             .arg(QDir::toNativeSeparators(file.fileName()),
                                   file.errorString()));
         return false;
     }
@@ -829,6 +864,13 @@ bool MainWindow::saveFile(const QString &fileName) {
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->needsSave()) {
             QFile file(name + "." + (*i)->getExtension());
+            if (!file.open(QFile::WriteOnly)) {
+                QMessageBox::warning(this, tr("File Error"),
+                                     tr("Cannot write file %1:\n%2.")
+                                     .arg(QDir::toNativeSeparators(file.fileName()),
+                                          file.errorString()));
+                return false;
+            }
             QTextStream out(&file);
             out << (*i)->blockingSave();//save file
         }

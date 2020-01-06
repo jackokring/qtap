@@ -107,6 +107,7 @@ public:
     QWidget *getQWebEngineView();
     void setCommand(QAction *action, StatsView *view);
     void fillCommands();
+    void setInBackground(QString view, QString command);
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
@@ -236,5 +237,6 @@ private:
     QMap<StatsView *, QList<QAction *>> inViewActions;
     QMenu *commands;
     QToolBar *commandToolBar;
+    bool backgrounded = false;
 };
 #endif

@@ -47,12 +47,20 @@ bool StatsView::needsSave() {
     return false;
 }
 
+bool StatsView::canCache() {
+    return false;
+}
+
 QString StatsView::getExtension() {
     return nullptr;//no save
 }
 
 QString StatsView::blockingSave() {
     return nullptr;//file content to save
+}
+
+void StatsView::cacheLoad(QString input) {
+    //to do an auto load of some cached data if it exists
 }
 
 void StatsView::setCommands() {
