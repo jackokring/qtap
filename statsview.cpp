@@ -4,9 +4,9 @@
 #include <QAction>
 
 StatsView::StatsView(QWidget *parent) :
-    QWidget(parent)
+    QWidget(parent),
+    ui(new Ui::StatsView)
 {
-    ui = new Ui::StatsView();
     ui->setupUi(this);
 }
 
