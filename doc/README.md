@@ -1,3 +1,13 @@
+# Welcome to QtAp
+
+The app for a framework to make simple plugin widgets. Not really that plugin as you have to add a few lines and compile again to alter the app template after you have removed the unplugged plugins you don't want. It has the basic flow of input text, edit, repository cloud, and then use of any further view widgets which have been included. Anthing which is not that related to the GUI has been hived off to *liblibkqfn.so* which has an unmangled C external interface, but requires C++ to load the classes which do everything if you wish to develop it or use it in code developments.
+
+The app can be released easily as a directory, as the library doesn't need to be installed in the system to be used. The licence is BSD as anything really tasty will be hived into a separate library loaded indirectly. There maybe system dependancies, but you can assume they will all be present on an equipped modern system. The application should be renamed `qtap-??` where `??` represents something about what you've added (and maybe removed too).
+
+[Source on GitHub](https://github.com/jackokring/qtap)
+
+[Under Construction]
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/jackokring/qtap/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
