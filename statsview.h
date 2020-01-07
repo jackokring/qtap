@@ -45,6 +45,7 @@ public:
     virtual void paste();
     virtual void undo();
     virtual void redo();
+    QWidget *focused();
 
 public slots:
     void selectView();
@@ -59,7 +60,7 @@ private:
 signals:
     void setAvailable(bool isAvail);
 
-private:
+public:
     Ui::StatsView *ui;
     QMainWindow *main;
 };

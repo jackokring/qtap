@@ -225,6 +225,18 @@ QString MainWindow::getText() {
     return textEdit->document()->toPlainText();
 }
 
+QWidget *MainWindow::focused(QWidget *top) {
+    QWidget *f = QApplication::focusWidget();
+    QList<QWidget *> wl = top->findChildren<QWidget *>();
+    QList<QWidget *>::iterator i;
+    for (i = wl.begin(); i != wl.end(); ++i) {
+        if((*i) == f) {
+            return f;
+        }
+    }
+    return top;//saves quite a lot of checking
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
@@ -238,11 +250,11 @@ void MainWindow::checkPaste() {
         setPaste(hasText & textEdit->canPaste());//check to see if paste
         return;
     }
-    if(!isSettingsMain()) {
-        setPaste(hasText & ((StatsView *)getMain())->canPaste());
+    if(isSettingsMain()) {
+        setPaste(false);
         return;
     }
-    //TODO: must be settings
+    setPaste(hasText & ((StatsView *)getMain())->canPaste());
 }
 
 void MainWindow::checkCopy(bool active) {
@@ -252,11 +264,11 @@ void MainWindow::checkCopy(bool active) {
         setCopy(active);
         return;
     }
-    if(!isSettingsMain()) {
-        setCopy(((StatsView *)getMain())->canCopy());
+    if(isSettingsMain()) {
+        setCopy(false);
         return;
     }
-    //TODO: must be settings
+    setCopy(((StatsView *)getMain())->canCopy());
 }
 
 void MainWindow::checkCut(bool active) {
@@ -266,11 +278,11 @@ void MainWindow::checkCut(bool active) {
         setCut(active);
         return;
     }
-    if(!isSettingsMain()) {
-        setCut(((StatsView *)getMain())->canCut());
+    if(isSettingsMain()) {
+        setCut(false);
         return;
     }
-    //TODO: must be settings
+    setCut(((StatsView *)getMain())->canCut());
 }
 
 void MainWindow::checkUndo(bool active) {
@@ -280,11 +292,11 @@ void MainWindow::checkUndo(bool active) {
         setUndo(active);
         return;
     }
-    if(!isSettingsMain()) {
-        setUndo(((StatsView *)getMain())->canUndo());
+    if(isSettingsMain()) {
+        setUndo(false);
         return;
     }
-    //TODO: must be settings
+    setUndo(((StatsView *)getMain())->canUndo());
 }
 
 void MainWindow::checkRedo(bool active) {
@@ -294,11 +306,11 @@ void MainWindow::checkRedo(bool active) {
         setRedo(active);
         return;
     }
-    if(!isSettingsMain()) {
-        setRedo(((StatsView *)getMain())->canRedo());
+    if(isSettingsMain()) {
+        setRedo(false);
         return;
     }
-    //TODO: must be settings
+    setRedo(((StatsView *)getMain())->canRedo());
 }
 
 void MainWindow::checkSave(bool active) {

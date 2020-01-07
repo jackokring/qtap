@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <QWidget>
+#include "statsview.h"
 
 namespace Ui {
 class Settings;

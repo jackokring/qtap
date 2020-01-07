@@ -4,9 +4,9 @@
 #include <QAction>
 
 StatsView::StatsView(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::StatsView)
+    QWidget(parent)
 {
+    ui = new Ui::StatsView();
     ui->setupUi(this);
 }
 
@@ -121,6 +121,10 @@ void StatsView::undo() {
 
 void StatsView::redo() {
 
+}
+
+QWidget *StatsView::focused() {
+    return MainWindow::focused(this);
 }
 
 void StatsView::setMainWindow(QMainWindow *mw) {

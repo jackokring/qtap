@@ -111,6 +111,7 @@ public:
     void fillCommands();
     void setInBackground(QString view, QString command);
     QString getText();
+    static QWidget *focused(QWidget *top);
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
