@@ -83,6 +83,7 @@ enum Spec : unsigned int {
     canClone = 128,
     canSync = 256,
     canSetdir = 512,
+    canCut = 1024,
 };
 
 class MainWindow : public QMainWindow
@@ -101,20 +102,23 @@ private slots:
 public:
     void setMain(QWidget *widget);
     QWidget *getMain();
-    bool isTextMain(bool writeable = true);
+    bool isTextMain();
+    bool isSettingsMain();
     MainWindow();
     QString loadStyle();
     QWidget *getQWebEngineView();
     void setCommand(QAction *action, StatsView *view);
     void fillCommands();
     void setInBackground(QString view, QString command);
+    QString getText();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
     //===================================================
 private slots:
-    void checkClipboard();//for paste
-    void checkSelected(bool active);//for copy
+    void checkPaste();//for paste
+    void checkCopy(bool active);//for copy
+    void checkCut(bool active);//for cut
     void checkUndo(bool active);
     void checkRedo(bool active);
     void checkSave(bool active);
@@ -208,6 +212,7 @@ private:
 signals:
     void setPaste(bool active);
     void setCopy(bool active);
+    void setCut(bool active);
     void setUndo(bool active);
     void setRedo(bool active);
     void setSave(bool active);
@@ -231,7 +236,8 @@ private:
     bool exitCheck;
     QList<StatsView *> listOfViews;
     //lasts
-    bool lastSelected = false;
+    bool lastCopy = false;
+    bool lastCut = false;
     bool lastUndo = false;
     bool lastRedo = false;
     QMap<StatsView *, QList<QAction *>> inViewActions;

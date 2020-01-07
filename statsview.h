@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QMainWindow>
+#include <QSettings>
 //#include "mainwindow.h"
 
 namespace Ui {
@@ -19,20 +20,35 @@ public:
     virtual QString getViewName();
     virtual QString getIconName();
     virtual QKeySequence getShortCut();
-    virtual QString getToolTipHelp();
+    QString getToolTipHelp();
     void setMainWindow(QMainWindow *mw);
-    virtual void checkAvailable();
-    virtual void defaultAvailable();
+    virtual void checkAvailable();//is view available on main doc modified
+    virtual void defaultAvailable();//is view available always
     virtual void create();//run on show
-    virtual bool needsSave();
-    virtual bool canCache();
-    virtual QString getExtension();
-    virtual QString blockingSave();
-    virtual void cacheLoad(QString input);
-    virtual void setCommands();
+    virtual bool needsSave();//needs disk save (modified?)
+    virtual bool canCache();//can load from disk
+    virtual QString getExtension();//what to extend as
+    virtual QString blockingSave();//save to disk this string
+    virtual void cacheLoad(QString input);//load from disk accept
+    virtual void setCommands();//install menu through addMenu()
+    virtual void readSettings(QSettings *settings);
+    virtual void writeSettings(QSettings *settings);
+    virtual bool hasRegenerate();//can regenerate .txt
+    virtual QString regenerate();//regenerate .txt
+    virtual bool canCut();//can currently cut
+    virtual bool canCopy();//can currently copy
+    virtual bool canPaste();//can currently paste
+    virtual bool canUndo();//can currently undo
+    virtual bool canRedo();//can currently redo
+    virtual void cut();
+    virtual void copy();
+    virtual void paste();
+    virtual void undo();
+    virtual void redo();
 
 public slots:
     void selectView();
+    QString getTextFromMain();
 private:
     void addMenu(void(StatsView::*fp)() = nullptr,
                  QString named = nullptr,

@@ -105,8 +105,9 @@ void MainWindow::setMain(QWidget *widget) {
         }
     }
     checkSave(textEdit->document()->isModified());//test save avail?
-    checkClipboard();
-    checkSelected(lastSelected);
+    checkPaste();
+    checkCopy(lastCopy);
+    checkCut(lastCut);
     checkUndo(lastUndo);
     checkRedo(lastRedo);
 }
@@ -115,8 +116,12 @@ QWidget *MainWindow::getMain() {
     return center->currentWidget();
 }
 
-bool MainWindow::isTextMain(bool writable) {
-    return (getMain() == textEdit) && (writable || textEdit->canPaste());
+bool MainWindow::isTextMain() {
+    return (getMain() == textEdit);
+}
+
+bool MainWindow::isSettingsMain() {
+    return (getMain() == settings);
 }
 
 MainWindow::MainWindow()
@@ -165,7 +170,9 @@ MainWindow::MainWindow()
     setUnifiedTitleAndToolBarOnMac(true);
 
     connect(textEdit, &QPlainTextEdit::copyAvailable,
-            this, &MainWindow::checkSelected);
+            this, &MainWindow::checkCopy);
+    connect(textEdit, &QPlainTextEdit::copyAvailable,
+            this, &MainWindow::checkCut);
     connect(textEdit->document(), &QTextDocument::undoAvailable,
             this, &MainWindow::checkUndo);
     connect(textEdit->document(), &QTextDocument::redoAvailable,
@@ -173,7 +180,7 @@ MainWindow::MainWindow()
     connect(textEdit->document(), &QTextDocument::modificationChanged,
             this, &MainWindow::checkSave);
     connect(QGuiApplication::clipboard(), &QClipboard::dataChanged,
-            this, &MainWindow::checkClipboard);
+            this, &MainWindow::checkPaste);
 }
 
 QString MainWindow::loadStyle() {
@@ -214,34 +221,84 @@ void MainWindow::setInBackground(QString view, QString command) {
     }
 }
 
+QString MainWindow::getText() {
+    return textEdit->document()->toPlainText();
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
-void MainWindow::checkClipboard() {
+void MainWindow::checkPaste() {
     bool hasText = false;
     if(QGuiApplication::clipboard()->mimeData()->hasText() &&
             QGuiApplication::clipboard()->text().length() > 0) {//check paste sensible
         hasText = true;
     }
-    setPaste(hasText & isTextMain(false));//false forces check to see if paste
+    if(isTextMain()) {
+        setPaste(hasText & textEdit->canPaste());//check to see if paste
+        return;
+    }
+    if(!isSettingsMain()) {
+        setPaste(hasText & ((StatsView *)getMain())->canPaste());
+        return;
+    }
+    //TODO: must be settings
 }
 
-void MainWindow::checkSelected(bool active) {
+void MainWindow::checkCopy(bool active) {
     //intecept for selection auto processing
-    lastSelected = active;
-    setCopy(active & isTextMain());
+    lastCopy = active;
+    if(isTextMain()) {
+        setCopy(active);
+        return;
+    }
+    if(!isSettingsMain()) {
+        setCopy(((StatsView *)getMain())->canCopy());
+        return;
+    }
+    //TODO: must be settings
+}
+
+void MainWindow::checkCut(bool active) {
+    //intecept for selection auto processing
+    lastCut = active;
+    if(isTextMain()) {
+        setCut(active);
+        return;
+    }
+    if(!isSettingsMain()) {
+        setCut(((StatsView *)getMain())->canCut());
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::checkUndo(bool active) {
     //intercept to change allowed undo
     lastUndo = active;
-    setUndo(active & isTextMain());
+    if(isTextMain()) {
+        setUndo(active);
+        return;
+    }
+    if(!isSettingsMain()) {
+        setUndo(((StatsView *)getMain())->canUndo());
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::checkRedo(bool active) {
     //intercept to change allowed redo
     lastRedo = active;
-    setRedo(active & isTextMain());
+    if(isTextMain()) {
+        setRedo(active);
+        return;
+    }
+    if(!isSettingsMain()) {
+        setRedo(((StatsView *)getMain())->canRedo());
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::checkSave(bool active) {
@@ -532,12 +589,16 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
     if(view != nullptr) {
         connect(newAct, &QAction::triggered, view, &StatsView::selectView);
-        newAct->setEnabled(false);
+        //newAct->setEnabled(false);
         connect(view, &StatsView::setAvailable, newAct, &QAction::setEnabled);
     }
     if(option & canCopy) {
         //newAct->setEnabled(false);
         connect(this, &MainWindow::setCopy, newAct, &QAction::setEnabled);
+    }
+    if(option & canCut) {
+        //newAct->setEnabled(false);
+        connect(this, &MainWindow::setCut, newAct, &QAction::setEnabled);
     }
     if(option & canUndo) {
         //newAct->setEnabled(false);
@@ -610,23 +671,63 @@ void MainWindow::close() {
 }
 
 void MainWindow::undo() {
-    textEdit->undo();
+    if(isTextMain()) {
+        textEdit->undo();
+        return;
+    }
+    if(!isSettingsMain()) {
+        ((StatsView *)getMain())->undo();
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::redo() {
-    textEdit->redo();
+    if(isTextMain()) {
+        textEdit->redo();
+        return;
+    }
+    if(!isSettingsMain()) {
+        ((StatsView *)getMain())->redo();
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::cut() {
-    textEdit->cut();
+    if(isTextMain()) {
+        textEdit->cut();
+        return;
+    }
+    if(!isSettingsMain()) {
+        ((StatsView *)getMain())->cut();
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::copy() {
-    textEdit->copy();
+    if(isTextMain()) {
+        textEdit->copy();
+        return;
+    }
+    if(!isSettingsMain()) {
+        ((StatsView *)getMain())->copy();
+        return;
+    }
+    //TODO: must be settings
 }
 
 void MainWindow::paste() {
-    textEdit->paste();
+    if(isTextMain()) {
+        textEdit->paste();
+        return;
+    }
+    if(!isSettingsMain()) {
+        ((StatsView *)getMain())->paste();
+        return;
+    }
+    //TODO: must be settings
 }
 
 //===================================================
@@ -680,7 +781,7 @@ void MainWindow::createActions() {
 #ifndef QT_NO_CLIPBOARD
     addMenu(nullptr, &MainWindow::cut,
             "edit-cut",  tr("Cu&t"), QKeySequence::Cut,//X
-            tr("Cut the current selection to the clipboard"), canCopy);
+            tr("Cut the current selection to the clipboard"), canCut);
     addMenu(nullptr, &MainWindow::copy,
             "edit-copy", tr("&Copy"), QKeySequence::Copy,//C
             tr("Copy the current selection to the clipboard"), canCopy);
@@ -750,6 +851,10 @@ void MainWindow::readSettings() {
         bool visible = settings.value("tbv" + tb->windowTitle(), true).toBool();
         tb->setVisible(visible);
     }
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->readSettings(&settings);
+    }
 }
 
 void MainWindow::writeSettings() {
@@ -761,6 +866,10 @@ void MainWindow::writeSettings() {
     while (isVisible() && !toolbars.isEmpty()) {//prevents setting background mangling
         QToolBar *tb = toolbars.takeFirst();
         settings.setValue("tbv" + tb->windowTitle(), tb->isVisible());
+    }
+    QList<StatsView *>::iterator i;
+    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->writeSettings(&settings);
     }
 }
 
@@ -794,6 +903,8 @@ bool MainWindow::maybeSave(bool reload) {
 }
 
 void MainWindow::loadFile(const QString &fileName) {
+    setClone(false);
+    setSync(false);
     QString name;
     if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
         name = QString(fileName + ".txt");
@@ -806,6 +917,7 @@ void MainWindow::loadFile(const QString &fileName) {
                              tr("Cannot read file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(file.fileName()),
                                   file.errorString()));
+        hasRepo();
         return;
     }
 
@@ -825,12 +937,14 @@ void MainWindow::loadFile(const QString &fileName) {
                                      tr("Cannot read file %1:\n%2.")
                                      .arg(QDir::toNativeSeparators(file.fileName()),
                                           file.errorString()));
-                return;
+                //hasRepo();
+                continue;
             }
             QTextStream in(&file);
             (*i)->cacheLoad(in.readAll());//load file
         }
     }
+    hasRepo();
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -838,6 +952,8 @@ void MainWindow::loadFile(const QString &fileName) {
 }
 
 bool MainWindow::saveFile(const QString &fileName) {
+    setClone(false);
+    setSync(false);
     QString name;
     if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
         name = QString(fileName + ".txt");
@@ -845,12 +961,15 @@ bool MainWindow::saveFile(const QString &fileName) {
         name = fileName;
     }
     QFile file(name);
-    if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::warning(this, tr("File Error"),
-                             tr("Cannot write file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(file.fileName()),
-                                  file.errorString()));
-        return false;
+    if(textEdit->document()->isModified()) {
+        if (!file.open(QFile::WriteOnly)) {
+            QMessageBox::warning(this, tr("File Error"),
+                                 tr("Cannot write file %1:\n%2.")
+                                 .arg(QDir::toNativeSeparators(file.fileName()),
+                                      file.errorString()));
+            hasRepo();
+            return false;
+        }
     }
 
     QTextStream out(&file);
@@ -869,12 +988,14 @@ bool MainWindow::saveFile(const QString &fileName) {
                                      tr("Cannot write file %1:\n%2.")
                                      .arg(QDir::toNativeSeparators(file.fileName()),
                                           file.errorString()));
-                return false;
+                //hasRepo();
+                continue;
             }
             QTextStream out(&file);
             out << (*i)->blockingSave();//save file
         }
     }
+    hasRepo();
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif

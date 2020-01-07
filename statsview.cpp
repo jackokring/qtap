@@ -28,7 +28,7 @@ QKeySequence StatsView::getShortCut() {
 }
 
 QString StatsView::getToolTipHelp() {
-    return tr("Show the ") + getViewName().replace("&", "") + tr(" view.");
+    return tr("Show the ") + getViewName().replace("&", "").toLower() + tr(" view.");
 }
 
 void StatsView::checkAvailable() {
@@ -67,6 +67,62 @@ void StatsView::setCommands() {
     //add any addMenu calls here
 }
 
+void StatsView::readSettings(QSettings *settings) {
+
+}
+
+void StatsView::writeSettings(QSettings *settings) {
+
+}
+
+bool StatsView::hasRegenerate() {
+    return false;
+}
+
+QString StatsView::regenerate() {
+    return QString();
+}
+
+bool StatsView::canCut() {
+    return false;
+}
+
+bool StatsView::canCopy() {
+    return false;
+}
+
+bool StatsView::canPaste() {
+    return false;
+}
+
+bool StatsView::canUndo() {
+    return false;
+}
+
+bool StatsView::canRedo() {
+    return false;
+}
+
+void StatsView::cut() {
+
+}
+
+void StatsView::copy() {
+
+}
+
+void StatsView::paste() {
+
+}
+
+void StatsView::undo() {
+
+}
+
+void StatsView::redo() {
+
+}
+
 void StatsView::setMainWindow(QMainWindow *mw) {
     main = mw;
 }
@@ -76,6 +132,10 @@ void StatsView::selectView() {
         create();
         ((MainWindow *)main)->setMain(this);
     }
+}
+
+QString StatsView::getTextFromMain() {
+    return ((MainWindow *)main)->getText();
 }
 
 void StatsView::addMenu(void(StatsView::*fp)(),
