@@ -250,10 +250,6 @@ void MainWindow::checkPaste() {
         setPaste(hasText & textEdit->canPaste());//check to see if paste
         return;
     }
-    if(isSettingsMain()) {
-        setPaste(false);
-        return;
-    }
     setPaste(hasText & ((StatsView *)getMain())->canPaste());
 }
 
@@ -262,10 +258,6 @@ void MainWindow::checkCopy(bool active) {
     lastCopy = active;
     if(isTextMain()) {
         setCopy(active);
-        return;
-    }
-    if(isSettingsMain()) {
-        setCopy(false);
         return;
     }
     setCopy(((StatsView *)getMain())->canCopy());
@@ -278,10 +270,6 @@ void MainWindow::checkCut(bool active) {
         setCut(active);
         return;
     }
-    if(isSettingsMain()) {
-        setCut(false);
-        return;
-    }
     setCut(((StatsView *)getMain())->canCut());
 }
 
@@ -292,10 +280,6 @@ void MainWindow::checkUndo(bool active) {
         setUndo(active);
         return;
     }
-    if(isSettingsMain()) {
-        setUndo(false);
-        return;
-    }
     setUndo(((StatsView *)getMain())->canUndo());
 }
 
@@ -304,10 +288,6 @@ void MainWindow::checkRedo(bool active) {
     lastRedo = active;
     if(isTextMain()) {
         setRedo(active);
-        return;
-    }
-    if(isSettingsMain()) {
-        setRedo(false);
         return;
     }
     setRedo(((StatsView *)getMain())->canRedo());
@@ -687,11 +667,7 @@ void MainWindow::undo() {
         textEdit->undo();
         return;
     }
-    if(!isSettingsMain()) {
-        ((StatsView *)getMain())->undo();
-        return;
-    }
-    //TODO: must be settings
+    ((StatsView *)getMain())->undo();
 }
 
 void MainWindow::redo() {
@@ -699,11 +675,7 @@ void MainWindow::redo() {
         textEdit->redo();
         return;
     }
-    if(!isSettingsMain()) {
-        ((StatsView *)getMain())->redo();
-        return;
-    }
-    //TODO: must be settings
+    ((StatsView *)getMain())->redo();
 }
 
 void MainWindow::cut() {
@@ -711,11 +683,7 @@ void MainWindow::cut() {
         textEdit->cut();
         return;
     }
-    if(!isSettingsMain()) {
-        ((StatsView *)getMain())->cut();
-        return;
-    }
-    //TODO: must be settings
+    ((StatsView *)getMain())->cut();
 }
 
 void MainWindow::copy() {
@@ -723,11 +691,7 @@ void MainWindow::copy() {
         textEdit->copy();
         return;
     }
-    if(!isSettingsMain()) {
-        ((StatsView *)getMain())->copy();
-        return;
-    }
-    //TODO: must be settings
+    ((StatsView *)getMain())->copy();
 }
 
 void MainWindow::paste() {
@@ -735,11 +699,7 @@ void MainWindow::paste() {
         textEdit->paste();
         return;
     }
-    if(!isSettingsMain()) {
-        ((StatsView *)getMain())->paste();
-        return;
-    }
-    //TODO: must be settings
+    ((StatsView *)getMain())->paste();
 }
 
 //===================================================

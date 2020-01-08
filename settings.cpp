@@ -2,7 +2,7 @@
 #include "ui_settings.h"
 
 Settings::Settings(QWidget *parent) :
-    QWidget(parent),
+    StatsView(parent, true),//stop stats UI render
     ui(new Ui::Settings)
 {
     ui->setupUi(this);

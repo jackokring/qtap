@@ -15,7 +15,7 @@ class StatsView : public QWidget
     Q_OBJECT
 
 public:
-    explicit StatsView(QWidget *parent);//construction app start
+    explicit StatsView(QWidget *parent, bool uiStop = false);//construction app start
     ~StatsView();
     virtual QString getViewName();
     virtual QString getIconName();
@@ -60,7 +60,7 @@ private:
 signals:
     void setAvailable(bool isAvail);
 
-public:
+private:
     Ui::StatsView *ui;
     QMainWindow *main;
 };

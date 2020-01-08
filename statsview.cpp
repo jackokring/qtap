@@ -3,11 +3,11 @@
 #include "ui_statsview.h"
 #include <QAction>
 
-StatsView::StatsView(QWidget *parent) :
+StatsView::StatsView(QWidget *parent, bool uiStop) :
     QWidget(parent),
     ui(new Ui::StatsView)
 {
-    ui->setupUi(this);
+    if(!uiStop) ui->setupUi(this);
 }
 
 StatsView::~StatsView()

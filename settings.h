@@ -2,13 +2,14 @@
 #define SETTINGS_H
 
 #include <QWidget>
+//included to get class inheritance
 #include "statsview.h"
 
 namespace Ui {
 class Settings;
 }
 
-class Settings : public QWidget
+class Settings : public StatsView //inherit
 {
     Q_OBJECT
 
