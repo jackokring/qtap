@@ -8,7 +8,7 @@ B
 C   COPY
 D   DIRECTORY
 E
-F
+F   FIND
 G   SETTINGS
 H
 I

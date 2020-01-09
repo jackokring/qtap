@@ -779,6 +779,7 @@ void MainWindow::paste() {
 void MainWindow::find() {
     FindDialog find(this);
     find.setModal(true);
+    find.setText(textEdit);
     if (find.exec() == QDialog::Accepted) {
         return;
     }

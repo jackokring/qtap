@@ -12,3 +12,22 @@ FindDialog::~FindDialog()
 {
     delete ui;
 }
+
+void FindDialog::setText(ATextEdit *text) {
+    txt = text;
+    connect(ui->findButton, &QPushButton::clicked, this, &FindDialog::find);
+    connect(ui->replaceButton, &QPushButton::clicked, this, &FindDialog::replace);
+    connect(ui->replaceAllButton, &QPushButton::clicked, this, &FindDialog::replaceAll);
+}
+
+void FindDialog::find() {
+
+}
+
+void FindDialog::replace() {
+
+}
+
+void FindDialog::replaceAll() {
+
+}

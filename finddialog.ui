@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -61,7 +61,11 @@
          <string>Find</string>
         </property>
         <property name="icon">
-         <iconset theme="edit-find"/>
+         <iconset theme="edit-find">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+        <property name="shortcut">
+         <string notr="true">Ctrl+F</string>
         </property>
        </widget>
       </item>
@@ -71,7 +75,11 @@
          <string>Replace</string>
         </property>
         <property name="icon">
-         <iconset theme="edit-find-replace"/>
+         <iconset theme="edit-find-replace">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+Shift+F</string>
         </property>
        </widget>
       </item>
@@ -79,6 +87,9 @@
        <widget class="QPushButton" name="replaceAllButton">
         <property name="text">
          <string>Replace All</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+A</string>
         </property>
        </widget>
       </item>
@@ -111,22 +122,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>FindDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
      <y>274</y>
     </hint>
    </hints>

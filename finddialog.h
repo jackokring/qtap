@@ -2,6 +2,7 @@
 #define FINDDIALOG_H
 
 #include <QDialog>
+#include "atextedit.h"
 
 namespace Ui {
 class FindDialog;
@@ -14,9 +15,16 @@ class FindDialog : public QDialog
 public:
     explicit FindDialog(QWidget *parent = nullptr);
     ~FindDialog();
+    void setText(ATextEdit *text);
+
+public slots:
+    void find();
+    void replace();
+    void replaceAll();
 
 private:
     Ui::FindDialog *ui;
+    ATextEdit *txt;
 };
 
 #endif // FINDDIALOG_H
