@@ -84,6 +84,7 @@ enum Spec : unsigned int {
     canSync = 256,
     canSetdir = 512,
     canCut = 1024,
+    auxNeedsText = 2048,
 };
 
 class MainWindow : public QMainWindow
@@ -175,6 +176,7 @@ private slots:
     void cut();
     void copy();
     void paste();
+    void find();
 
     //===================================================
     // VIEW MANAGEMENT
@@ -223,6 +225,7 @@ signals:
     void setSync(bool active);
     void setClone(bool active);
     void setDirectory(bool active);
+    void setNeedsText(bool active);
 
     //===================================================
     // CONFIGURATION VARIABLES

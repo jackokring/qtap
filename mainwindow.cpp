@@ -51,6 +51,7 @@
 #include <QtWidgets>
 #include "statsview.h"
 #include "mainwindow.h"
+#include "finddialog.h"
 #define para "</p><p>"
 #define bold(X) " <b>" + X + "</b> "
 
@@ -120,6 +121,7 @@ void MainWindow::setMain(QWidget *widget) {
     checkCut(lastCut);
     checkUndo(lastUndo);
     checkRedo(lastRedo);
+    setNeedsText(isTextMain());
 }
 
 QWidget *MainWindow::getMain() {
@@ -688,6 +690,10 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         //newAct->setEnabled(false);
         connect(this, &MainWindow::setDirectory, newAct, &QAction::setEnabled);
     }
+    if(option & auxNeedsText) {
+        //newAct->setEnabled(false);
+        connect(this, &MainWindow::setNeedsText, newAct, &QAction::setEnabled);
+    }
     //more options
     if(option & noBar) return aMenu;
     aToolBar->addAction(newAct);
@@ -770,6 +776,14 @@ void MainWindow::paste() {
     ((StatsView *)getMain())->paste();
 }
 
+void MainWindow::find() {
+    FindDialog find(this);
+    find.setModal(true);
+    if (find.exec() == QDialog::Accepted) {
+        return;
+    }
+}
+
 //===================================================
 // VIEW MANAGEMENT
 //===================================================
@@ -828,11 +842,14 @@ void MainWindow::createActions() {
             tr("Copy the current selection to the clipboard"), canCopy);
     addMenu(nullptr, &MainWindow::paste,
             "edit-paste", tr("&Paste"), QKeySequence::Paste,//V
-            tr("Paste the clipboard into the current selection"), canPaste);
-    menuBar()->addSeparator();
+            tr("Paste the clipboard into the current selection"), canPaste)->addSeparator();
+
 
 #endif // !QT_NO_CLIPBOARD
-
+    addMenu(nullptr, &MainWindow::find,
+            "edit-find", tr("Find..."), QKeySequence::Find,//F
+            tr("Find and maybe replace text"), auxNeedsText);
+    menuBar()->addSeparator();
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
             tr("Show editable text view"))->addSeparator();

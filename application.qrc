@@ -22,5 +22,7 @@
         <file>images/sync-subscribe.png</file>
         <file>images/help-about.png</file>
         <file>images/QtIcon.png</file>
+        <file>images/edit-find.png</file>
+        <file>images/edit-find-replace.png</file>
     </qresource>
 </RCC>

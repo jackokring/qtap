@@ -3,10 +3,12 @@ requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
     atextedit.h \
+    finddialog.h \
     settings.h \
     statsview.h
 SOURCES       = main.cpp \
                 atextedit.cpp \
+                finddialog.cpp \
                 mainwindow.cpp \
                 settings.cpp \
                 statsview.cpp
@@ -19,6 +21,7 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/mainwindows/application
 INSTALLS += target
 
 FORMS += \
+    finddialog.ui \
     settings.ui \
     statsview.ui
 
