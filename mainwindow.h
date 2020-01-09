@@ -245,5 +245,6 @@ private:
     QMenu *commands;
     QToolBar *commandToolBar;
     bool backgrounded = false;
+    QSettings *settingsStore;
 };
 #endif

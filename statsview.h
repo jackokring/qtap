@@ -63,6 +63,7 @@ signals:
 private:
     Ui::StatsView *ui;
     QMainWindow *main;
+    bool stoppedUi;
 };
 
 #endif // STATSVIEW_H

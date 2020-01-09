@@ -7,12 +7,18 @@ StatsView::StatsView(QWidget *parent, bool uiStop) :
     QWidget(parent),
     ui(new Ui::StatsView)
 {
-    if(!uiStop) ui->setupUi(this);
+    stoppedUi = uiStop;//memory save
+    if(!uiStop) {
+        ui->setupUi(this);
+    } else {
+        delete ui;
+    }
 }
 
 StatsView::~StatsView()
 {
-    delete ui;
+    if(!stoppedUi)
+        delete ui;
 }
 
 QString StatsView::getViewName() {

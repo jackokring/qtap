@@ -92,6 +92,7 @@ void MainWindow::setMain(QWidget *widget) {
     }
     if(getMain() != widget) {
         center->setCurrentWidget(widget);
+        if(widget != settings) holdWhileSettings = settings;
     }
     StatsView *k = (widget != textEdit) ?
                 nullptr :
@@ -149,14 +150,15 @@ MainWindow::MainWindow()
     createActions();
     createStatusBar();
     fillCommands();
+    settingsStore = new QSettings(QCoreApplication::organizationName(),
+                       QCoreApplication::applicationName());
+    settings = new Settings();
+    holdWhileSettings = settings;
     readSettings();
     hasRepo();
 
     center = new QStackedWidget(this);
     setCentralWidget(center);
-
-    settings = new Settings();
-    holdWhileSettings = settings;
 
     setMain(textEdit);
 
@@ -707,16 +709,20 @@ void MainWindow::paste() {
 //===================================================
 void MainWindow::viewText() {
     setMain(textEdit);
-    holdWhileSettings = settings;
 }
 
 void MainWindow::viewSettings() {
     if(holdWhileSettings == settings) {
         holdWhileSettings = getMain();//for restore
         setMain(settings);
+        settings->readSettings(settingsStore);
     } else {
         setMain(holdWhileSettings);
-        holdWhileSettings = settings;
+        settings->writeSettings(settingsStore);
+        QList<StatsView *>::iterator i;//restore
+        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            (*i)->readSettings(settingsStore);
+        }
     }
 }
 
@@ -805,9 +811,7 @@ void MainWindow::createStatusBar() {
 // SETTINGS IO (DEFAULTS)
 //===================================================
 void MainWindow::readSettings() {
-    QSettings settings(QCoreApplication::organizationName(),
-                       QCoreApplication::applicationName());
-    const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
+    const QByteArray geometry = settingsStore->value("geometry", QByteArray()).toByteArray();
     if (geometry.isEmpty()) {
         const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
         resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
@@ -816,32 +820,30 @@ void MainWindow::readSettings() {
     } else {
         restoreGeometry(geometry);
     }
-    directory = settings.value("directory", "").toString();
+    directory = settingsStore->value("directory", "").toString();
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (!toolbars.isEmpty()) {
         QToolBar *tb = toolbars.takeFirst();
-        bool visible = settings.value("tbv" + tb->windowTitle(), true).toBool();
+        bool visible = settingsStore->value("tbv" + tb->windowTitle(), true).toBool();
         tb->setVisible(visible);
     }
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->readSettings(&settings);
+        (*i)->readSettings(settingsStore);
     }
 }
 
 void MainWindow::writeSettings() {
-    QSettings settings(QCoreApplication::organizationName(),
-                       QCoreApplication::applicationName());
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("directory", directory);
+    settingsStore->setValue("geometry", saveGeometry());
+    settingsStore->setValue("directory", directory);
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (isVisible() && !toolbars.isEmpty()) {//prevents setting background mangling
         QToolBar *tb = toolbars.takeFirst();
-        settings.setValue("tbv" + tb->windowTitle(), tb->isVisible());
+        settingsStore->setValue("tbv" + tb->windowTitle(), tb->isVisible());
     }
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->writeSettings(&settings);
+        (*i)->writeSettings(settingsStore);
     }
 }
 
