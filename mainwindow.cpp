@@ -367,12 +367,18 @@ int MainWindow::bash(QString proc, QString undo) {
     }
     timer->stop();
     mb.hide();
-    if(mb.wasCanceled() && undo != nullptr) {
+    if(mb.wasCanceled()) {
+        if(undo == nullptr) {
+            QMessageBox::warning(this, tr("Undo Error"),
+                                 tr("No undo technique is supplied."));
+            hasRepo();
+            return j;
+        }
         //undo processing
         QStringList sl2 = undo.split("&&&");//split notation
         if(sl.length() != sl2.length()) {
             QMessageBox::warning(this, tr("Undo Error"),
-                                 tr("No undo is programmed."));
+                                 tr("No undo is correctly programmed."));
             hasRepo();
             return j;
         }
