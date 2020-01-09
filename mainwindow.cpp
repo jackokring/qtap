@@ -344,13 +344,14 @@ int MainWindow::quietBash(QString proc) {
                                      << "cd \"" + directory + "\" && " + proc);
 }
 
-int MainWindow::bash(QString proc) {
+int MainWindow::bash(QString proc, QString undo) {
     setDirectory(false);
     setClone(false);
     setSync(false);
     QStringList sl = proc.split("&&&");//split notation
     QProgressDialog mb(tr("Please wait."),
-                       tr("Cancel"), 0, sl.length(), this);
+                       (undo == nullptr) ? tr("Abort") :
+                                           tr("Cancel"), 0, sl.length(), this);
     mb.setModal(true);
     mb.setMaximum(sl.length());
     mb.setValue(0);
@@ -358,14 +359,41 @@ int MainWindow::bash(QString proc) {
     connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
     timer->start(500);
     int j = 0;
-    for(int i = 0; i < sl.length(); ++i) {
+    int i;
+    for(i = 0; i < sl.length(); ++i) {
         j = quietBash(sl[i]);
         mb.setValue(i + 1);//update
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
     timer->stop();
     mb.hide();
-    hasRepo();//re-entrant catch recursive close
+    if(mb.wasCanceled() && undo != nullptr) {
+        //undo processing
+        QStringList sl2 = undo.split("&&&");//split notation
+        if(sl.length() != sl2.length()) {
+            QMessageBox::warning(this, tr("Undo Error"),
+                                 tr("No undo is programmed."));
+            hasRepo();
+            return j;
+        }
+        QProgressDialog mb(tr("Please wait undoing actions."),
+                           tr("Abort Undo"), 0, i, this);
+        mb.setModal(true);
+        mb.setMaximum(i);
+        mb.setValue(0);
+        QTimer *timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
+        timer->start(500);
+        int j = 0;
+        for(int k = sl.length() - i; i > 0; --i, ++k) {
+            j = quietBash(sl2[k]);//so order is based on first undo does last
+            mb.setValue(sl.length() - i);//update
+            if(j != 0 || mb.wasCanceled()) break;//exit early
+        }
+        timer->stop();
+        mb.hide();
+    }
+    hasRepo();
     return j;
 }
 
