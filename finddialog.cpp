@@ -26,10 +26,18 @@ void FindDialog::find() {
 }
 
 void FindDialog::replace() {
-    QTextCursor next = txt->document()->find(ui->findText->text(), txt->textCursor());
-    txt->setTextCursor(next);
-    if(next.hasSelection()) {
-        next.insertText(ui->replaceText->text());
+    QTextCursor next = txt->textCursor();
+    if(next.selectedText() == ui->findText->text()) {
+        if(next.hasSelection()) {
+            next.insertText(ui->replaceText->text());
+        }
+        find();
+    } else {
+        find();
+        if(next.hasSelection()) {
+            //just incase no find
+            replace();
+        }
     }
 }
 
