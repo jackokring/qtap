@@ -21,11 +21,16 @@ void FindDialog::setText(ATextEdit *text) {
 }
 
 void FindDialog::find() {
-
+    QTextCursor next = txt->document()->find(ui->findText->text(), txt->textCursor());
+    txt->setTextCursor(next);
 }
 
 void FindDialog::replace() {
-
+    QTextCursor next = txt->document()->find(ui->findText->text(), txt->textCursor());
+    txt->setTextCursor(next);
+    if(next.hasSelection()) {
+        next.insertText(ui->replaceText->text());
+    }
 }
 
 void FindDialog::replaceAll() {
