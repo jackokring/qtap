@@ -216,7 +216,7 @@ void MainWindow::setInBackground(QString view, QString command) {
         if(i.key()->getViewName().toLower() == view) {
             QList<QAction *>::iterator j;
             for (j = (*i).begin(); j != (*i).end(); ++j) {
-                if((*j)->text().toLower().replace("&", "") == command)
+                if((*j)->text().toLower().remove("&") == command)
                     (*j)->trigger();//and for view
             }
         }
@@ -476,12 +476,25 @@ void MainWindow::open() {
 
         QStringList kinds;
         kinds << "Text files (*.txt)";
+        QList<StatsView *>::iterator i;
+        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            if((*i)->hasRegenerate()) {
+                kinds << (*i)->getViewName().remove("&") +
+                         " (*.txt." + (*i)->getExtension() + ")";
+            }
+        }
         dialog.setNameFilters(kinds);
         if (dialog.exec() != QDialog::Accepted)
             return;
         //TODO: maybe need to do view transform on type
-        if (!dialog.selectedFiles().first().isEmpty())
-            loadFile(dialog.selectedFiles().first());
+        if (!dialog.selectedFiles().first().isEmpty()) {
+            QString filter = dialog.selectedNameFilter();
+            if(filter == kinds.first()) {
+                loadFile(dialog.selectedFiles().first());
+            } else {
+                loadFile(dialog.selectedFiles().first(), true);//regenarate
+            }
+        }
     }
 }
 
@@ -544,7 +557,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     static int count = 0;
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
-        aToolBar = addToolBar(menu.replace('&', ""));
+        aToolBar = addToolBar(menu.remove("&"));
         aToolBar->setMovable(false);
         if(count > 0) trayMenu->addSeparator();
         count = 0;
@@ -876,15 +889,10 @@ bool MainWindow::maybeSave(bool reload) {
     return true;
 }
 
-void MainWindow::loadFile(const QString &fileName) {
+void MainWindow::loadFile(const QString &fileName, bool regen) {
     setClone(false);
     setSync(false);
-    QString name;
-    if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
-        name = QString(fileName + ".txt");
-    } else {
-        name = fileName;
-    }
+    QString name = fileName;
     QFile file(name);
     if(!file.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, tr("File Error"),
@@ -899,18 +907,38 @@ void MainWindow::loadFile(const QString &fileName) {
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    textEdit->setPlainText(in.readAll());
-
-    setCurrentFile(fileName);
+    StatsView *me = nullptr;
+    if(regen) {
+        QList<StatsView *>::iterator i;
+        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            if(QString::compare(QFileInfo(fileName).suffix(),
+                                (*i)->getExtension(), Qt::CaseInsensitive) == 0) {
+                me = (*i);
+                break;
+            }
+        }
+        me->cacheLoad(in.readAll());
+        textEdit->setPlainText(me->regenerate());
+        int count = me->getExtension().split(".").length();
+        QStringList nameBits = name.split(".");
+        for(int i = 0; i < count; ++i) {
+            nameBits.removeLast();
+        }
+        name = nameBits.join(".");//removed extension xtra
+    } else {
+        textEdit->setPlainText(in.readAll());
+    }
+    setCurrentFile(name);
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        if((*i)->canCache()) {
+        if((*i)->canCache() && (*i) != me) {
             QFile file(name + "." + (*i)->getExtension());
             if(!file.open(QFile::ReadOnly)) {
-                QMessageBox::warning(this, tr("File Error"),
+                /* QMessageBox::warning(this, tr("File Error"),
                                      tr("Cannot read file %1:\n%2.")
                                      .arg(QDir::toNativeSeparators(file.fileName()),
-                                          file.errorString()));
+                                          file.errorString())); */
+                //not actually an error, just a slow down
                 //hasRepo();
                 continue;
             }

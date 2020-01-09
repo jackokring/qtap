@@ -198,7 +198,7 @@ private:
     //===================================================
     bool maybeSave(bool reload = false);
 public:
-    void loadFile(const QString &fileName);
+    void loadFile(const QString &fileName, bool regen = false);
 private:
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);

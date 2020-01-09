@@ -86,7 +86,7 @@ bool StatsView::hasRegenerate() {
 }
 
 QString StatsView::regenerate() {
-    return QString();
+    return nullptr;
 }
 
 bool StatsView::canCut() {
