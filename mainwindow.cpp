@@ -91,8 +91,17 @@ void MainWindow::setMain(QWidget *widget) {
         center->addWidget(widget);
     }
     if(getMain() != widget) {
+        if(widget != settings) {
+            holdWhileSettings = settings;
+            settings->writeSettings(settingsStore);
+            QList<StatsView *>::iterator i;//restore
+            for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+                (*i)->readSettings(settingsStore);
+            }
+        } else {
+            settings->readSettings(settingsStore);
+        }
         center->setCurrentWidget(widget);
-        if(widget != settings) holdWhileSettings = settings;
     }
     StatsView *k = (widget != textEdit) ?
                 nullptr :
@@ -728,14 +737,8 @@ void MainWindow::viewSettings() {
     if(holdWhileSettings == settings) {
         holdWhileSettings = getMain();//for restore
         setMain(settings);
-        settings->readSettings(settingsStore);
     } else {
         setMain(holdWhileSettings);
-        settings->writeSettings(settingsStore);
-        QList<StatsView *>::iterator i;//restore
-        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-            (*i)->readSettings(settingsStore);
-        }
     }
 }
 
@@ -889,7 +892,7 @@ bool MainWindow::maybeSave(bool reload) {
     return true;
 }
 
-void MainWindow::loadFile(const QString &fileName, bool regen) {
+void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     setClone(false);
     setSync(false);
     QString name = fileName;
@@ -902,12 +905,18 @@ void MainWindow::loadFile(const QString &fileName, bool regen) {
         hasRepo();
         return;
     }
-
-    QTextStream in(&file);
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     StatsView *me = nullptr;
+    QString loaded;
+    if(fix & !regen) {//primary source fix, dependants more format based
+        loaded = loadAllErrors(&file);
+    } else {
+        QTextStream in(&file);
+        in.setCodec("UTF-8");
+        loaded = in.readAll();
+    }
     if(regen) {
         QList<StatsView *>::iterator i;
         for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
@@ -917,7 +926,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen) {
                 break;
             }
         }
-        me->cacheLoad(in.readAll());
+        me->cacheLoad(loaded);
         textEdit->setPlainText(me->regenerate());
         int count = me->getExtension().split(".").length();
         QStringList nameBits = name.split(".");
@@ -926,7 +935,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen) {
         }
         name = nameBits.join(".");//removed extension xtra
     } else {
-        textEdit->setPlainText(in.readAll());
+        textEdit->setPlainText(loaded);
     }
     setCurrentFile(name);
     QList<StatsView *>::iterator i;
@@ -943,6 +952,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen) {
                 continue;
             }
             QTextStream in(&file);
+            in.setCodec("UTF-8");
             (*i)->cacheLoad(in.readAll());//load file
         }
     }
@@ -951,6 +961,15 @@ void MainWindow::loadFile(const QString &fileName, bool regen) {
     QApplication::restoreOverrideCursor();
 #endif
     statusBar()->showMessage(tr("File loaded"), 2000);
+}
+
+QString MainWindow::loadAllErrors(QFile *name) {
+    QTextDecoder td(QTextCodec::codecForName("UTF-8"),
+                    QTextCodec::ConvertInvalidToNull |
+                    QTextCodec::IgnoreHeader);
+    int size = name->size();
+    QByteArray ba = name->read(size);
+    return td.toUnicode(ba);
 }
 
 bool MainWindow::saveFile(const QString &fileName) {
@@ -964,7 +983,7 @@ bool MainWindow::saveFile(const QString &fileName) {
     }
     QFile file(name);
     if(textEdit->document()->isModified()) {
-        if (!file.open(QFile::WriteOnly)) {
+        if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
             QMessageBox::warning(this, tr("File Error"),
                                  tr("Cannot write file %1:\n%2.")
                                  .arg(QDir::toNativeSeparators(file.fileName()),
@@ -975,6 +994,7 @@ bool MainWindow::saveFile(const QString &fileName) {
     }
 
     QTextStream out(&file);
+    out.setCodec("UTF-8");
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
@@ -994,6 +1014,7 @@ bool MainWindow::saveFile(const QString &fileName) {
                 continue;
             }
             QTextStream out(&file);
+            out.setCodec("UTF-8");
             out << (*i)->blockingSave();//save file
         }
     }
