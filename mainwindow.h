@@ -144,6 +144,8 @@ private slots:
     void asNewShow();
     void newFile();
     void open();
+    void openFix();
+    void openBoth(bool fix);
     void save();
     void saveAs();
     void reload();

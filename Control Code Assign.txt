@@ -17,7 +17,7 @@ K
 L   CLONE
 M
 N   NEW
-O   OPEN
+O   OPEN            OPEN FIX
 P   PUBLISH
 Q   QUIT
 R   READ

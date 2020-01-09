@@ -510,6 +510,14 @@ void MainWindow::newFile() {
 }
 
 void MainWindow::open() {
+    openBoth(false);
+}
+
+void MainWindow::openFix() {
+    openBoth(true);
+}
+
+void MainWindow::openBoth(bool fix) {
     //asNewShow();
     if (maybeSave()) {
         QFileDialog dialog(this, tr("Open File"), directory);
@@ -519,11 +527,13 @@ void MainWindow::open() {
 
         QStringList kinds;
         kinds << "Text files (*.txt)";
-        QList<StatsView *>::iterator i;
-        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-            if((*i)->hasRegenerate()) {
-                kinds << (*i)->getViewName().remove("&") +
-                         " (*.txt." + (*i)->getExtension() + ")";
+        if(!fix) {
+            QList<StatsView *>::iterator i;
+            for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+                if((*i)->hasRegenerate()) {
+                    kinds << (*i)->getViewName().remove("&") +
+                             " (*.txt." + (*i)->getExtension() + ")";
+                }
             }
         }
         dialog.setNameFilters(kinds);
@@ -533,7 +543,7 @@ void MainWindow::open() {
         if (!dialog.selectedFiles().first().isEmpty()) {
             QString filter = dialog.selectedNameFilter();
             if(filter == kinds.first()) {
-                loadFile(dialog.selectedFiles().first());
+                loadFile(dialog.selectedFiles().first(), false, fix);
             } else {
                 loadFile(dialog.selectedFiles().first(), true);//regenarate
             }
@@ -786,6 +796,9 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::open,
             "document-open", tr("&Open..."), QKeySequence::Open,//O
             tr("Open an existing file"), inTray);
+    addMenu(nullptr, &MainWindow::openFix,
+            "document-open", tr("UTF &Fix Open..."), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O),//+O
+            tr("Open and fix the UTF-8 encoding of an existing file"), noBar);
     addMenu(nullptr, &MainWindow::save,
             "document-save", tr("&Save"), QKeySequence::Save,//S
             tr("Save the document to disk"), canSave);
