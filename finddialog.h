@@ -22,6 +22,9 @@ public slots:
     void replace();
     void replaceAll();
 
+protected:
+    bool event(QEvent *e) override;
+
 private:
     Ui::FindDialog *ui;
     ATextEdit *txt;

@@ -113,6 +113,7 @@ public:
     void setInBackground(QString view, QString command);
     QString getText();
     static QWidget *focused(QWidget *top);
+    void status(QString display);
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
@@ -138,6 +139,7 @@ private slots:
     void root();
     void subscribe();
     bool hasRepo();
+    void prohibits();
 
     //===================================================
     // NEW, OPEN AND SAVE ACTIONS
@@ -205,7 +207,7 @@ public:
     void loadFile(const QString &fileName, bool regen = false, bool fix = false);
     QString loadAllErrors(QFile *name);
 private:
-    bool saveFile(const QString &fileName);
+    void saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 #ifndef QT_NO_SESSIONMANAGER

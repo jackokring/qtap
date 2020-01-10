@@ -16,6 +16,7 @@ public:
     ~UTFDialog();
     void setBytes(QByteArray ba);
     QByteArray bytes();
+    bool event(QEvent *e) override;
 
 private:
     Ui::UTFDialog *ui;

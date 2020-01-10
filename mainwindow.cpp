@@ -251,6 +251,10 @@ QWidget *MainWindow::focused(QWidget *top) {
     return top;//saves quite a lot of checking
 }
 
+void MainWindow::status(QString display) {
+    statusBar()->showMessage(display, 2000);
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
@@ -348,9 +352,7 @@ int MainWindow::quietBash(QString proc) {
 }
 
 int MainWindow::bash(QString proc, QString undo) {
-    setDirectory(false);
-    setClone(false);
-    setSync(false);
+    prohibits();
     QStringList sl = proc.split("&&&");//split notation
     QProgressDialog mb(tr("Please wait."),
                        (undo == nullptr) ? tr("Abort") :
@@ -372,19 +374,20 @@ int MainWindow::bash(QString proc, QString undo) {
     mb.hide();
     if(mb.wasCanceled()) {
         if(undo == nullptr) {
-            QMessageBox::warning(this, tr("Undo Error"),
+            QMessageBox::warning(this, tr("Abort Error"),
                                  tr("No undo technique is supplied."));
             hasRepo();
             return j;
         }
         //undo processing
         QStringList sl2 = undo.split("&&&");//split notation
-        if(sl.length() != sl2.length()) {
+        if(sl.length() != sl2.length()) {//sanity debug steps!!!
             QMessageBox::warning(this, tr("Undo Error"),
                                  tr("No undo is correctly programmed."));
             hasRepo();
             return j;
         }
+        //1 <= i <= sl.length()
         QProgressDialog mb(tr("Please wait undoing actions."),
                            tr("Abort Undo"), 0, i, this);
         mb.setModal(true);
@@ -424,7 +427,7 @@ void MainWindow::publish() {
                         "commit group? Is there anything to merge?"));
             return;
         }
-    statusBar()->showMessage(tr("Published all saved edits"), 2000);
+    status(tr("Published all saved edits"));
     //reload();
     }
 }
@@ -440,11 +443,12 @@ void MainWindow::read() {
                     "update the same documents."));
         return;
     }
-    statusBar()->showMessage(tr("Read all updates and restored saved edits"), 2000);
+    status(tr("Read all updates and restored saved edits"));
     reload();
 }
 
 void MainWindow::root() {
+    prohibits();
     QFileDialog dialog(this, tr("Set Sync Working Directory"), directory);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setFileMode(QFileDialog::DirectoryOnly);
@@ -454,11 +458,12 @@ void MainWindow::root() {
     //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     if (dialog.exec() != QDialog::Accepted) {
+        hasRepo();
         return;
     }
     if (!dialog.selectedFiles().first().isEmpty()) {
         directory = dialog.selectedFiles().first();
-        statusBar()->showMessage(tr("Working directory set"), 2000);
+        status(tr("Working directory set"));
         hasRepo();
     }
 }
@@ -478,13 +483,13 @@ void MainWindow::subscribe() {
                     "requires the working directory to be empty."));
         return;
     }
-    statusBar()->showMessage(tr("Subscription created by cloning repository"), 2000);
+    status(tr("Subscription created by cloning repository"));
     reload();
-    hasRepo();
 }
 
-bool MainWindow::hasRepo() {
+bool MainWindow::hasRepo() {//and restore prohibits
     setDirectory(true);
+    checkSave(textEdit->document()->isModified());//test save
     if(quietBash("git status") != 0) {
         setClone(true);
         setSync(false);
@@ -493,6 +498,13 @@ bool MainWindow::hasRepo() {
     setSync(true);
     setClone(false);
     return true;
+}
+
+void MainWindow::prohibits() {//for bash IO locking
+    setDirectory(false);
+    setClone(false);
+    setSync(false);
+    setSave(false);//prohibit write
 }
 
 //===================================================
@@ -886,7 +898,7 @@ void MainWindow::createActions() {
 }
 
 void MainWindow::createStatusBar() {
-    statusBar()->showMessage(tr("Ready"));
+    status(tr("Ready"));
 }
 
 //===================================================
@@ -943,7 +955,7 @@ bool MainWindow::maybeSave(bool reload) {
                                tr("The document has been modified.\n"
                                   "Do you want to save your changes?"),
                                (reload ?
-                                    QMessageBox::Save | QMessageBox::Discard
+                                    QMessageBox::Save | QMessageBox::No
                                   : QMessageBox::Save | QMessageBox::Discard |
                                     QMessageBox::Cancel));
     switch (ret) {
@@ -1029,7 +1041,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-    statusBar()->showMessage(tr("File loaded"), 2000);
+    status(tr("File loaded"));
 }
 
 QString MainWindow::loadAllErrors(QFile *name) {
@@ -1047,7 +1059,7 @@ QString MainWindow::loadAllErrors(QFile *name) {
     return td.toUnicode(ba);
 }
 
-bool MainWindow::saveFile(const QString &fileName) {
+void MainWindow::saveFile(const QString &fileName) {
     setClone(false);
     setSync(false);
     QString name;
@@ -1057,25 +1069,22 @@ bool MainWindow::saveFile(const QString &fileName) {
         name = fileName;
     }
     QFile file(name);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
     if(textEdit->document()->isModified()) {
         if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
             QMessageBox::warning(this, tr("File Error"),
                                  tr("Cannot write file %1:\n%2.")
                                  .arg(QDir::toNativeSeparators(file.fileName()),
                                       file.errorString()));
-            hasRepo();
-            return false;
+        } else {
+            QTextStream out(&file);
+            out.setCodec("UTF-8");
+            out << textEdit->toPlainText();
+            setCurrentFile(name);
         }
     }
-
-    QTextStream out(&file);
-    out.setCodec("UTF-8");
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-    out << textEdit->toPlainText();
-
-    setCurrentFile(name);
     QList<StatsView *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->needsSave()) {
@@ -1097,8 +1106,8 @@ bool MainWindow::saveFile(const QString &fileName) {
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-    statusBar()->showMessage(tr("File saved"), 2000);
-    return true;
+    status(tr("File saved"));
+    return;
 }
 
 void MainWindow::setCurrentFile(const QString &fileName) {
