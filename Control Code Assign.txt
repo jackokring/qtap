@@ -8,7 +8,7 @@ B
 C   COPY
 D   DIRECTORY
 E
-F   FIND            REPLACE
+F   FIND            FONT (REPLACE)
 G   SETTINGS
 H
 I

@@ -27,5 +27,6 @@
         <file>images/convert-bad.png</file>
         <file>images/document-import.png</file>
         <file>images/convert-format.png</file>
+        <file>images/edit-font.png</file>
     </qresource>
 </RCC>

@@ -184,6 +184,7 @@ private slots:
     //===================================================
     void viewText();
     void viewSettings();
+    void font();
 
     //===================================================
     // MENU AND STATUS BAR CREATION

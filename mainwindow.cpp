@@ -806,6 +806,12 @@ void MainWindow::viewSettings() {
     }
 }
 
+void MainWindow::font() {
+    QFont font = textEdit->document()->defaultFont();
+    font.setFixedPitch(!font.fixedPitch());
+    textEdit->document()->setDefaultFont(font);
+}
+
 //===================================================
 // MENU AND STATUS BAR CREATION
 //===================================================
@@ -853,8 +859,11 @@ void MainWindow::createActions() {
 
 #endif // !QT_NO_CLIPBOARD
     addMenu(nullptr, &MainWindow::find,
-            "edit-find", tr("Find..."), QKeySequence::Find,//F
+            "edit-find", tr("&Find..."), QKeySequence::Find,//F
             tr("Find and maybe replace text"), auxNeedsText);
+    addMenu(nullptr, &MainWindow::font,
+            "edit-font", tr("Font &Change"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F),//+F
+            tr("Change font kind"), auxNeedsText);
     menuBar()->addSeparator();
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
