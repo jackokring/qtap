@@ -3,8 +3,7 @@
 
 #include <QPlainTextEdit>
 
-class ATextEdit : public QPlainTextEdit
-{
+class ATextEdit : public QPlainTextEdit {
 public:
     ATextEdit(QWidget *parent);
 

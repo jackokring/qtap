@@ -9,8 +9,7 @@ namespace Ui {
 class Settings;
 }
 
-class Settings : public StatsView //inherit
-{
+class Settings : public StatsView {//inherit
     Q_OBJECT
 
 public:

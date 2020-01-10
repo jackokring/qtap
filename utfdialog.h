@@ -1,14 +1,13 @@
 #ifndef UTFDIALOG_H
 #define UTFDIALOG_H
 
-#include <QDialog>
+#include "adialog.h"
 
 namespace Ui {
 class UTFDialog;
 }
 
-class UTFDialog : public QDialog
-{
+class UTFDialog : public ADialog {
     Q_OBJECT
 
 public:
@@ -16,7 +15,6 @@ public:
     ~UTFDialog();
     void setBytes(QByteArray ba);
     QByteArray bytes();
-    bool event(QEvent *e) override;
 
 private:
     Ui::UTFDialog *ui;

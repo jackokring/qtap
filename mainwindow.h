@@ -87,8 +87,7 @@ enum Spec : unsigned int {
     auxNeedsText = 2048,
 };
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
     //===================================================
     // HELP

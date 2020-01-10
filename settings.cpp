@@ -3,8 +3,7 @@
 
 Settings::Settings(QWidget *parent) :
     StatsView(parent, true),//stop stats UI render
-    ui(new Ui::Settings)
-{
+    ui(new Ui::Settings) {
     ui->setupUi(this);
 }
 

@@ -12,8 +12,7 @@
 //===================================================
 // MAIN PROCESSING CLASS
 //===================================================
-extern "C" class LIBKQFN_EXPORT Libkqfn
-{
+extern "C" class LIBKQFN_EXPORT Libkqfn {
 public:
     Libkqfn();
 

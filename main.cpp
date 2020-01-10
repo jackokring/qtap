@@ -53,11 +53,9 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QTranslator>
-
 #include "mainwindow.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(application);
 
     QApplication app(argc, argv);

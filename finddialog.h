@@ -1,15 +1,14 @@
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 
-#include <QDialog>
+#include "adialog.h"
 #include "atextedit.h"
 
 namespace Ui {
 class FindDialog;
 }
 
-class FindDialog : public QDialog
-{
+class FindDialog : public ADialog {
     Q_OBJECT
 
 public:
@@ -21,9 +20,6 @@ public slots:
     void find();
     void replace();
     void replaceAll();
-
-protected:
-    bool event(QEvent *e) override;
 
 private:
     Ui::FindDialog *ui;

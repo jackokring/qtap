@@ -10,8 +10,7 @@ namespace Ui {
 class StatsView;
 }
 
-class StatsView : public QWidget
-{
+class StatsView : public QWidget {
     Q_OBJECT
 
 public:

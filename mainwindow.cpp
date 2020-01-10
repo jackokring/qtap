@@ -360,9 +360,6 @@ int MainWindow::bash(QString proc, QString undo) {
     mb.setModal(true);
     mb.setMaximum(sl.length());
     mb.setValue(0);
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
-    timer->start(500);
     int j = 0;
     int i;
     for(i = 0; i < sl.length(); ++i) {
@@ -370,7 +367,6 @@ int MainWindow::bash(QString proc, QString undo) {
         mb.setValue(i + 1);//update
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
-    timer->stop();
     mb.hide();
     if(mb.wasCanceled()) {
         if(undo == nullptr) {
@@ -393,16 +389,12 @@ int MainWindow::bash(QString proc, QString undo) {
         mb.setModal(true);
         mb.setMaximum(i);
         mb.setValue(0);
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, this, &MainWindow::checkEvents);
-        timer->start(500);
         int j = 0;
         for(int k = sl.length() - i; i > 0; --i, ++k) {
             j = quietBash(sl2[k]);//so order is based on first undo does last
             mb.setValue(sl.length() - i);//update
             if(j != 0 || mb.wasCanceled()) break;//exit early
         }
-        timer->stop();
         mb.hide();
     }
     hasRepo();

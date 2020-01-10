@@ -1,7 +1,6 @@
 #include "libkqfn.h"
 
-Libkqfn::Libkqfn()
-{
+Libkqfn::Libkqfn() {
 
 }
 

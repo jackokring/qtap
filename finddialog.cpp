@@ -3,14 +3,12 @@
 #include "mainwindow.h"
 
 FindDialog::FindDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::FindDialog)
-{
+    ADialog(parent),
+    ui(new Ui::FindDialog) {
     ui->setupUi(this);
 }
 
-FindDialog::~FindDialog()
-{
+FindDialog::~FindDialog() {
     findDefault = ui->findText->text();
     replaceDefault = ui->replaceText->text();
     delete ui;
@@ -65,13 +63,4 @@ void FindDialog::replaceAll() {
         replace();
         next = txt->textCursor();
     }
-}
-
-bool FindDialog::event(QEvent *e) {
-    if(e->type()==QEvent::StatusTip){
-      QStatusTipEvent *ev = (QStatusTipEvent*)e;
-      ((MainWindow *)parentWidget())->status(ev->tip());
-      return true;
-    }
-    return QDialog::event(e);
 }

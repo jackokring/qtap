@@ -2,12 +2,14 @@ QT += core gui network webengine widgets webenginewidgets
 requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
+    adialog.h \
     atextedit.h \
     finddialog.h \
     settings.h \
     statsview.h \
     utfdialog.h
 SOURCES       = main.cpp \
+                adialog.cpp \
                 atextedit.cpp \
                 finddialog.cpp \
                 mainwindow.cpp \
