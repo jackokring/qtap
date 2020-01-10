@@ -36,7 +36,11 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="findText"/>
+       <widget class="QLineEdit" name="findText">
+        <property name="statusTip">
+         <string>Find this text</string>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="replaceLabel">
@@ -49,7 +53,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="replaceText"/>
+       <widget class="QLineEdit" name="replaceText">
+        <property name="statusTip">
+         <string>Replace found text with this</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -57,6 +65,9 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QPushButton" name="findButton">
+        <property name="statusTip">
+         <string>Find the next occurance</string>
+        </property>
         <property name="text">
          <string>&amp;Find</string>
         </property>
@@ -71,6 +82,9 @@
       </item>
       <item row="0" column="1">
        <widget class="QPushButton" name="replaceButton">
+        <property name="statusTip">
+         <string>Replace the current or next occurance</string>
+        </property>
         <property name="text">
          <string>&amp;Replace</string>
         </property>
@@ -85,6 +99,9 @@
       </item>
       <item row="0" column="2">
        <widget class="QPushButton" name="replaceAllButton">
+        <property name="statusTip">
+         <string>Replace all occurances until the end of the file</string>
+        </property>
         <property name="text">
          <string>Replace &amp;All</string>
         </property>
@@ -95,6 +112,9 @@
       </item>
       <item row="0" column="3">
        <widget class="QDialogButtonBox" name="buttonBox">
+        <property name="statusTip">
+         <string>Close the find dialog</string>
+        </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>

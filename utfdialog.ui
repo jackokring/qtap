@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>UTF Conversion Fixes</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -25,6 +25,9 @@
    <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="1,1,1">
     <item row="0" column="0">
      <widget class="QPushButton" name="latinButton">
+      <property name="statusTip">
+       <string>Import ISO Latin (extended ASCII) text</string>
+      </property>
       <property name="text">
        <string>&amp;ISO Latin</string>
       </property>
@@ -36,6 +39,9 @@
     </item>
     <item row="0" column="1">
      <widget class="QPushButton" name="visibleCtlButton">
+      <property name="statusTip">
+       <string>Show visual control codes which have no visual effect</string>
+      </property>
       <property name="text">
        <string>Show &amp;CTRL</string>
       </property>
@@ -47,6 +53,9 @@
     </item>
     <item row="0" column="2">
      <widget class="QPushButton" name="escAnsiButton">
+      <property name="statusTip">
+       <string>Convert all control codes to recommended encoding</string>
+      </property>
       <property name="text">
        <string>&amp;ESC ANSI</string>
       </property>
@@ -58,6 +67,9 @@
     </item>
     <item row="1" column="0">
      <widget class="QPushButton" name="markErrorsButton">
+      <property name="statusTip">
+       <string>Mark all encoding error to see them</string>
+      </property>
       <property name="text">
        <string>&amp;Mark Errors</string>
       </property>
@@ -69,6 +81,9 @@
     </item>
     <item row="1" column="1">
      <widget class="QPushButton" name="markWarnButton">
+      <property name="statusTip">
+       <string>Mark all encoding warnings</string>
+      </property>
       <property name="text">
        <string>Mark &amp;Warn</string>
       </property>
@@ -80,6 +95,9 @@
     </item>
     <item row="1" column="2">
      <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="statusTip">
+       <string>Close the UTF fix dialog</string>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
