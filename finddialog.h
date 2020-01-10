@@ -26,6 +26,7 @@ private:
     Ui::FindDialog *ui;
     ATextEdit *txt;
     static QString findDefault;
+    static QString replaceDefault;
 };
 
 #endif // FINDDIALOG_H
