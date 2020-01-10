@@ -52,6 +52,7 @@
 #include "statsview.h"
 #include "mainwindow.h"
 #include "finddialog.h"
+#include "utfdialog.h"
 #define para "</p><p>"
 #define bold(X) " <b>" + X + "</b> "
 
@@ -970,14 +971,17 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         hasRepo();
         return;
     }
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
     StatsView *me = nullptr;
     QString loaded;
     if(fix & !regen) {//primary source fix, dependants more format based
         loaded = loadAllErrors(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
     } else {
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
         QTextStream in(&file);
         in.setCodec("UTF-8");
         loaded = in.readAll();
@@ -1034,6 +1038,12 @@ QString MainWindow::loadAllErrors(QFile *name) {
                     QTextCodec::IgnoreHeader);
     int size = name->size();
     QByteArray ba = name->read(size);
+    UTFDialog utf(this);
+    utf.setModal(true);
+    utf.setBytes(ba);
+    if (utf.exec() == QDialog::Accepted) {
+        return td.toUnicode(utf.bytes());
+    }
     return td.toUnicode(ba);
 }
 

@@ -5,13 +5,15 @@ HEADERS       = mainwindow.h \
     atextedit.h \
     finddialog.h \
     settings.h \
-    statsview.h
+    statsview.h \
+    utfdialog.h
 SOURCES       = main.cpp \
                 atextedit.cpp \
                 finddialog.cpp \
                 mainwindow.cpp \
                 settings.cpp \
-                statsview.cpp
+                statsview.cpp \
+                utfdialog.cpp
 #! [0]
 RESOURCES     = application.qrc
 #! [0]
@@ -23,7 +25,8 @@ INSTALLS += target
 FORMS += \
     finddialog.ui \
     settings.ui \
-    statsview.ui
+    statsview.ui \
+    utfdialog.ui
 
 DISTFILES += \
     doc/Control Code Assign.txt \

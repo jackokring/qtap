@@ -24,5 +24,8 @@
         <file>images/QtIcon.png</file>
         <file>images/edit-find.png</file>
         <file>images/edit-find-replace.png</file>
+        <file>images/convert-bad.png</file>
+        <file>images/document-import.png</file>
+        <file>images/convert-format.png</file>
     </qresource>
 </RCC>
