@@ -10,14 +10,24 @@ FindDialog::FindDialog(QWidget *parent) :
 
 FindDialog::~FindDialog()
 {
+    findDefault = ui->findText->text();
     delete ui;
 }
+
+QString FindDialog::findDefault = QString();
 
 void FindDialog::setText(ATextEdit *text) {
     txt = text;
     connect(ui->findButton, &QPushButton::clicked, this, &FindDialog::find);
     connect(ui->replaceButton, &QPushButton::clicked, this, &FindDialog::replace);
     connect(ui->replaceAllButton, &QPushButton::clicked, this, &FindDialog::replaceAll);
+    if(txt->textCursor().hasSelection()) {
+        ui->findText->setText(txt->textCursor().selectedText());
+    } else {
+        ui->findText->setText(findDefault);
+    }
+    ui->findText->setFocus();
+    ui->findText->selectAll();
 }
 
 void FindDialog::find() {
@@ -27,20 +37,16 @@ void FindDialog::find() {
 
 void FindDialog::replace() {
     QTextCursor next = txt->textCursor();
-    if(next.selectedText() == ui->findText->text()) {
-        if(next.hasSelection()) {
+    if(next.hasSelection()) {
+        if(next.selectedText() == ui->findText->text()) {
             next.insertText(ui->replaceText->text());
         }
-        find();
-    } else {
-        find();
-        if(next.hasSelection()) {
-            //just incase no find
-            replace();
-        }
     }
+    find();
 }
 
 void FindDialog::replaceAll() {
-
+    QTextCursor next = txt->textCursor();
+    find();
+    while(next.hasSelection()) replace();
 }

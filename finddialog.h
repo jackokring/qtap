@@ -25,6 +25,7 @@ public slots:
 private:
     Ui::FindDialog *ui;
     ATextEdit *txt;
+    static QString findDefault;
 };
 
 #endif // FINDDIALOG_H
