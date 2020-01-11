@@ -4,6 +4,7 @@ requires(qtConfig(filedialog))
 HEADERS       = mainwindow.h \
     adialog.h \
     atextedit.h \
+    aviewwidget.h \
     finddialog.h \
     settings.h \
     statsview.h \
@@ -11,6 +12,7 @@ HEADERS       = mainwindow.h \
 SOURCES       = main.cpp \
                 adialog.cpp \
                 atextedit.cpp \
+                aviewwidget.cpp \
                 finddialog.cpp \
                 mainwindow.cpp \
                 settings.cpp \

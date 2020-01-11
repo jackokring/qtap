@@ -1,6 +1,7 @@
 #include "utfdialog.h"
 #include "ui_utfdialog.h"
 #include "adialog.h"
+#include "mainwindow.h"
 
 UTFDialog::UTFDialog(QWidget *parent) :
     ADialog(parent),
@@ -18,4 +19,8 @@ void UTFDialog::setBytes(QByteArray ba) {
 
 QByteArray UTFDialog::bytes() {
     return old;
+}
+
+void UTFDialog::setModified() {
+    ((MainWindow *)parentWidget())->setModified();
 }

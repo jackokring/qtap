@@ -49,10 +49,15 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-#include "statsview.h"
+#include "aviewwidget.h"
 #include "mainwindow.h"
+
+//VIEW INCLUDES
+#include "statsview.h"
 #include "finddialog.h"
 #include "utfdialog.h"
+
+//FORMATTING
 #define para "</p><p>"
 #define bold(X) " <b>" + X + "</b> "
 
@@ -96,7 +101,7 @@ void MainWindow::setMain(QWidget *widget) {
         if(widget != settings) {
             holdWhileSettings = settings;
             settings->writeSettings(settingsStore);
-            QList<StatsView *>::iterator i;//restore
+            QList<AViewWidget *>::iterator i;//restore
             for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
                 (*i)->readSettings(settingsStore);
             }
@@ -105,10 +110,10 @@ void MainWindow::setMain(QWidget *widget) {
         }
         center->setCurrentWidget(widget);
     }
-    StatsView *k = (widget != textEdit) ?
+    AViewWidget *k = (widget != textEdit) ?
                 nullptr :
-                (StatsView *)widget;
-    QMap<StatsView *, QList<QAction *>>::iterator i;
+                (AViewWidget *)widget;
+    QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         QList<QAction *>::iterator j;
         for (j = (*i).begin(); j != (*i).end(); ++j) {
@@ -208,14 +213,14 @@ QWidget *MainWindow::getQWebEngineView() {
     return QWIDGETPTR(handle->getJSHost());
 }
 
-void MainWindow::setCommand(QAction *action, StatsView *view) {
+void MainWindow::setCommand(QAction *action, AViewWidget *view) {
     inViewActions[view].append(action);
     commands->addAction(action);
     commandToolBar->addAction(action);
 }
 
 void MainWindow::fillCommands() {
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->setCommands();
     }
@@ -223,7 +228,7 @@ void MainWindow::fillCommands() {
 
 void MainWindow::setInBackground(QString view, QString command) {
     backgrounded = true;//sets for auto save and other options
-    QMap<StatsView *, QList<QAction *>>::iterator i;
+    QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         if(i.key()->getViewName().toLower() == view) {
             QList<QAction *>::iterator j;
@@ -255,6 +260,10 @@ void MainWindow::status(QString display) {
     statusBar()->showMessage(display, 2000);
 }
 
+void MainWindow::setModified() {
+    textEdit->document()->setModified();
+}
+
 //===================================================
 // PROXY ENABLE ACTION CHECKS
 //===================================================
@@ -268,7 +277,7 @@ void MainWindow::checkPaste() {
         setPaste(hasText & textEdit->canPaste());//check to see if paste
         return;
     }
-    setPaste(hasText & ((StatsView *)getMain())->canPaste());
+    setPaste(hasText & ((AViewWidget *)getMain())->canPaste());
 }
 
 void MainWindow::checkCopy(bool active) {
@@ -278,7 +287,7 @@ void MainWindow::checkCopy(bool active) {
         setCopy(active);
         return;
     }
-    setCopy(((StatsView *)getMain())->canCopy());
+    setCopy(((AViewWidget *)getMain())->canCopy());
 }
 
 void MainWindow::checkCut(bool active) {
@@ -288,7 +297,7 @@ void MainWindow::checkCut(bool active) {
         setCut(active);
         return;
     }
-    setCut(((StatsView *)getMain())->canCut());
+    setCut(((AViewWidget *)getMain())->canCut());
 }
 
 void MainWindow::checkUndo(bool active) {
@@ -298,7 +307,7 @@ void MainWindow::checkUndo(bool active) {
         setUndo(active);
         return;
     }
-    setUndo(((StatsView *)getMain())->canUndo());
+    setUndo(((AViewWidget *)getMain())->canUndo());
 }
 
 void MainWindow::checkRedo(bool active) {
@@ -308,12 +317,12 @@ void MainWindow::checkRedo(bool active) {
         setRedo(active);
         return;
     }
-    setRedo(((StatsView *)getMain())->canRedo());
+    setRedo(((AViewWidget *)getMain())->canRedo());
 }
 
 void MainWindow::checkSave(bool active) {
     checkAvailable(active);//only views of saved
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         active |= (*i)->needsSave();
     }
@@ -328,7 +337,7 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 }
 
 void MainWindow::checkAvailable(bool notSaved) {
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->defaultAvailable();
     }
@@ -370,7 +379,7 @@ int MainWindow::bash(QString proc, QString undo) {
     mb.hide();
     if(mb.wasCanceled()) {
         if(undo == nullptr) {
-            QMessageBox::warning(this, tr("Abort Error"),
+            QMessageBox::critical(this, tr("Abort Error"),
                                  tr("No undo technique is supplied."));
             hasRepo();
             return j;
@@ -378,7 +387,7 @@ int MainWindow::bash(QString proc, QString undo) {
         //undo processing
         QStringList sl2 = undo.split("&&&");//split notation
         if(sl.length() != sl2.length()) {//sanity debug steps!!!
-            QMessageBox::warning(this, tr("Undo Error"),
+            QMessageBox::critical(this, tr("Cancel Undo Error"),
                                  tr("No undo is correctly programmed."));
             hasRepo();
             return j;
@@ -410,7 +419,7 @@ void MainWindow::publish() {
                 "git commit -a -m \"" + now + "\" &&&"
                 "git push"
                 ) != 0) {
-            QMessageBox::critical(this, tr("Publication Error"),
+            QMessageBox::warning(this, tr("Cloud Publication Error"),
                      tr("The repository could not be published. "
                         "There maybe a complex data merge issue if many users "
                         "update the same documents. If you did not use SSH to "
@@ -429,7 +438,7 @@ void MainWindow::read() {
             "git pull &&&"
             "git stash pop || exit 0"
             ) != 0) { //incorporate
-        QMessageBox::critical(this, tr("Reading Error"),
+        QMessageBox::warning(this, tr("Cloud Reading Error"),
                  tr("The repository could not be read. "
                     "There maybe a complex data merge issue if many users "
                     "update the same documents."));
@@ -468,7 +477,7 @@ void MainWindow::subscribe() {
 
     if (!ok) return;
     if(bash("git clone \"" + text + "\" \"" + directory + "\"") != 0) {
-        QMessageBox::critical(this, tr("Subscription Error"),
+        QMessageBox::warning(this, tr("Subscription Error"),
                  tr("The repository could not be subscribed. "
                     "The working directory may have things in "
                     "which prevent a clone subscription as that "
@@ -483,6 +492,9 @@ bool MainWindow::hasRepo() {//and restore prohibits
     setDirectory(true);
     checkSave(textEdit->document()->isModified());//test save
     if(quietBash("git status") != 0) {
+        if(quietBash("git --version") != 0) {
+            //no git
+        }
         setClone(true);
         setSync(false);
         return false;
@@ -509,10 +521,13 @@ void MainWindow::asNewShow() {
 
 void MainWindow::newFile() {
     //asNewShow();
-    if (maybeSave()) {//TODO: maybe make new doc
+    if (maybeSave()) {
         textEdit->clear();
-        //TODO: select base type
         setCurrentFile(QString());
+        QList<AViewWidget *>::iterator i;
+        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            (*i)->clear();
+        }
     }
 }
 
@@ -535,7 +550,7 @@ void MainWindow::openBoth(bool fix) {
         QStringList kinds;
         kinds << "Text files (*.txt)";
         if(!fix) {
-            QList<StatsView *>::iterator i;
+            QList<AViewWidget *>::iterator i;
             for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
                 if((*i)->hasRegenerate()) {
                     kinds << (*i)->getViewName().remove("&") +
@@ -610,7 +625,7 @@ QIcon MainWindow::getIconRC(QString named) {
 QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
                          QString named, QString entry,
                          QKeySequence shorty,
-                         QString help, Spec option, StatsView *view) {
+                         QString help, Spec option, AViewWidget *view) {
     static QMenu *aMenu;
     static QMenu *trayMenu = new QMenu(this);
     static QToolBar *aToolBar;
@@ -655,9 +670,9 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
         connect(newAct, &QAction::triggered, this, fp);
     }
     if(view != nullptr) {
-        connect(newAct, &QAction::triggered, view, &StatsView::selectView);
+        connect(newAct, &QAction::triggered, view, &AViewWidget::selectView);
         //newAct->setEnabled(false);
-        connect(view, &StatsView::setAvailable, newAct, &QAction::setEnabled);
+        connect(view, &AViewWidget::setAvailable, newAct, &QAction::setEnabled);
     }
     if(option & canCopy) {
         //newAct->setEnabled(false);
@@ -706,7 +721,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 }
 
 QMenu* MainWindow::addViewMenu(Spec option) {
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     QMenu *menu;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         menu = addMenu(nullptr, &MainWindow::viewText, //does default before show
@@ -746,7 +761,7 @@ void MainWindow::undo() {
         textEdit->undo();
         return;
     }
-    ((StatsView *)getMain())->undo();
+    ((AViewWidget *)getMain())->undo();
 }
 
 void MainWindow::redo() {
@@ -754,7 +769,7 @@ void MainWindow::redo() {
         textEdit->redo();
         return;
     }
-    ((StatsView *)getMain())->redo();
+    ((AViewWidget *)getMain())->redo();
 }
 
 void MainWindow::cut() {
@@ -762,7 +777,7 @@ void MainWindow::cut() {
         textEdit->cut();
         return;
     }
-    ((StatsView *)getMain())->cut();
+    ((AViewWidget *)getMain())->cut();
 }
 
 void MainWindow::copy() {
@@ -770,7 +785,7 @@ void MainWindow::copy() {
         textEdit->copy();
         return;
     }
-    ((StatsView *)getMain())->copy();
+    ((AViewWidget *)getMain())->copy();
 }
 
 void MainWindow::paste() {
@@ -778,7 +793,7 @@ void MainWindow::paste() {
         textEdit->paste();
         return;
     }
-    ((StatsView *)getMain())->paste();
+    ((AViewWidget *)getMain())->paste();
 }
 
 void MainWindow::find() {
@@ -807,9 +822,9 @@ void MainWindow::viewSettings() {
 }
 
 void MainWindow::font() {
-    QFont font = textEdit->document()->defaultFont();
-    font.setFixedPitch(!font.fixedPitch());
-    textEdit->document()->setDefaultFont(font);
+    bool ok;
+    QFont f = QFontDialog::getFont(&ok, textEdit->font());
+    textEdit->setFont(f);
 }
 
 //===================================================
@@ -863,7 +878,7 @@ void MainWindow::createActions() {
             tr("Find and maybe replace text"), auxNeedsText);
     addMenu(nullptr, &MainWindow::font,
             "edit-font", tr("Font &Change"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F),//+F
-            tr("Change font kind"), auxNeedsText);
+            tr("Change font kind"), auxNeedsText | noBar);
     menuBar()->addSeparator();
     addMenu(tr("&View"), &MainWindow::viewText,
             "view-text", tr("&Text"), QKeySequence::AddTab,//T
@@ -916,13 +931,14 @@ void MainWindow::readSettings() {
         restoreGeometry(geometry);
     }
     directory = settingsStore->value("directory", "").toString();
+    textEdit->setFont(qvariant_cast<QFont>(settingsStore->value("font", textEdit->font())));
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (!toolbars.isEmpty()) {
         QToolBar *tb = toolbars.takeFirst();
         bool visible = settingsStore->value("tbv" + tb->windowTitle(), true).toBool();
         tb->setVisible(visible);
     }
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->readSettings(settingsStore);
     }
@@ -931,12 +947,13 @@ void MainWindow::readSettings() {
 void MainWindow::writeSettings() {
     settingsStore->setValue("geometry", saveGeometry());
     settingsStore->setValue("directory", directory);
+    settingsStore->setValue("font", textEdit->font());
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (isVisible() && !toolbars.isEmpty()) {//prevents setting background mangling
         QToolBar *tb = toolbars.takeFirst();
         settingsStore->setValue("tbv" + tb->windowTitle(), tb->isVisible());
     }
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->writeSettings(settingsStore);
     }
@@ -949,7 +966,7 @@ bool MainWindow::maybeSave(bool reload) {
     if (!textEdit->document()->isModified() && !reload)
         return true;
     const QMessageBox::StandardButton ret
-        = QMessageBox::warning(this, tr("Save Changes"),
+        = QMessageBox::question(this, tr("Save Changes"),
                                reload ?
                                tr("The document may have been modified by synchronization.\n"
                                   "Do you want to save any possible changes?") :
@@ -977,14 +994,14 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     QString name = fileName;
     QFile file(name);
     if(!file.open(QFile::ReadOnly)) {
-        QMessageBox::warning(this, tr("File Error"),
+        QMessageBox::critical(this, tr("File Read Error"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(QDir::toNativeSeparators(file.fileName()),
                                   file.errorString()));
         hasRepo();
         return;
     }
-    StatsView *me = nullptr;
+    AViewWidget *me = nullptr;
     QString loaded;
     if(fix & !regen) {//primary source fix, dependants more format based
         loaded = loadAllErrors(&file);
@@ -1000,7 +1017,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         loaded = in.readAll();
     }
     if(regen) {
-        QList<StatsView *>::iterator i;
+        QList<AViewWidget *>::iterator i;
         for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
             if(QString::compare(QFileInfo(fileName).suffix(),
                                 (*i)->getExtension(), Qt::CaseInsensitive) == 0) {
@@ -1020,7 +1037,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         textEdit->setPlainText(loaded);
     }
     setCurrentFile(name);
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->canCache() && (*i) != me) {
             QFile file(name + "." + (*i)->getExtension());
@@ -1049,11 +1066,17 @@ QString MainWindow::loadAllErrors(QFile *name) {
     QTextDecoder td(QTextCodec::codecForName("UTF-8"),
                     QTextCodec::ConvertInvalidToNull |
                     QTextCodec::IgnoreHeader);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
     int size = name->size();
     QByteArray ba = name->read(size);
     UTFDialog utf(this);
     utf.setModal(true);
     utf.setBytes(ba);
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
     if (utf.exec() == QDialog::Accepted) {
         return td.toUnicode(utf.bytes());
     }
@@ -1075,7 +1098,7 @@ void MainWindow::saveFile(const QString &fileName) {
 #endif
     if(textEdit->document()->isModified()) {
         if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
-            QMessageBox::warning(this, tr("File Error"),
+            QMessageBox::critical(this, tr("File Write Error"),
                                  tr("Cannot write file %1:\n%2.")
                                  .arg(QDir::toNativeSeparators(file.fileName()),
                                       file.errorString()));
@@ -1086,12 +1109,12 @@ void MainWindow::saveFile(const QString &fileName) {
             setCurrentFile(name);
         }
     }
-    QList<StatsView *>::iterator i;
+    QList<AViewWidget *>::iterator i;
     for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->needsSave()) {
             QFile file(name + "." + (*i)->getExtension());
             if (!file.open(QFile::WriteOnly)) {
-                QMessageBox::warning(this, tr("File Error"),
+                QMessageBox::critical(this, tr("File Write Error"),
                                      tr("Cannot write file %1:\n%2.")
                                      .arg(QDir::toNativeSeparators(file.fileName()),
                                           file.errorString()));

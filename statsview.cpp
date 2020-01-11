@@ -1,21 +1,13 @@
 #include "statsview.h"
-#include "mainwindow.h"
 #include "ui_statsview.h"
-#include <QAction>
 
-StatsView::StatsView(QWidget *parent, bool uiStop) :
-    QWidget(parent),
+StatsView::StatsView(QWidget *parent) :
+    AViewWidget(parent),
     ui(new Ui::StatsView) {
-    stoppedUi = uiStop;//memory save
-    if(!uiStop) {
-        ui->setupUi(this);
-    } else {
-        delete ui;
-    }
+    ui->setupUi(this);
 }
 
 StatsView::~StatsView() {
-    if(!stoppedUi)
         delete ui;
 }
 
@@ -31,16 +23,16 @@ QKeySequence StatsView::getShortCut() {
     return QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V);
 }
 
-QString StatsView::getToolTipHelp() {
-    return tr("Show the ") + getViewName().replace("&", "").toLower() + tr(" view.");
-}
-
 void StatsView::checkAvailable() {
     setAvailable(true);//pass through
 }
 
 void StatsView::defaultAvailable() {
     setAvailable(false);//pass through (default zero state or unsaved)
+}
+
+void StatsView::clear() {
+
 }
 
 void StatsView::create() {
@@ -125,37 +117,4 @@ void StatsView::undo() {
 
 void StatsView::redo() {
 
-}
-
-QWidget *StatsView::focused() {
-    return MainWindow::focused(this);
-}
-
-void StatsView::setMainWindow(QMainWindow *mw) {
-    main = mw;
-}
-
-void StatsView::selectView() {
-    if(main != nullptr) {
-        create();
-        ((MainWindow *)main)->setMain(this);
-    }
-}
-
-QString StatsView::getTextFromMain() {
-    return ((MainWindow *)main)->getText();
-}
-
-void StatsView::addMenu(void(StatsView::*fp)(),
-             QString named,
-             QString entry,
-             QKeySequence shorty,
-             QString help) {
-    const QIcon newIcon = MainWindow::getIconRC(named);
-    if(entry == nullptr) entry = ">>Blank entry<<";
-    QAction *newAct = new QAction(newIcon, entry, this);
-    if(shorty > 0) newAct->setShortcut(shorty);
-    if(help != nullptr) newAct->setStatusTip(help);
-    if(fp != nullptr) connect(newAct, &QAction::triggered, this, fp);
-    ((MainWindow *)main)->setCommand(newAct, this);
 }

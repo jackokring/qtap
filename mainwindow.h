@@ -59,7 +59,7 @@
 #include "atextedit.h"
 #include "./libkqfn/libkqfn.h"
 #include "settings.h"
-#include "statsview.h"
+#include "aviewwidget.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -107,12 +107,13 @@ public:
     MainWindow();
     QString loadStyle();
     QWidget *getQWebEngineView();
-    void setCommand(QAction *action, StatsView *view);
+    void setCommand(QAction *action, AViewWidget *view);
     void fillCommands();
     void setInBackground(QString view, QString command);
     QString getText();
     static QWidget *focused(QWidget *top);
     void status(QString display);
+    void setModified();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
@@ -163,7 +164,7 @@ public:
 private:
     QMenu* addMenu(QString menu = nullptr, void(MainWindow::*fp)() = nullptr,
          QString named = nullptr, QString entry = nullptr, QKeySequence shorty = 0,
-         QString help = nullptr, Spec option = none, StatsView *view = nullptr);
+         QString help = nullptr, Spec option = none, AViewWidget *view = nullptr);
     QMenu* addViewMenu(Spec option = none);
 
     //===================================================
@@ -243,13 +244,13 @@ private:
     QStackedWidget *center;//multi view handling
     QSystemTrayIcon *tray;
     bool exitCheck;
-    QList<StatsView *> listOfViews;
+    QList<AViewWidget *> listOfViews;
     //lasts
     bool lastCopy = false;
     bool lastCut = false;
     bool lastUndo = false;
     bool lastRedo = false;
-    QMap<StatsView *, QList<QAction *>> inViewActions;
+    QMap<AViewWidget *, QList<QAction *>> inViewActions;
     QMenu *commands;
     QToolBar *commandToolBar;
     bool backgrounded = false;
