@@ -131,6 +131,9 @@ void AViewWidget::setMainWindow(QMainWindow *mw) {
 }
 
 void AViewWidget::progress100(QString message, QString cancel) {
+    if(progress != nullptr) {
+        delete progress;
+    }
     progress = new QProgressDialog(message, cancel, 0, 100, this);
     progress->setModal(true);
     progress->setMaximum(100);
@@ -138,8 +141,9 @@ void AViewWidget::progress100(QString message, QString cancel) {
 }
 
 bool AViewWidget::setProgress(int percent) {
-    progress->setValue(percent);
-    return progress->wasCanceled();
+    bool cancel = progress->wasCanceled();
+    progress->setValue(percent);//might delete ui
+    return cancel;
 }
 
 void AViewWidget::selectView() {

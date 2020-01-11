@@ -55,7 +55,7 @@ private:
                  QKeySequence shorty = 0,
                  QString help = nullptr);
     QMainWindow *main;
-    QProgressDialog *progress;
+    QProgressDialog *progress = nullptr;
 
 signals:
     void setAvailable(bool isAvail);
