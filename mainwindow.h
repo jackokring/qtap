@@ -72,19 +72,22 @@ QT_END_NAMESPACE
 // MENU SPECIAL AUTO BUILDING
 //===================================================
 enum Spec : unsigned int {
-    none = 0,
-    noBar = 1,
-    canCopy = 2,
-    canPaste = 4,
-    canUndo = 8,
-    canRedo = 16,
-    canSave = 32,
-    inTray = 64,
-    canClone = 128,
-    canSync = 256,
-    canSetdir = 512,
-    canCut = 1024,
-    auxNeedsText = 2048,
+    none = 0,//for completeness
+    noBar = 1,//no icon in action bar
+    canCopy = 2,//can copy a selection
+    canPaste = 4,//can do a paste into somewhere
+    canUndo = 8,//needs undo to exist
+    canRedo = 16,//needs redo to exist
+    canSave = 32,//operates file IO
+    //load is controlled sufficiently for read while write new
+    inTray = 64,//placed in system tray menu
+    canClone = 128,//is a git clone operation
+    canSync = 256,//is a git sync operation
+    canSetdir = 512,//action can set root directory
+    canCut = 1024,//action needs something to cut
+    auxNeedsText = 2048,//only active when text viewed
+    afterBarSpace = 4096,//adds a space before this action in the bar
+    noAddBarThisMenu = 8192,//prevents a new bar section adding
 };
 
 class MainWindow : public QMainWindow {
@@ -255,5 +258,6 @@ private:
     QToolBar *commandToolBar;
     bool backgrounded = false;
     QSettings *settingsStore;
+    bool hasGitTestShown = false;
 };
 #endif

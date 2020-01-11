@@ -8,15 +8,15 @@ AViewWidget::AViewWidget(QWidget *parent) :
 }
 
 QString AViewWidget::getViewName() {
-    return tr("&Statistics");
+    return "<abstract blank view>";
 }
 
 QString AViewWidget::getIconName() {
-    return "view-statistics";
+    return nullptr;//void icon
 }
 
 QKeySequence AViewWidget::getShortCut() {
-    return QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V);
+    return 0;//no shortcut
 }
 
 QString AViewWidget::getToolTipHelp() {
@@ -24,7 +24,7 @@ QString AViewWidget::getToolTipHelp() {
 }
 
 void AViewWidget::checkAvailable() {
-    setAvailable(true);//pass through
+    setAvailable(true);//pass through (when saved)
 }
 
 void AViewWidget::defaultAvailable() {
@@ -32,7 +32,7 @@ void AViewWidget::defaultAvailable() {
 }
 
 void AViewWidget::clear() {
-
+    //no action
 }
 
 void AViewWidget::create() {
@@ -40,23 +40,24 @@ void AViewWidget::create() {
 }
 
 bool AViewWidget::needsSave() {
-    return false;
+    return false;//no save needed
 }
 
 bool AViewWidget::canCache() {
-    return false;
+    return false;//save a cache
 }
 
 QString AViewWidget::getExtension() {
-    return nullptr;//no save
+    return "no.dot.thing";
 }
 
 QString AViewWidget::blockingSave() {
-    return nullptr;//file content to save
+    return "";//file content to save
 }
 
 void AViewWidget::cacheLoad(QString input) {
     //to do an auto load of some cached data if it exists
+    Q_UNUSED(input)
 }
 
 void AViewWidget::setCommands() {
@@ -64,19 +65,21 @@ void AViewWidget::setCommands() {
 }
 
 void AViewWidget::readSettings(QSettings *settings) {
-
+    //read used settings
+    Q_UNUSED(settings)
 }
 
 void AViewWidget::writeSettings(QSettings *settings) {
-
+    //write used settings
+    Q_UNUSED(settings)
 }
 
 bool AViewWidget::hasRegenerate() {
-    return false;
+    return false;//can make the .txt file back again
 }
 
 QString AViewWidget::regenerate() {
-    return nullptr;
+    return "";//the regeneration
 }
 
 bool AViewWidget::canCut() {
@@ -125,6 +128,18 @@ QWidget *AViewWidget::focused() {
 
 void AViewWidget::setMainWindow(QMainWindow *mw) {
     main = mw;
+}
+
+void AViewWidget::progress100(QString message, QString cancel) {
+    progress = new QProgressDialog(message, cancel, 0, 100, this);
+    progress->setModal(true);
+    progress->setMaximum(100);
+    progress->setValue(0);
+}
+
+bool AViewWidget::setProgress(int percent) {
+    progress->setValue(percent);
+    return progress->wasCanceled();
 }
 
 void AViewWidget::selectView() {

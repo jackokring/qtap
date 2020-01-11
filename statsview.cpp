@@ -8,7 +8,7 @@ StatsView::StatsView(QWidget *parent) :
 }
 
 StatsView::~StatsView() {
-        delete ui;
+    delete ui;
 }
 
 QString StatsView::getViewName() {
@@ -20,7 +20,7 @@ QString StatsView::getIconName() {
 }
 
 QKeySequence StatsView::getShortCut() {
-    return QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_V);
+    return QKeySequence(Qt::CTRL + Qt::Key_W);
 }
 
 void StatsView::checkAvailable() {

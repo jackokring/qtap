@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QSettings>
+#include <QProgressDialog>
 
 class AViewWidget : public QWidget
 {
@@ -40,6 +41,8 @@ public:
     virtual void undo();
     virtual void redo();
     QWidget *focused();
+    void progress100(QString message, QString cancel = tr("Cancel"));
+    bool setProgress(int percent);//bool is cancelled
 
 public slots:
     void selectView();
@@ -52,6 +55,7 @@ private:
                  QKeySequence shorty = 0,
                  QString help = nullptr);
     QMainWindow *main;
+    QProgressDialog *progress;
 
 signals:
     void setAvailable(bool isAvail);

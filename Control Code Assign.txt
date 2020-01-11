@@ -25,7 +25,7 @@ S   SAVE            SAVE AS
 T   TEXT VIEW       TRAY
 U
 V   PASTE
-W
+W   STAT VIEW
 X   CUT
 Y
 Z   UNDO            REDO

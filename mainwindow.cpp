@@ -494,6 +494,12 @@ bool MainWindow::hasRepo() {//and restore prohibits
     if(quietBash("git status") != 0) {
         if(quietBash("git --version") != 0) {
             //no git
+            if(!hasGitTestShown) {
+                QMessageBox::warning(this, tr("Git Availability Error"),
+                         tr("Git is not on your system. Some features will not work."));
+                hasGitTestShown = true;//only once
+                return false;
+            }
         }
         setClone(true);
         setSync(false);
@@ -632,8 +638,16 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     static int count = 0;
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
-        aToolBar = addToolBar(menu.remove("&"));
-        aToolBar->setMovable(false);
+        if(!(option & noAddBarThisMenu)) {
+            if(aToolBar != nullptr) {
+                //add separator at end unless following is not added
+                //in this case the help menu surpresses the final
+                //separator as it is a noAddBarThisMenu
+                aToolBar->addSeparator();
+            }
+            aToolBar = addToolBar(menu.remove("&"));
+            aToolBar->setMovable(false);
+        }
         if(count > 0) trayMenu->addSeparator();
         count = 0;
     }
@@ -716,6 +730,9 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     }
     //more options
     if(option & noBar) return aMenu;
+    if(option & afterBarSpace) {
+        aToolBar->addSeparator();
+    }
     aToolBar->addAction(newAct);
     return aMenu;
 }
@@ -877,7 +894,7 @@ void MainWindow::createActions() {
             "edit-find", tr("&Find..."), QKeySequence::Find,//F
             tr("Find and maybe replace text"), auxNeedsText);
     addMenu(nullptr, &MainWindow::font,
-            "edit-font", tr("Font &Change"), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F),//+F
+            "edit-font", tr("Font &Change..."), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F),//+F
             tr("Change font kind"), auxNeedsText | noBar);
     menuBar()->addSeparator();
     addMenu(tr("&View"), &MainWindow::viewText,
@@ -886,7 +903,7 @@ void MainWindow::createActions() {
     addViewMenu()->addSeparator();
     addMenu(nullptr, &MainWindow::viewSettings,
             "view-settings", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),//G
-            tr("Show and hide settings view"));
+            tr("Show and hide settings view"), afterBarSpace);
     menuBar()->addSeparator();
     addMenu(tr("&Command"));
     menuBar()->addSeparator();
@@ -907,7 +924,7 @@ void MainWindow::createActions() {
 
     addMenu(tr("&Help"), &MainWindow::about,
             "help-about", tr("&About"), 0,
-            tr("Show the application's About box"), noBar);
+            tr("Show the application's About box"), noBar | noAddBarThisMenu);
     addMenu(nullptr, &MainWindow::aboutQt,
             "QtIcon", tr("About &Qt"), 0,
             tr("Show the Qt library's About box"), noBar);
