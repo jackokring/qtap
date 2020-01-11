@@ -33,7 +33,7 @@ FORMS += \
     utfdialog.ui
 
 DISTFILES += \
-    doc/Control Code Assign.txt \
+    Control Code Assign.txt \
     style.css
 
 unix:!macx: LIBS += -L$$PWD/../Builds/ -llibkqfn
@@ -41,8 +41,14 @@ unix:!macx: LIBS += -L$$PWD/../Builds/ -llibkqfn
 INCLUDEPATH += $$PWD/../Builds
 DEPENDPATH += $$PWD/../Builds
 
-TRANSLATIONS = QtAp_de.ts \
-               QtAp_nl.ts \
-               QtAp_en.ts \
-               QtAp_fr.ts \
-               QtAp_pl.ts
+TRANSLATIONS =  QtAp_de.ts \
+                QtAp_nl.ts \
+                QtAp_en.ts \
+                QtAp_fr.ts \
+                QtAp_pl.ts \
+                QtAp_es.ts \
+                QtAp_da.ts \
+                QtAp_fi.ts \
+                QtAp_ja.ts \
+                QtAp_zh.ts \
+
