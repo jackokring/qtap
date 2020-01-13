@@ -18,8 +18,7 @@ public:
     QString getViewName() override;
     QString getIconName() override;
     QKeySequence getShortCut() override;
-    void checkAvailable() override;//is view available on main doc modified
-    void defaultAvailable() override;//is view available always
+    void checkAvailable(bool saved) override;//is view available
     void clear() override;//clear on new document
     void create() override;//run on show
     bool needsSave() override;//needs disk save (modified?)

@@ -23,12 +23,9 @@ QKeySequence StatsView::getShortCut() {
     return QKeySequence(Qt::CTRL + Qt::Key_W);
 }
 
-void StatsView::checkAvailable() {
+void StatsView::checkAvailable(bool saved) {
+    Q_UNUSED(saved)
     setAvailable(true);//pass through
-}
-
-void StatsView::defaultAvailable() {
-    setAvailable(false);//pass through (default zero state or unsaved)
 }
 
 void StatsView::clear() {

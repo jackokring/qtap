@@ -13,7 +13,7 @@ G   SETTINGS
 H
 I
 J
-K
+K   DEL TO EOL
 L   CLONE
 M
 N   NEW
@@ -27,5 +27,5 @@ U
 V   PASTE
 W   STAT VIEW
 X   CUT
-Y
+Y   REDO
 Z   UNDO            REDO

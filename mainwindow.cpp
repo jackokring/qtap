@@ -298,7 +298,7 @@ void MainWindow::checkCut(bool active) {
     //intecept for selection auto processing
     lastCut = active;
     if(isTextMain()) {
-        setCut(active);
+        setCut(active & textEdit->canPaste());//edit check!!
         return;
     }
     setCut(((AViewWidget *)getMain())->canCut());
