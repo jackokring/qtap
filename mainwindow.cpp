@@ -171,10 +171,12 @@ MainWindow::MainWindow()
     //create menus
     createActions();
     createStatusBar();
-    fillCommands();
 
     //input views
     setInputCommand(textEdit);
+
+    //all actions
+    fillCommands();
 
     settingsStore = new QSettings(QCoreApplication::organizationName(),
                        QCoreApplication::applicationName());
@@ -253,6 +255,7 @@ void MainWindow::fillCommands() {
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->setCommands();
     }
+    commandToolBar->addSeparator();
 }
 
 void MainWindow::setInBackground(QString view, QString command) {
@@ -679,7 +682,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
     if(menu != nullptr) {
         aMenu = menuBar()->addMenu(menu);
         if(!(option & noAddBarThisMenu)) {
-            if(aToolBar != nullptr) {
+            if(aToolBar != nullptr && !(option & doOwnSpacerPrevious)) {
                 //add separator at end unless following is not added
                 //in this case the help menu surpresses the final
                 //separator as it is a noAddBarThisMenu
@@ -909,7 +912,7 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::close,
             "application-exit", tr("E&xit"), QKeySequence::Quit,//Q
             tr("Exit app"), noBar | inTray);//no bar entry
-    menuBar()->addSeparator();
+    //menuBar()->addSeparator();
 
     addMenu(tr("&Edit"), &MainWindow::undo,
             "edit-undo", tr("&Undo"), QKeySequence::Undo,//Z
@@ -944,13 +947,13 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::viewSettings,
             "view-settings", tr("Settin&gs"), QKeySequence(Qt::CTRL + Qt::Key_G),//G
             tr("Show and hide settings view"), afterBarSpace);
-    menuBar()->addSeparator();
+    //menuBar()->addSeparator();
     addMenu(tr("&Command"));
-    menuBar()->addSeparator();
+    //menuBar()->addSeparator();
 
     addMenu(tr("&Sync"), &MainWindow::publish,
             "sync-publish", tr("&Publish"), QKeySequence::Print,//P
-            tr("Publish with services"), canSync);
+            tr("Publish with services"), canSync | doOwnSpacerPrevious);
     addMenu(nullptr, &MainWindow::read,
             "sync-read", tr("&Read"), QKeySequence(Qt::CTRL + Qt::Key_R),//R
             tr("Read from services"), canSync | inTray)->addSeparator();
@@ -960,7 +963,7 @@ void MainWindow::createActions() {
     addMenu(nullptr, &MainWindow::subscribe,
             "sync-subscribe", tr("Subscribe C&lone..."), QKeySequence(Qt::CTRL + Qt::Key_L),//L
             tr("Subscribe to a remote git ssh repository and clone it"), canClone | noBar);
-    menuBar()->addSeparator();
+    //menuBar()->addSeparator();
 
     addMenu(tr("&Help"), &MainWindow::about,
             "help-about", tr("&About"), 0,

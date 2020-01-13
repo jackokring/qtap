@@ -88,6 +88,7 @@ enum Spec : unsigned int {
     auxNeedsText = 2048,//only active when text viewed
     afterBarSpace = 4096,//adds a space before this action in the bar
     noAddBarThisMenu = 8192,//prevents a new bar section adding
+    doOwnSpacerPrevious = 16384,//useful to prevent command malformat
 };
 
 class MainWindow : public QMainWindow {
