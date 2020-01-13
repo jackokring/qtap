@@ -103,7 +103,9 @@ void MainWindow::setMain(QWidget *widget) {
             settings->writeSettings(settingsStore);
             QList<AViewWidget *>::iterator i;//restore
             for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+                settingsStore->beginGroup((*i)->getViewName());
                 (*i)->readSettings(settingsStore);
+                settingsStore->endGroup();
             }
         } else {
             settings->readSettings(settingsStore);
@@ -182,6 +184,7 @@ MainWindow::MainWindow()
                        QCoreApplication::applicationName());
     settings = new Settings();
     holdWhileSettings = settings;
+    settings->setMainWindow(this);//for link back
     readSettings();
     hasRepo();
 
@@ -235,19 +238,61 @@ void MainWindow::setCommand(QAction *action, AViewWidget *view) {
 }
 
 void setNewInput(ATextEdit *input, MainWindow *main) {
-    main->setMain(input);//allow alteration of input widgets
+    if(main->getFilename().isEmpty()) {
+        main->setMain(input);//allow alteration of input widgets
+        main->setCurrentFile(QString(), true);
+    } else {
+        QStringList old = main->editOldBase().split(".");
+        QString newBase = input->getBaseExtension();
+        main->setMain(input);//allow alteration of input widgets
+        QStringList name = main->getFilename().split(".");
+        QStringList::iterator i;
+        for(i = old.begin(); i != old.end(); ++i) {
+            name.removeLast();//remove one for each
+        }
+        main->setCurrentFile(name.join(".") + newBase, true);//with no clear!!
+    }
 }
 
 void MainWindow::setInputCommand(ATextEdit *input) {
+    if(!hasInitiated) {
+        hasInitiated = true;
+        document = input->document();
+    } else {
+        QTextDocument *old = input->document();
+        input->setDocument(document);
+        delete old;//ensure consistent document
+    }
     const QIcon newIcon = getIconRC(input->getIconName());
     QAction *newAct = new QAction(newIcon, input->getInputName(), this);
     if(input->getShortcut() > 0) newAct->setShortcut(input->getShortcut());
     if(input->getHelpText() != nullptr) newAct->setStatusTip(input->getHelpText());
-    //connect(newAct, &QAction::triggered, this,
-    //        [this, input]{ setNewInput(input, this); });
+    connect(newAct, &QAction::triggered, this,
+            [this, input]{ setNewInput(input, this); });
     inInputActions.append(newAct);
+    listOfInputs.append(input);
     commands->addAction(newAct);
     commandToolBar->addAction(newAct);
+}
+
+QString MainWindow::getFilename() {
+    return curFile;
+}
+
+QString MainWindow::editOldBase() {
+    return textEdit->getBaseExtension();
+}
+
+bool MainWindow::fileExtensionOK(QString file) {
+    bool ok = false;
+    QList<ATextEdit *>::iterator i;
+    for(i = listOfInputs.begin(); i != listOfInputs.end(); ++i) {
+        int j = file.lastIndexOf((*i)->getBaseExtension());
+        if(j + (*i)->getBaseExtension().length() == file.length()) {
+            ok = true;
+        }
+    }
+    return ok;
 }
 
 void MainWindow::fillCommands() {
@@ -263,11 +308,16 @@ void MainWindow::setInBackground(QString view, QString command) {
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         if(i.key()->getViewName().toLower() == view) {
-            QList<QAction *>::iterator j;
-            for(j = (*i).begin(); j != (*i).end(); ++j) {
-                if((*j)->text().toLower().remove("&") == command)
-                    (*j)->trigger();//and for view
+            setMain(i.key());//set view
+            if(!command.isEmpty()) {
+                QList<QAction *>::iterator j;
+                for(j = (*i).begin(); j != (*i).end(); ++j) {
+                    if((*j)->text().toLower().remove("&") == command)
+                        (*j)->trigger();//and for view
+                }
             }
+            save();
+            close();
         }
     }
 }
@@ -294,6 +344,14 @@ void MainWindow::status(QString display) {
 
 void MainWindow::setModified() {
     textEdit->document()->setModified();
+}
+
+QList<AViewWidget *>::iterator MainWindow::begin() {
+    return listOfViews.begin();
+}
+
+QList<AViewWidget *>::iterator MainWindow::end() {
+    return listOfViews.end();
 }
 
 //===================================================
@@ -991,7 +1049,7 @@ void MainWindow::readSettings() {
         restoreGeometry(geometry);
     }
     directory = settingsStore->value("directory", "").toString();
-    textEdit->setFont(qvariant_cast<QFont>(settingsStore->value("font", textEdit->font())));
+    textEdit->setFont(settingsStore->value("font", textEdit->font()).value<QFont>());
     QList<QToolBar *> toolbars = findChildren<QToolBar *>();
     while (!toolbars.isEmpty()) {
         QToolBar *tb = toolbars.takeFirst();
@@ -1000,7 +1058,9 @@ void MainWindow::readSettings() {
     }
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        settingsStore->beginGroup((*i)->getViewName());
         (*i)->readSettings(settingsStore);
+        settingsStore->endGroup();
     }
 }
 
@@ -1015,7 +1075,9 @@ void MainWindow::writeSettings() {
     }
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        settingsStore->beginGroup((*i)->getViewName());
         (*i)->writeSettings(settingsStore);
+        settingsStore->endGroup();
     }
 }
 
@@ -1194,11 +1256,13 @@ void MainWindow::saveFile(const QString &fileName) {
     return;
 }
 
-void MainWindow::setCurrentFile(const QString &fileName) {
+void MainWindow::setCurrentFile(const QString &fileName, bool noClear) {
     curFile = fileName;
-    textEdit->document()->clearUndoRedoStacks();//makes more sense
-    textEdit->document()->setModified(false);
-    setWindowModified(false);
+    if(!noClear) {
+        textEdit->document()->clearUndoRedoStacks();//makes more sense
+        textEdit->document()->setModified(false);
+        setWindowModified(false);
+    }
 
     QString shownName = strippedName(curFile);
     if(curFile.isEmpty())

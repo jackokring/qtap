@@ -11,11 +11,19 @@ class AViewWidget : public QWidget
     Q_OBJECT
 public:
     explicit AViewWidget(QWidget *parent = nullptr);
+
+    //===================================================
+    // GUI
+    //===================================================
     virtual QString getViewName();
     virtual QString getIconName();
     virtual QKeySequence getShortCut();
     QString getToolTipHelp();
     void setMainWindow(QMainWindow *mw);
+
+    //===================================================
+    // STATE
+    //===================================================
     virtual void checkAvailable(bool saved = false);//is view available
     virtual void recycle();//recycle before new document
     virtual void clear();//clear on new document
@@ -30,6 +38,10 @@ public:
     virtual void writeSettings(QSettings *settings);
     virtual bool hasRegenerate();//can regenerate .txt base
     virtual QString regenerate();//regenerate .txt base
+
+    //===================================================
+    // ACTION
+    //===================================================
     virtual bool canCut();//can currently cut
     virtual bool canCopy();//can currently copy
     virtual bool canPaste();//can currently paste
@@ -40,9 +52,14 @@ public:
     virtual void paste();
     virtual void undo();
     virtual void redo();
+
+    //===================================================
+    // USEFUL
+    //===================================================
     QWidget *focused();
     void progress100(QString message, QString cancel = tr("Cancel"));
     bool setProgress(int percent);//bool is cancelled
+    QMainWindow *getMain();
 
 public slots:
     void selectView();

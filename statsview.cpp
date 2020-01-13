@@ -11,6 +11,9 @@ StatsView::~StatsView() {
     delete ui;
 }
 
+//===================================================
+// GUI
+//===================================================
 QString StatsView::getViewName() {
     return tr("&Statistics");
 }
@@ -23,6 +26,9 @@ QKeySequence StatsView::getShortCut() {
     return QKeySequence(Qt::CTRL + Qt::Key_W);
 }
 
+//===================================================
+// STATE
+//===================================================
 void StatsView::checkAvailable(bool saved) {
     Q_UNUSED(saved)
     setAvailable(true);//pass through
@@ -76,6 +82,9 @@ QString StatsView::regenerate() {
     return nullptr;
 }
 
+//===================================================
+// ACTION
+//===================================================
 bool StatsView::canCut() {
     return false;
 }

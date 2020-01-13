@@ -7,6 +7,9 @@ AViewWidget::AViewWidget(QWidget *parent) :
 
 }
 
+//===================================================
+// GUI
+//===================================================
 QString AViewWidget::getViewName() {
     return "<abstract blank view>";
 }
@@ -23,6 +26,9 @@ QString AViewWidget::getToolTipHelp() {
     return tr("Show the ") + getViewName().replace("&", "").toLower() + tr(" view.");
 }
 
+//===================================================
+// STATE
+//===================================================
 void AViewWidget::checkAvailable(bool saved) {
     setAvailable(saved);//pass through (when saved)
 }
@@ -82,6 +88,9 @@ QString AViewWidget::regenerate() {
     return "";//the regeneration
 }
 
+//===================================================
+// ACTION
+//===================================================
 bool AViewWidget::canCut() {
     return false;
 }
@@ -122,6 +131,9 @@ void AViewWidget::redo() {
 
 }
 
+//===================================================
+// USEFUL
+//===================================================
 QWidget *AViewWidget::focused() {
     return MainWindow::focused(this);
 }
@@ -143,8 +155,13 @@ void AViewWidget::progress100(QString message, QString cancel) {
 
 bool AViewWidget::setProgress(int percent) {
     bool cancel = progress->wasCanceled();
+    if(percent == 100) cancel = false;//ok
     progress->setValue(percent);//might delete ui
     return cancel;
+}
+
+QMainWindow *AViewWidget::getMain() {
+    return main;
 }
 
 void AViewWidget::selectView() {

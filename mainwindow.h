@@ -113,12 +113,17 @@ public:
     QWidget *getQWebEngineView();
     void setCommand(QAction *action, AViewWidget *view);
     void setInputCommand(ATextEdit *input);
+    QString getFilename();
+    QString editOldBase();
+    bool fileExtensionOK(QString file);
     void fillCommands();
     void setInBackground(QString view, QString command);
     QString getText();
     static QWidget *focused(QWidget *top);
     void status(QString display);
     void setModified();
+    QList<AViewWidget *>::iterator begin();
+    QList<AViewWidget *>::iterator end();
 
     //===================================================
     // PROXY ENABLE ACTION CHECKS
@@ -214,7 +219,9 @@ public:
     QString loadAllErrors(QFile *name);
 private:
     void saveFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName);
+public:
+    void setCurrentFile(const QString &fileName, bool noClear = false);
+private:
     QString strippedName(const QString &fullFileName);
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
@@ -250,6 +257,7 @@ private:
     QSystemTrayIcon *tray;
     bool exitCheck;
     QList<AViewWidget *> listOfViews;
+    QList<ATextEdit *> listOfInputs;
     //lasts
     bool lastCopy = false;
     bool lastCut = false;
@@ -262,5 +270,7 @@ private:
     bool backgrounded = false;
     QSettings *settingsStore;
     bool hasGitTestShown = false;
+    bool hasInitiated = false;
+    QTextDocument *document;
 };
 #endif

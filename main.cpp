@@ -61,7 +61,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("K Ring Technologies Ltd.");
     QCoreApplication::setApplicationName("QtAp");
-    QCoreApplication::setApplicationVersion("1.0.1");
+    QCoreApplication::setApplicationVersion("1.0.4");
+    QCoreApplication::setOrganizationDomain("kring.co.uk");
 
     QTranslator translator;
     translator.load("QtAp_" + QLocale::system().name());
@@ -78,17 +79,23 @@ int main(int argc, char *argv[]) {
 
     MainWindow mainWin;
     bool show = true;
+    QString file;
+    QString view;
+    QString command;
     if(!parser.positionalArguments().isEmpty()) {
-        mainWin.loadFile(parser.positionalArguments().first());
-        parser.positionalArguments().removeFirst();
-        if(!parser.positionalArguments().isEmpty()) {
-            //background view
-            QString view = parser.positionalArguments().first();
+        file = parser.positionalArguments().first();
+        if(mainWin.fileExtensionOK(file)) {
+            mainWin.loadFile(file);
             parser.positionalArguments().removeFirst();
             if(!parser.positionalArguments().isEmpty()) {
-                //background cmd
-                mainWin.setInBackground(view, parser.positionalArguments().first());
                 show = false;
+                //background view
+                view = parser.positionalArguments().first();
+                parser.positionalArguments().removeFirst();
+
+                //background cmd
+                command = parser.positionalArguments().first();
+                mainWin.setInBackground(view, command);
             }
         }
     }
