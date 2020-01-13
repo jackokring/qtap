@@ -111,6 +111,7 @@ public:
     QString loadStyle();
     QWidget *getQWebEngineView();
     void setCommand(QAction *action, AViewWidget *view);
+    void setInputCommand(ATextEdit *input);
     void fillCommands();
     void setInBackground(QString view, QString command);
     QString getText();
@@ -254,6 +255,7 @@ private:
     bool lastUndo = false;
     bool lastRedo = false;
     QMap<AViewWidget *, QList<QAction *>> inViewActions;
+    QList<QAction *> inInputActions;
     QMenu *commands;
     QToolBar *commandToolBar;
     bool backgrounded = false;

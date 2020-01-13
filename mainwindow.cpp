@@ -110,9 +110,7 @@ void MainWindow::setMain(QWidget *widget) {
         }
         center->setCurrentWidget(widget);
     }
-    AViewWidget *k = (widget != textEdit) ?
-                nullptr :
-                (AViewWidget *)widget;
+    AViewWidget *k = (AViewWidget *)widget;
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         QList<QAction *>::iterator j;
@@ -120,6 +118,11 @@ void MainWindow::setMain(QWidget *widget) {
             (*j)->setVisible(false);
             if(k == i.key()) (*j)->setVisible(true);//and for view
         }
+    }
+    QList<QAction *>::iterator j;
+    for(j = inInputActions.begin(); j != inInputActions.end(); ++j) {
+        (*j)->setVisible(false);
+        if(textEdit == widget) (*j)->setVisible(true);//and for input
     }
     checkSave(textEdit->document()->isModified());//test save avail?
     checkPaste();
@@ -160,13 +163,19 @@ MainWindow::MainWindow()
     tray->setToolTip(QCoreApplication::applicationName());
     connect(tray, &QSystemTrayIcon::activated, this, &MainWindow::checkTray);
     inViewActions.clear();
-    //add in the extra views
+    inInputActions.clear();
+
+    //add in the extra output views
     listOfViews.append(new StatsView(this));
 
     //create menus
     createActions();
     createStatusBar();
     fillCommands();
+
+    //input views
+    setInputCommand(textEdit);
+
     settingsStore = new QSettings(QCoreApplication::organizationName(),
                        QCoreApplication::applicationName());
     settings = new Settings();
@@ -221,6 +230,22 @@ void MainWindow::setCommand(QAction *action, AViewWidget *view) {
     inViewActions[view].append(action);
     commands->addAction(action);
     commandToolBar->addAction(action);
+}
+
+void setNewInput(ATextEdit *input, MainWindow *main) {
+    main->setMain(input);//allow alteration of input widgets
+}
+
+void MainWindow::setInputCommand(ATextEdit *input) {
+    const QIcon newIcon = getIconRC(input->getIconName());
+    QAction *newAct = new QAction(newIcon, input->getInputName(), this);
+    if(input->getShortcut() > 0) newAct->setShortcut(input->getShortcut());
+    if(input->getHelpText() != nullptr) newAct->setStatusTip(input->getHelpText());
+    //connect(newAct, &QAction::triggered, this,
+    //        [this, input]{ setNewInput(input, this); });
+    inInputActions.append(newAct);
+    commands->addAction(newAct);
+    commandToolBar->addAction(newAct);
 }
 
 void MainWindow::fillCommands() {

@@ -8,8 +8,19 @@ class ATextEdit : public QPlainTextEdit {
 public:
     ATextEdit(QWidget *parent);
 
+    //===================================================
+    // FILE INTERFACE
+    //===================================================
     virtual QString getBaseExtension();
     virtual QString getBaseTypeDescription();
+
+    //===================================================
+    // SELECTION INTERFACE
+    //===================================================
+    virtual QString getIconName();
+    virtual QString getInputName();
+    virtual QKeySequence getShortcut();
+    virtual QString getHelpText();
 
 };
 
