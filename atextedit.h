@@ -4,8 +4,12 @@
 #include <QPlainTextEdit>
 
 class ATextEdit : public QPlainTextEdit {
+    Q_OBJECT
 public:
     ATextEdit(QWidget *parent);
+
+    virtual QString getBaseExtension();
+    virtual QString getBaseTypeDescription();
 
 };
 

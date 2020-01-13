@@ -23,12 +23,12 @@ QString AViewWidget::getToolTipHelp() {
     return tr("Show the ") + getViewName().replace("&", "").toLower() + tr(" view.");
 }
 
-void AViewWidget::checkAvailable() {
-    setAvailable(true);//pass through (when saved)
+void AViewWidget::checkAvailable(bool saved) {
+    setAvailable(saved);//pass through (when saved)
 }
 
-void AViewWidget::defaultAvailable() {
-    setAvailable(false);//pass through (default zero state or unsaved)
+void AViewWidget::recycle() {
+    //no action
 }
 
 void AViewWidget::clear() {
@@ -138,6 +138,7 @@ void AViewWidget::progress100(QString message, QString cancel) {
     progress->setModal(true);
     progress->setMaximum(100);
     progress->setValue(0);
+    ((MainWindow *)main)->status(message);
 }
 
 bool AViewWidget::setProgress(int percent) {

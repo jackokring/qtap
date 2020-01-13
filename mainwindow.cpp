@@ -102,7 +102,7 @@ void MainWindow::setMain(QWidget *widget) {
             holdWhileSettings = settings;
             settings->writeSettings(settingsStore);
             QList<AViewWidget *>::iterator i;//restore
-            for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
                 (*i)->readSettings(settingsStore);
             }
         } else {
@@ -114,9 +114,9 @@ void MainWindow::setMain(QWidget *widget) {
                 nullptr :
                 (AViewWidget *)widget;
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
-    for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
+    for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         QList<QAction *>::iterator j;
-        for (j = (*i).begin(); j != (*i).end(); ++j) {
+        for(j = (*i).begin(); j != (*i).end(); ++j) {
             (*j)->setVisible(false);
             if(k == i.key()) (*j)->setVisible(true);//and for view
         }
@@ -176,6 +176,10 @@ MainWindow::MainWindow()
 
     center = new QStackedWidget(this);
     setCentralWidget(center);
+    QList<AViewWidget *>::iterator i;
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->clear();//first new
+    }
 
     setMain(textEdit);
 
@@ -221,7 +225,7 @@ void MainWindow::setCommand(QAction *action, AViewWidget *view) {
 
 void MainWindow::fillCommands() {
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->setCommands();
     }
 }
@@ -229,10 +233,10 @@ void MainWindow::fillCommands() {
 void MainWindow::setInBackground(QString view, QString command) {
     backgrounded = true;//sets for auto save and other options
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
-    for (i = inViewActions.begin(); i != inViewActions.end(); ++i) {
+    for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         if(i.key()->getViewName().toLower() == view) {
             QList<QAction *>::iterator j;
-            for (j = (*i).begin(); j != (*i).end(); ++j) {
+            for(j = (*i).begin(); j != (*i).end(); ++j) {
                 if((*j)->text().toLower().remove("&") == command)
                     (*j)->trigger();//and for view
             }
@@ -248,7 +252,7 @@ QWidget *MainWindow::focused(QWidget *top) {
     QWidget *f = QApplication::focusWidget();
     QList<QWidget *> wl = top->findChildren<QWidget *>();
     QList<QWidget *>::iterator i;
-    for (i = wl.begin(); i != wl.end(); ++i) {
+    for(i = wl.begin(); i != wl.end(); ++i) {
         if((*i) == f) {
             return f;
         }
@@ -323,7 +327,7 @@ void MainWindow::checkRedo(bool active) {
 void MainWindow::checkSave(bool active) {
     checkAvailable(active);//only views of saved
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         active |= (*i)->needsSave();
     }
     setSave(active);
@@ -338,11 +342,11 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 
 void MainWindow::checkAvailable(bool notSaved) {
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->defaultAvailable();
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->checkAvailable(false);
     }
-    if(!notSaved) for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->checkAvailable();//restore all possible not safe (saved) bets
+    if(!notSaved) for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        (*i)->checkAvailable(true);//restore all possible not safe (saved) bets
     }
 }
 
@@ -367,13 +371,14 @@ int MainWindow::bash(QString proc, QString undo) {
                        (undo == nullptr) ? tr("Abort") :
                                            tr("Cancel"), 0, sl.length(), this);
     mb.setModal(true);
-    mb.setMaximum(sl.length());
     mb.setValue(0);
     int j = 0;
-    int i;
-    for(i = 0; i < sl.length(); ++i) {
-        j = quietBash(sl[i]);
-        mb.setValue(i + 1);//update
+    int baulk = 0;
+    QStringList::iterator i;
+    for(i = sl.begin(); i != sl.end(); ++i) {
+        j = quietBash(*i);
+        mb.setValue(mb.value() + 1);//update
+        baulk++;
         if(j != 0 || mb.wasCanceled()) break;//exit early
     }
     mb.hide();
@@ -392,16 +397,22 @@ int MainWindow::bash(QString proc, QString undo) {
             hasRepo();
             return j;
         }
-        //1 <= i <= sl.length()
+        //1 <= baulk < sl.length()
         QProgressDialog mb(tr("Please wait undoing actions."),
-                           tr("Abort Undo"), 0, i, this);
+                           tr("Abort Undo"), 0, sl2.length(), this);
         mb.setModal(true);
-        mb.setMaximum(i);
         mb.setValue(0);
         int j = 0;
-        for(int k = sl.length() - i; i > 0; --i, ++k) {
-            j = quietBash(sl2[k]);//so order is based on first undo does last
-            mb.setValue(sl.length() - i);//update
+        int toskip = sl.length() - baulk;
+        int skipped = 0;
+        QStringList::iterator k;
+        for(k = sl2.begin(); k != sl2.end(); ++k) {
+            if(toskip <= skipped) {//count down number required
+                j = quietBash(*k);//so order is based on first undo does last
+            } else {
+                skipped++;
+            }
+            mb.setValue(mb.value() + 1);//update
             if(j != 0 || mb.wasCanceled()) break;//exit early
         }
         mb.hide();
@@ -531,7 +542,8 @@ void MainWindow::newFile() {
         textEdit->clear();
         setCurrentFile(QString());
         QList<AViewWidget *>::iterator i;
-        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+        for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            (*i)->recycle();
             (*i)->clear();
         }
     }
@@ -554,13 +566,15 @@ void MainWindow::openBoth(bool fix) {
         //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
         QStringList kinds;
-        kinds << "Text files (*.txt)";
+        QString base = textEdit->getBaseExtension();
+        kinds << textEdit->getBaseTypeDescription() + " (*." +
+                 base + ")";
         if(!fix) {
             QList<AViewWidget *>::iterator i;
-            for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
                 if((*i)->hasRegenerate()) {
                     kinds << (*i)->getViewName().remove("&") +
-                             " (*.txt." + (*i)->getExtension() + ")";
+                             " (*." + base + "." + (*i)->getExtension() + ")";
                 }
             }
         }
@@ -595,7 +609,8 @@ void MainWindow::saveAs() {
     //dialog.setOption(QFileDialog::DontUseNativeDialog);
 
     QStringList kinds;
-    kinds << "Text files (*.txt)";
+    kinds << textEdit->getBaseTypeDescription() + " (*." +
+             textEdit->getBaseExtension() + ")";
     dialog.setNameFilters(kinds);
     saved = true;
     if (dialog.exec() != QDialog::Accepted) {
@@ -740,7 +755,7 @@ QMenu* MainWindow::addMenu(QString menu, void(MainWindow::*fp)(),
 QMenu* MainWindow::addViewMenu(Spec option) {
     QList<AViewWidget *>::iterator i;
     QMenu *menu;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         menu = addMenu(nullptr, &MainWindow::viewText, //does default before show
                        (*i)->getIconName(), (*i)->getViewName(),
                        (*i)->getShortCut(), (*i)->getToolTipHelp(), option, *i);
@@ -956,7 +971,7 @@ void MainWindow::readSettings() {
         tb->setVisible(visible);
     }
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->readSettings(settingsStore);
     }
 }
@@ -971,7 +986,7 @@ void MainWindow::writeSettings() {
         settingsStore->setValue("tbv" + tb->windowTitle(), tb->isVisible());
     }
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->writeSettings(settingsStore);
     }
 }
@@ -1035,18 +1050,18 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     }
     if(regen) {
         QList<AViewWidget *>::iterator i;
-        for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-            if(QString::compare(QFileInfo(fileName).suffix(),
-                                (*i)->getExtension(), Qt::CaseInsensitive) == 0) {
+        for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+            if(QFileInfo(fileName).suffix().toLower() == (*i)->getExtension()) {
                 me = (*i);
                 break;
             }
         }
         me->cacheLoad(loaded);
         textEdit->setPlainText(me->regenerate());
-        int count = me->getExtension().split(".").length();
+        QStringList count = me->getExtension().split(".");
         QStringList nameBits = name.split(".");
-        for(int i = 0; i < count; ++i) {
+        QStringList::iterator j;
+        for(j = count.begin(); j != count.end(); ++i) {
             nameBits.removeLast();
         }
         name = nameBits.join(".");//removed extension xtra
@@ -1055,7 +1070,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     }
     setCurrentFile(name);
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->canCache() && (*i) != me) {
             QFile file(name + "." + (*i)->getExtension());
             if(!file.open(QFile::ReadOnly)) {
@@ -1104,8 +1119,8 @@ void MainWindow::saveFile(const QString &fileName) {
     setClone(false);
     setSync(false);
     QString name;
-    if(QString::compare(QFileInfo(fileName).suffix(), "txt", Qt::CaseInsensitive) != 0) {
-        name = QString(fileName + ".txt");
+    if(QFileInfo(fileName).suffix().toLower() != textEdit->getBaseExtension()) {
+        name = QString(fileName + "." + textEdit->getBaseExtension());
     } else {
         name = fileName;
     }
@@ -1127,7 +1142,7 @@ void MainWindow::saveFile(const QString &fileName) {
         }
     }
     QList<AViewWidget *>::iterator i;
-    for (i = listOfViews.begin(); i != listOfViews.end(); ++i) {
+    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->needsSave()) {
             QFile file(name + "." + (*i)->getExtension());
             if (!file.open(QFile::WriteOnly)) {
@@ -1159,7 +1174,7 @@ void MainWindow::setCurrentFile(const QString &fileName) {
 
     QString shownName = strippedName(curFile);
     if(curFile.isEmpty())
-        shownName = "untitled.txt";//default to text
+        shownName = "untitled." + textEdit->getBaseExtension();//default to text
     setWindowFilePath(shownName);
     tray->setToolTip(QCoreApplication::applicationName() +
                      " " + shownName);

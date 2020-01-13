@@ -16,8 +16,8 @@ public:
     virtual QKeySequence getShortCut();
     QString getToolTipHelp();
     void setMainWindow(QMainWindow *mw);
-    virtual void checkAvailable();//is view available on main doc modified
-    virtual void defaultAvailable();//is view available always
+    virtual void checkAvailable(bool saved = false);//is view available
+    virtual void recycle();//recycle before new document
     virtual void clear();//clear on new document
     virtual void create();//run on show
     virtual bool needsSave();//needs disk save (modified?)
@@ -28,8 +28,8 @@ public:
     virtual void setCommands();//install menu through addMenu()
     virtual void readSettings(QSettings *settings);
     virtual void writeSettings(QSettings *settings);
-    virtual bool hasRegenerate();//can regenerate .txt
-    virtual QString regenerate();//regenerate .txt
+    virtual bool hasRegenerate();//can regenerate .txt base
+    virtual QString regenerate();//regenerate .txt base
     virtual bool canCut();//can currently cut
     virtual bool canCopy();//can currently copy
     virtual bool canPaste();//can currently paste
