@@ -40,12 +40,68 @@ void UTFDialog::latinInput() {
     old = QByteArray(output.toUtf8());
 }
 
-void UTFDialog::visibleCtl() {
+bool notNeeded(char i) {
+    bool ret = true;
+    if(i == '\t' || i == '\n') ret = false;
+    return ret;
+}
 
+QByteArray mapASCII(uchar i) {
+    QChar c(i + 0x2400);
+    return QByteArray(QString(c).toUtf8());
+}
+
+QByteArray marker() {
+    return QByteArray(QString(0x2620).toUtf8());
+}
+
+bool checkBad(uchar i) {
+    if(i >= 0xc0 && i <= 0xc1) return true;
+    if(i >= 0xf4) return true;
+    return false;
+}
+
+QByteArray mapANSI(uchar i) {
+    QChar c((i & 0x3f) + 0x80);
+    if(c < (128 + 32)) {
+        return QByteArray((QString(27) + QChar((i & 0x3f) + 0x40)).toUtf8());
+    } else {
+        return QByteArray(QString(c).toUtf8());
+    }
+}
+
+void UTFDialog::visibleCtl() {
+    QByteArray input = old;
+    QByteArray output = QByteArray();
+    QByteArray::iterator i;
+    for(i = input.begin(); i != input.end(); ++i) {
+        if(((uchar)*i) < 32 && notNeeded(*i)) {
+            output += mapASCII(*i);
+        } else {
+            output += (*i);
+        }
+    }
+    old = QByteArray(output);
 }
 
 void UTFDialog::markAnsi() {
-
+    QByteArray input = old;
+    QByteArray output = QByteArray();
+    QByteArray::iterator i;
+    for(i = input.begin(); i != input.end(); ++i) {
+        if(((uchar)*i) == 0b11000010) {//
+            if(i != input.end()) {
+                ++i;
+            } else {
+                output += marker();
+                break;
+            }
+            output += mapANSI(*i);
+        } else {
+            output += (*i);
+        }
+    }
+    old = QByteArray(output);
 }
 
 void UTFDialog::markWarn() {
@@ -53,5 +109,47 @@ void UTFDialog::markWarn() {
 }
 
 void UTFDialog::markError() {
-
+    //catches all except overlong and surragates
+    QByteArray input = old;
+    QByteArray output = QByteArray();
+    QByteArray::iterator i;
+    bool error = false;
+    int count = 0;
+    for(i = input.begin(); i != input.end(); ++i) {
+        if(checkBad(*i)) {
+            error = true;
+            count = 0;
+        } else {
+            output += (*i);
+        }
+        if(((uchar)*i) > 127) {//continuation?
+            if(((uchar)*i) > 127 + 64) {//double
+                count = 1;
+                if(((uchar)*i) > 127 + 64 + 32) {//triple
+                    count = 2;
+                    if(((uchar)*i) > 127 + 64 + 32 + 16) {//quad
+                        count = 3;
+                        if(((uchar)*i) > 127 + 64 + 32 + 16 + 8) {//error
+                            error = true;
+                            count = 0;
+                        }
+                    }
+                }
+            } else {
+                count--;
+                if(count < 0) {
+                    error = true;
+                    count = 0;
+                }
+            }
+        } else {
+            if(count > 0) error = true;//as return ascii before counted
+        }
+        if(error) {
+            output += marker();
+            error = false;
+        }
+    }
+    if(count > 0) output += marker();
+    old = QByteArray(output);
 }
