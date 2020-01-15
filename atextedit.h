@@ -2,6 +2,7 @@
 #define ATEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QSettings>
 
 class ATextEdit : public QPlainTextEdit {
     Q_OBJECT
@@ -13,6 +14,7 @@ public:
     //===================================================
     virtual QString getBaseExtension();
     virtual QString getBaseTypeDescription();
+    virtual void readSettings(QSettings *settings);
 
     //===================================================
     // SELECTION INTERFACE

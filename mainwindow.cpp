@@ -110,6 +110,12 @@ void MainWindow::setMain(QWidget *widget, bool input) {
                 (*i)->readSettings(settingsStore);
                 settingsStore->endGroup();
             }
+            QList<ATextEdit *>::iterator j;//restore
+            for(j = listOfInputs.begin(); j != listOfInputs.end(); ++j) {
+                settingsStore->beginGroup((*j)->getBaseExtension());
+                (*j)->readSettings(settingsStore);
+                settingsStore->endGroup();
+            }
         } else {
             settings->readSettings(settingsStore);
         }
@@ -188,11 +194,11 @@ MainWindow::MainWindow()
     settings = new Settings();
     holdWhileSettings = settings;
     settings->setMainWindow(this);//for link back
+    center = new QStackedWidget(this);
+    setCentralWidget(center);
     readSettings();
     hasRepo();
 
-    center = new QStackedWidget(this);
-    setCentralWidget(center);
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         (*i)->clear();//first new
@@ -1061,13 +1067,8 @@ void MainWindow::readSettings() {
         bool visible = settingsStore->value("tbv" + tb->windowTitle(), true).toBool();
         tb->setVisible(visible);
     }
-    QList<AViewWidget *>::iterator i;
-    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        settingsStore->beginGroup((*i)->getExtension());
-        (*i)->readSettings(settingsStore);
-        settingsStore->endGroup();
-    }
-    settings->readSettings(settingsStore);
+    setMain(settings);
+    //settings->readSettings(settingsStore);
 }
 
 void MainWindow::writeSettings() {
@@ -1079,6 +1080,9 @@ void MainWindow::writeSettings() {
         QToolBar *tb = toolbars.takeFirst();
         settingsStore->setValue("tbv" + tb->windowTitle(), tb->isVisible());
     }
+    setMain(textEdit);//to restore settings to things
+    //just incase settings is last view and not saved
+    //this indirectly leads to the settings page to save state
 }
 
 //===================================================

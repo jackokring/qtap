@@ -34,8 +34,8 @@ public:
     //===================================================
     // USEFUL
     //===================================================
-    void readSettings(QSettings *settings, AViewWidget *view);
-    void writeSettings(QSettings *settings, AViewWidget *view);
+    void readSettings(QSettings *settings, QString ext);
+    void writeSettings(QSettings *settings, QString ext);
 
 private:
     Ui::Settings *ui;

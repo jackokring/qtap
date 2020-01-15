@@ -17,8 +17,8 @@ Settings::~Settings() {
 void Settings::readSettings(QSettings *settings) {
     QList<AViewWidget *>::iterator i;//restore
     for(i = ((MainWindow *)getMain())->begin(); i != ((MainWindow *)getMain())->end(); ++i) {
-        settings->beginGroup((*i)->getViewName());
-        readSettings(settings, *i);
+        settings->beginGroup((*i)->getExtension());
+        readSettings(settings, (*i)->getExtension());
         settings->endGroup();
     }
 }
@@ -26,8 +26,8 @@ void Settings::readSettings(QSettings *settings) {
 void Settings::writeSettings(QSettings *settings) {
     QList<AViewWidget *>::iterator i;//restore
     for(i = ((MainWindow *)getMain())->begin(); i != ((MainWindow *)getMain())->end(); ++i) {
-        settings->beginGroup((*i)->getViewName());
-        writeSettings(settings, *i);
+        settings->beginGroup((*i)->getExtension());
+        writeSettings(settings, (*i)->getExtension());
         settings->endGroup();
     }
 }
@@ -78,10 +78,10 @@ void Settings::redo() {
 //===================================================
 // USEFUL
 //===================================================
-void Settings::readSettings(QSettings *settings, AViewWidget *view) {
+void Settings::readSettings(QSettings *settings, QString ext) {
 
 }
 
-void Settings::writeSettings(QSettings *settings, AViewWidget *view) {
+void Settings::writeSettings(QSettings *settings, QString ext) {
 
 }

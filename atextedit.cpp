@@ -15,6 +15,10 @@ QString ATextEdit::getBaseTypeDescription() {
     return tr("Text");
 }
 
+void ATextEdit::readSettings(QSettings *settings) {
+    Q_UNUSED(settings)
+}
+
 //===================================================
 // SELECTION INTERFACE
 //===================================================
