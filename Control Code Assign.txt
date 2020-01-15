@@ -1,4 +1,4 @@
-As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is app level plus SHFT.
+As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is app level plus SHFT. Things marked (C) are commands and context specific, and may have repeats for various actions.
 
 
     CTRL+LTR        CTRL+SHFT+LTR
@@ -8,14 +8,14 @@ B
 C   COPY
 D   DIRECTORY
 E
-F   FIND            FONT (REPLACE)
+F   FIND            FONT (REPLACE(C))
 G   SETTINGS
 H
 I
 J
 K   DEL TO EOL
 L   CLONE
-M   MAIN TEXT
+M   MAIN TEXT(C)
 N   NEW
 O   OPEN            OPEN FIX
 P   PUBLISH
