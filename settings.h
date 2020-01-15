@@ -15,7 +15,7 @@ public:
     ~Settings();
     //NOT ALL GENERALITY OF AVIEWWIDGET NEEDED FOR SETTINGS
     void readSettings(QSettings *settings) override;
-    void writeSettings(QSettings *settings) override;
+    void writeSettings(QSettings *settings);
 
     //===================================================
     // ACTION

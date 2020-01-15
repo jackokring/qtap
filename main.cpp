@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("K Ring Technologies Ltd.");
     QCoreApplication::setApplicationName("QtAp");
-    QCoreApplication::setApplicationVersion("1.0.4");
+    QCoreApplication::setApplicationVersion("2.0.0");
     QCoreApplication::setOrganizationDomain("kring.co.uk");
 
     QTranslator translator;

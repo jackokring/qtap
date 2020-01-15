@@ -28,7 +28,7 @@ public:
     void cacheLoad(QString input) override;//load from disk accept
     void setCommands() override;//install menu through addMenu()
     void readSettings(QSettings *settings) override;
-    void writeSettings(QSettings *settings) override;
+    //void writeSettings(QSettings *settings) override;
     bool hasRegenerate() override;//can regenerate .txt
     QString regenerate() override;//regenerate .txt
     bool canCut() override;//can currently cut

@@ -27,7 +27,7 @@ QString ATextEdit::getInputName() {
 }
 
 QKeySequence ATextEdit::getShortcut() {
-    return 0;//none
+    return QKeySequence(Qt::CTRL + Qt::Key_M);//M
 }
 
 QString ATextEdit::getHelpText() {

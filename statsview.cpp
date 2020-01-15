@@ -70,9 +70,9 @@ void StatsView::readSettings(QSettings *settings) {
 
 }
 
-void StatsView::writeSettings(QSettings *settings) {
+/* void StatsView::writeSettings(QSettings *settings) {
 
-}
+} */
 
 bool StatsView::hasRegenerate() {
     return false;

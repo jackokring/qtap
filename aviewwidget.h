@@ -35,7 +35,7 @@ public:
     virtual void cacheLoad(QString input);//load from disk accept
     virtual void setCommands();//install menu through addMenu()
     virtual void readSettings(QSettings *settings);
-    virtual void writeSettings(QSettings *settings);
+    //virtual void writeSettings(QSettings *settings);
     virtual bool hasRegenerate();//can regenerate .txt base
     virtual QString regenerate();//regenerate .txt base
 

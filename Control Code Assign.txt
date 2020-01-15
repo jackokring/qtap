@@ -15,7 +15,7 @@ I
 J
 K   DEL TO EOL
 L   CLONE
-M
+M   MAIN TEXT
 N   NEW
 O   OPEN            OPEN FIX
 P   PUBLISH

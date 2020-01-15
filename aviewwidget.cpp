@@ -75,10 +75,10 @@ void AViewWidget::readSettings(QSettings *settings) {
     Q_UNUSED(settings)
 }
 
-void AViewWidget::writeSettings(QSettings *settings) {
+/* void AViewWidget::writeSettings(QSettings *settings) {
     //write used settings
     Q_UNUSED(settings)
-}
+} */
 
 bool AViewWidget::hasRegenerate() {
     return false;//can make the .txt file back again

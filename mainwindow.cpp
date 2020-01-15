@@ -93,7 +93,10 @@ void MainWindow::about() {
 //===================================================
 // MAIN WINDOW MANAGEMENT
 //===================================================
-void MainWindow::setMain(QWidget *widget) {
+void MainWindow::setMain(QWidget *widget, bool input) {
+    if(input) {
+        textEdit = (ATextEdit *)widget;
+    }
     if(center->indexOf(widget) < 0) {
         center->addWidget(widget);
     }
@@ -103,7 +106,7 @@ void MainWindow::setMain(QWidget *widget) {
             settings->writeSettings(settingsStore);
             QList<AViewWidget *>::iterator i;//restore
             for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-                settingsStore->beginGroup((*i)->getViewName());
+                settingsStore->beginGroup((*i)->getExtension());
                 (*i)->readSettings(settingsStore);
                 settingsStore->endGroup();
             }
@@ -238,19 +241,21 @@ void MainWindow::setCommand(QAction *action, AViewWidget *view) {
 }
 
 void setNewInput(ATextEdit *input, MainWindow *main) {
-    if(main->getFilename().isEmpty()) {
-        main->setMain(input);//allow alteration of input widgets
-        main->setCurrentFile(QString(), true);
-    } else {
-        QStringList old = main->editOldBase().split(".");
-        QString newBase = input->getBaseExtension();
-        main->setMain(input);//allow alteration of input widgets
-        QStringList name = main->getFilename().split(".");
-        QStringList::iterator i;
-        for(i = old.begin(); i != old.end(); ++i) {
-            name.removeLast();//remove one for each
+    if(main->maybeSave()) {
+        if(main->getFilename().isEmpty()) {
+            main->setMain(input, true);//allow alteration of input widgets
+            main->setCurrentFile(QString(), true);
+        } else {
+            QStringList old = main->editOldBase().split(".");
+            QString newBase = input->getBaseExtension();
+            main->setMain(input, true);//allow alteration of input widgets
+            QStringList name = main->getFilename().split(".");
+            QStringList::iterator i;
+            for(i = old.begin(); i != old.end(); ++i) {
+                name.removeLast();//remove one for each
+            }
+            main->setCurrentFile(name.join(".") + newBase, true);//with no clear!!
         }
-        main->setCurrentFile(name.join(".") + newBase, true);//with no clear!!
     }
 }
 
@@ -1058,10 +1063,11 @@ void MainWindow::readSettings() {
     }
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        settingsStore->beginGroup((*i)->getViewName());
+        settingsStore->beginGroup((*i)->getExtension());
         (*i)->readSettings(settingsStore);
         settingsStore->endGroup();
     }
+    settings->readSettings(settingsStore);
 }
 
 void MainWindow::writeSettings() {
@@ -1072,12 +1078,6 @@ void MainWindow::writeSettings() {
     while (isVisible() && !toolbars.isEmpty()) {//prevents setting background mangling
         QToolBar *tb = toolbars.takeFirst();
         settingsStore->setValue("tbv" + tb->windowTitle(), tb->isVisible());
-    }
-    QList<AViewWidget *>::iterator i;
-    for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        settingsStore->beginGroup((*i)->getViewName());
-        (*i)->writeSettings(settingsStore);
-        settingsStore->endGroup();
     }
 }
 

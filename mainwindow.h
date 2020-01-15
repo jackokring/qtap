@@ -104,7 +104,7 @@ private slots:
     // MAIN WINDOW MANAGEMENT
     //===================================================
 public:
-    void setMain(QWidget *widget);
+    void setMain(QWidget *widget, bool input = false);
     QWidget *getMain();
     bool isTextMain();
     bool isSettingsMain();
@@ -213,8 +213,8 @@ private:
     //===================================================
     // FILE IO
     //===================================================
-    bool maybeSave(bool reload = false);
 public:
+    bool maybeSave(bool reload = false);
     void loadFile(const QString &fileName, bool regen = false, bool fix = false);
     QString loadAllErrors(QFile *name);
 private:
