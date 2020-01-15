@@ -17,6 +17,12 @@ public:
     QByteArray bytes();
     void setModified();
 
+    void latinInput();
+    void visibleCtl();
+    void markAnsi();
+    void markWarn();
+    void markError();
+
 private:
     Ui::UTFDialog *ui;
     QByteArray old;
