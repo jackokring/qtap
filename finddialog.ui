@@ -93,7 +93,7 @@
           <normaloff>.</normaloff>.</iconset>
         </property>
         <property name="shortcut">
-         <string>Ctrl+Shift+F</string>
+         <string>Ctrl+Shift+R</string>
         </property>
        </widget>
       </item>
@@ -106,7 +106,7 @@
          <string>Replace &amp;All</string>
         </property>
         <property name="shortcut">
-         <string>Ctrl+A</string>
+         <string>Ctrl+Shift+A</string>
         </property>
        </widget>
       </item>

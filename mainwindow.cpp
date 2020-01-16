@@ -260,7 +260,7 @@ void setNewInput(ATextEdit *input, MainWindow *main) {
             for(i = old.begin(); i != old.end(); ++i) {
                 name.removeLast();//remove one for each
             }
-            main->setCurrentFile(name.join(".") + newBase, true);//with no clear!!
+            main->setCurrentFile(name.join(".") +  "." + newBase, true);//with no clear!!
         }
     }
 }

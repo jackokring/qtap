@@ -35,6 +35,9 @@
        <iconset resource="application.qrc">
         <normaloff>:/images/document-import.png</normaloff>:/images/document-import.png</iconset>
       </property>
+      <property name="shortcut">
+       <string>Ctrl+Shift+I</string>
+      </property>
      </widget>
     </item>
     <item row="0" column="1">
@@ -48,6 +51,9 @@
       <property name="icon">
        <iconset resource="application.qrc">
         <normaloff>:/images/convert-format.png</normaloff>:/images/convert-format.png</iconset>
+      </property>
+      <property name="shortcut">
+       <string>Ctrl+Shift+C</string>
       </property>
      </widget>
     </item>
@@ -63,6 +69,9 @@
        <iconset resource="application.qrc">
         <normaloff>:/images/convert-format.png</normaloff>:/images/convert-format.png</iconset>
       </property>
+      <property name="shortcut">
+       <string>Ctrl+Shift+E</string>
+      </property>
      </widget>
     </item>
     <item row="1" column="0">
@@ -77,6 +86,9 @@
        <iconset resource="application.qrc">
         <normaloff>:/images/convert-bad.png</normaloff>:/images/convert-bad.png</iconset>
       </property>
+      <property name="shortcut">
+       <string>Ctrl+Shift+M</string>
+      </property>
      </widget>
     </item>
     <item row="1" column="1">
@@ -90,6 +102,9 @@
       <property name="icon">
        <iconset resource="application.qrc">
         <normaloff>:/images/convert-bad.png</normaloff>:/images/convert-bad.png</iconset>
+      </property>
+      <property name="shortcut">
+       <string>Ctrl+Shift+W</string>
       </property>
      </widget>
     </item>

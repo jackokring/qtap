@@ -3,29 +3,29 @@ As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is
 
     CTRL+LTR        CTRL+SHFT+LTR
     ========        =============
-A   SELECT ALL
+A   SELECT ALL      REPLACE ALL
 B
-C   COPY
+C   COPY            SHOW CTRL
 D   DIRECTORY
-E
-F   FIND            FONT (REPLACE(C))
+E                   ESC ANSI
+F   FIND            FONT
 G   SETTINGS
 H
-I
+I                   ISO LATIN
 J
 K   DEL TO EOL
 L   CLONE
-M   MAIN TEXT(C)
+M   MAIN TEXT(C)    MARK ERRORS
 N   NEW
 O   OPEN            OPEN FIX
 P   PUBLISH
 Q   QUIT
-R   READ
+R   READ            REPLACE
 S   SAVE            SAVE AS
 T   TEXT VIEW       TRAY
 U
 V   PASTE
-W   STAT VIEW
+W   STAT VIEW       MARK WARN
 X   CUT
 Y   REDO
 Z   UNDO            REDO
