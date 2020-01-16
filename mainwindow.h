@@ -217,6 +217,7 @@ public:
     bool maybeSave(bool reload = false);
     void loadFile(const QString &fileName, bool regen = false, bool fix = false);
     QString loadAllErrors(QFile *name);
+    void setLoadModified();
 private:
     void saveFile(const QString &fileName);
 public:
@@ -272,5 +273,6 @@ private:
     bool hasGitTestShown = false;
     bool hasInitiated = false;
     QTextDocument *document;
+    bool loadModified = false;
 };
 #endif

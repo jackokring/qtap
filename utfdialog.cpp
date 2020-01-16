@@ -27,7 +27,7 @@ QByteArray UTFDialog::bytes() {
 }
 
 void UTFDialog::setModified() {
-    ((MainWindow *)parentWidget())->setModified();
+    ((MainWindow *)parentWidget())->setLoadModified();
 }
 
 void UTFDialog::latinInput() {
@@ -38,6 +38,7 @@ void UTFDialog::latinInput() {
         output += (*i);
     }
     old = QByteArray(output.toUtf8());
+    setModified();
 }
 
 bool notNeeded(char i) {
@@ -71,6 +72,7 @@ QByteArray mapANSI(uchar i) {
 }
 
 void UTFDialog::visibleCtl() {
+    markAnsi();
     QByteArray input = old;
     QByteArray output = QByteArray();
     QByteArray::iterator i;
@@ -82,6 +84,7 @@ void UTFDialog::visibleCtl() {
         }
     }
     old = QByteArray(output);
+    setModified();
 }
 
 void UTFDialog::markAnsi() {
@@ -102,6 +105,7 @@ void UTFDialog::markAnsi() {
         }
     }
     old = QByteArray(output);
+    setModified();
 }
 
 void UTFDialog::markWarn() {
@@ -119,8 +123,6 @@ void UTFDialog::markError() {
         if(checkBad(*i)) {
             error = true;
             count = 0;
-        } else {
-            output += (*i);
         }
         if(((uchar)*i) > 127) {//continuation?
             if(((uchar)*i) > 127 + 64) {//double
@@ -149,7 +151,9 @@ void UTFDialog::markError() {
             output += marker();
             error = false;
         }
+        output += (*i);
     }
-    if(count > 0) output += marker();
+    if(count > 0) output += marker();//terminal
     old = QByteArray(output);
+    setModified();
 }

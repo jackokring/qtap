@@ -1129,6 +1129,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     }
     AViewWidget *me = nullptr;
     QString loaded;
+    loadModified = false;
     if(fix & !regen) {//primary source fix, dependants more format based
         loaded = loadAllErrors(&file);
 #ifndef QT_NO_CURSOR
@@ -1163,6 +1164,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         textEdit->setPlainText(loaded);
     }
     setCurrentFile(name);
+    if(loadModified) setModified();
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
         if((*i)->canCache() && (*i) != me) {
@@ -1207,6 +1209,10 @@ QString MainWindow::loadAllErrors(QFile *name) {
         return td.toUnicode(utf.bytes());
     }
     return td.toUnicode(ba);
+}
+
+void MainWindow::setLoadModified() {
+    loadModified = true;
 }
 
 void MainWindow::saveFile(const QString &fileName) {
