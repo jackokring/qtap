@@ -3,6 +3,10 @@
 #include "adialog.h"
 #include "mainwindow.h"
 
+#define UNICODEMAX 0x10ffff
+#define SURRAMIN 0xd800
+#define SURRAMAX 0xdfff
+
 UTFDialog::UTFDialog(QWidget *parent) :
     ADialog(parent),
     ui(new Ui::UTFDialog) {
@@ -56,11 +60,11 @@ QByteArray marker() {
     return QByteArray(QString(0x2620).toUtf8());
 }
 
-bool checkBad(uchar i) {
+/* bool checkBad(uchar i) {
     if(i >= 0xc0 && i <= 0xc1) return true;
     if(i >= 0xf4) return true;
     return false;
-}
+} */
 
 QByteArray mapANSI(uchar i) {
     QChar c((i & 0x3f) + 0x80);
@@ -109,21 +113,117 @@ void UTFDialog::markAnsi() {
 }
 
 void UTFDialog::markWarn() {
-
+    //marks all overlong and use of invalid UTF-8 code points such as surragates
+    QByteArray input = old;
+    QByteArray output = QByteArray();
+    QByteArray::iterator i;
+    bool error = false;
+    bool check = false;
+    int c = 0;
+    int last;
+    int lastCount;
+    int count = 0;
+    for(i = input.begin(); i != input.end(); ++i) {
+        last = c;
+        lastCount = count;
+        if(((uchar)*i) > 127) {//continuation?
+            if(((uchar)*i) > 127 + 64) {//double
+                check = true;
+                count = 1;
+                c = (*i) & 0x1f;//5 bit initial
+                if(((uchar)*i) > 127 + 64 + 32) {//triple
+                    c &= 0xf;//cut to 4 bit
+                    if(((uchar)*i) > 127 + 64 + 32 + 16) {//quad
+                        c &= 0x7;//cut to 3 bit
+                        if(((uchar)*i) > 127 + 64 + 32 + 16 + 8) {//error
+                            c = 0;//might trigger error as good side effect
+                        }
+                    }
+                }
+            } else {
+                count++;
+                if(count > 4) {
+                    count = 4;//limit for locking
+                } else {
+                    c = (c << 6) + ((*i) & 0x3f);//6 bit extend
+                }
+            }
+        } else {
+            //ASCII always OK
+            c = (*i);
+            count = 1;
+            check = true;
+        }
+        if(check) {
+            check = false;
+            switch(lastCount) {
+            case 1:
+                //ASCII (NO ERROR)
+                break;
+            case 2:
+                //11 BIT (ENC OF ASCII?)
+                if(last < 128) error = true;
+                break;
+            case 3:
+                //16 BIT (ENC OF < 12 BIT)
+                if(last < 2048) error = true;
+                break;
+            case 4:
+                //21 BIT (ENC OF < 17 BIT)
+                if(last < 65536 * 2) error = true;
+                if(last > UNICODEMAX) error = true;
+                break;
+            default:
+                break;
+            }
+            if(last >= SURRAMIN && last <= SURRAMAX) error = true;
+        }
+        if(error) {
+            output += marker();
+            error = false;
+        }
+        output += (*i);
+    }
+    switch(count) {
+    case 1:
+        //ASCII (NO ERROR)
+        break;
+    case 2:
+        //11 BIT (ENC OF ASCII?)
+        if(c < 128) error = true;
+        break;
+    case 3:
+        //16 BIT (ENC OF < 12 BIT)
+        if(c < 2048) error = true;
+        break;
+    case 4:
+        //21 BIT (ENC OF < 17 BIT)
+        if(c < 65536 * 2) error = true;
+        if(c > UNICODEMAX) error = true;
+        break;
+    default:
+        break;
+    }
+    if(c >= SURRAMIN && c <= SURRAMAX) error = true;
+    if(error) {
+        output += marker();
+    }
+    old = QByteArray(output);
+    setModified();
 }
 
 void UTFDialog::markError() {
-    //catches all except overlong and surragates
+    //catches all except overlong and surragates (depends on OEM as to further errors)
     QByteArray input = old;
     QByteArray output = QByteArray();
     QByteArray::iterator i;
     bool error = false;
     int count = 0;
     for(i = input.begin(); i != input.end(); ++i) {
-        if(checkBad(*i)) {
+        /* if(checkBad(*i)) {
             error = true;
             count = 0;
-        }
+        } */
         if(((uchar)*i) > 127) {//continuation?
             if(((uchar)*i) > 127 + 64) {//double
                 count = 1;
