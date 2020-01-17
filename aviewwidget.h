@@ -11,7 +11,6 @@ enum StateView {
     blank,//blank ready for use
     processing,//generation of totality in progress
     complete,//generated
-    saved,//saved to disk of generated state
 };
 
 enum ViewKind {
@@ -100,6 +99,7 @@ protected:
     QProgressDialog *progress = nullptr;
     ViewKind kind = simpleReadOnly;
     StateView state = empty;
+    bool saved = false;
 
 signals:
     void setAvailable(bool isAvail);

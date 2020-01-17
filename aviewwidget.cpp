@@ -50,6 +50,7 @@ void AViewWidget::_recycle() {
 
 void AViewWidget::_clear() {
     setState(processing);
+    saved = false;
     clear();
     setState(blank);
 }
@@ -64,7 +65,7 @@ bool AViewWidget::_needsSave() {
     if(kind != simpleReadWrite && kind != complexReadWrite) {
         return false;
     }
-    return (state != saved);//no save needed
+    return !saved;//no save needed
 }
 
 bool AViewWidget::_canCache() {
@@ -77,7 +78,8 @@ bool AViewWidget::_canCache() {
 QString AViewWidget::_blockingSave() {
     setState(processing);
     QString output = blockingSave();
-    setState(saved);
+    setState(complete);
+    saved = true;
     return output;
 }
 
