@@ -83,6 +83,8 @@ void UTFDialog::visibleCtl() {
     for(i = input.begin(); i != input.end(); ++i) {
         if(((uchar)*i) < 32 && notNeeded(*i)) {
             output += mapASCII(*i);
+        } else if(((uchar)*i) == 127) {//DEL
+            output += QByteArray(QString(0x2421).toUtf8());
         } else {
             output += (*i);
         }
@@ -110,6 +112,32 @@ void UTFDialog::markAnsi() {
     }
     old = QByteArray(output);
     setModified();
+}
+
+bool switchLimits(int code, int count) {
+    bool error = false;
+    switch(count) {
+    case 1:
+        //ASCII (NO ERROR)
+        break;
+    case 2:
+        //11 BIT (ENC OF ASCII?)
+        if(code < 128) error = true;
+        break;
+    case 3:
+        //16 BIT (ENC OF < 12 BIT)
+        if(code < 2048) error = true;
+        break;
+    case 4:
+        //21 BIT (ENC OF < 17 BIT)
+        if(code < 65536 * 2) error = true;
+        if(code > UNICODEMAX) error = true;
+        break;
+    default:
+        break;
+    }
+    if(code >= SURRAMIN && code <= SURRAMAX) error = true;
+    return error;
 }
 
 void UTFDialog::markWarn() {
@@ -156,27 +184,7 @@ void UTFDialog::markWarn() {
         }
         if(check) {
             check = false;
-            switch(lastCount) {
-            case 1:
-                //ASCII (NO ERROR)
-                break;
-            case 2:
-                //11 BIT (ENC OF ASCII?)
-                if(last < 128) error = true;
-                break;
-            case 3:
-                //16 BIT (ENC OF < 12 BIT)
-                if(last < 2048) error = true;
-                break;
-            case 4:
-                //21 BIT (ENC OF < 17 BIT)
-                if(last < 65536 * 2) error = true;
-                if(last > UNICODEMAX) error = true;
-                break;
-            default:
-                break;
-            }
-            if(last >= SURRAMIN && last <= SURRAMAX) error = true;
+            error = switchLimits(last, lastCount);
         }
         if(error) {
             output += marker();
@@ -184,29 +192,10 @@ void UTFDialog::markWarn() {
         }
         output += (*i);
     }
-    switch(count) {
-    case 1:
-        //ASCII (NO ERROR)
-        break;
-    case 2:
-        //11 BIT (ENC OF ASCII?)
-        if(c < 128) error = true;
-        break;
-    case 3:
-        //16 BIT (ENC OF < 12 BIT)
-        if(c < 2048) error = true;
-        break;
-    case 4:
-        //21 BIT (ENC OF < 17 BIT)
-        if(c < 65536 * 2) error = true;
-        if(c > UNICODEMAX) error = true;
-        break;
-    default:
-        break;
-    }
-    if(c >= SURRAMIN && c <= SURRAMAX) error = true;
+    error = switchLimits(c, count);
     if(error) {
         output += marker();
+        error = false;
     }
     old = QByteArray(output);
     setModified();
