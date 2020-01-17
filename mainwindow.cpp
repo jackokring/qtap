@@ -318,12 +318,12 @@ void MainWindow::setInBackground(QString view, QString command) {
     backgrounded = true;//sets for auto save and other options
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
-        if(i.key()->getViewName().toLower() == view) {
+        if(i.key()->getViewName().toLower().remove("&").replace(" ", "-") == view) {
             setMain(i.key());//set view
             if(!command.isEmpty()) {
                 QList<QAction *>::iterator j;
                 for(j = (*i).begin(); j != (*i).end(); ++j) {
-                    if((*j)->text().toLower().remove("&") == command)
+                    if((*j)->text().toLower().remove("&").replace(" ", "-") == command)
                         (*j)->trigger();//and for view
                 }
             }
