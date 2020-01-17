@@ -6,6 +6,21 @@
 #include <QSettings>
 #include <QProgressDialog>
 
+enum StateView {
+    empty,//empty
+    blank,//blank ready for use
+    processing,//generation of totality in progress
+    complete,//generated
+    saved,//saved to disk of generated state
+};
+
+enum ViewKind {
+    simpleReadOnly,
+    simpleReadWrite,
+    complexReadOnly,
+    complexReadWrite,
+};
+
 class AViewWidget : public QWidget
 {
     Q_OBJECT
@@ -22,20 +37,28 @@ public:
     void setMainWindow(QMainWindow *mw);
 
     //===================================================
+    // INTERNAL STATE
+    //===================================================
+    void _checkAvailable(bool saved = false);//is view available
+    void _recycle();//recycle before new document
+    void _clear();//clear on new document
+    void _create();//run on show
+    bool _needsSave();//needs disk save (modified?)
+    bool _canCache();//can load from disk
+    QString _blockingSave();//save to disk this string
+    void _cacheLoad(QString input);//load from disk accept
+
+    //===================================================
     // STATE
     //===================================================
-    virtual void checkAvailable(bool saved = false);//is view available
     virtual void recycle();//recycle before new document
     virtual void clear();//clear on new document
     virtual void create();//run on show
-    virtual bool needsSave();//needs disk save (modified?)
-    virtual bool canCache();//can load from disk
     virtual QString getExtension();//what to extend as
     virtual QString blockingSave();//save to disk this string
     virtual void cacheLoad(QString input);//load from disk accept
     virtual void setCommands();//install menu through addMenu()
     virtual void readSettings(QSettings *settings);
-    //virtual void writeSettings(QSettings *settings);
     virtual bool hasRegenerate();//can regenerate .txt base
     virtual QString regenerate();//regenerate .txt base
 
@@ -60,11 +83,13 @@ public:
     void progress100(QString message, QString cancel = tr("Cancel"));
     bool setProgress(int percent);//bool is cancelled
     QMainWindow *getMain();
+    QString getTextFromMain();
+    void setKind(ViewKind kindOfView);
+    void setState(StateView newState);
 
 public slots:
     void selectView();
-    QString getTextFromMain();
-private:
+protected:
     template<class slotz>
     void addMenu(void(slotz::*fp)() = nullptr,
                  QString named = nullptr,
@@ -73,6 +98,8 @@ private:
                  QString help = nullptr);
     QMainWindow *main;
     QProgressDialog *progress = nullptr;
+    ViewKind kind = simpleReadOnly;
+    StateView state = empty;
 
 signals:
     void setAvailable(bool isAvail);

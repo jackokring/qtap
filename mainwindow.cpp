@@ -201,7 +201,7 @@ MainWindow::MainWindow()
 
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->clear();//first new
+        (*i)->_clear();//first new
     }
 
     setMain(textEdit);
@@ -425,7 +425,7 @@ void MainWindow::checkSave(bool active) {
     checkAvailable(active);//only views of saved
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        active |= (*i)->needsSave();
+        active |= (*i)->_needsSave();
     }
     setSave(active);
     setWindowModified(active);
@@ -440,10 +440,10 @@ void MainWindow::checkTray(QSystemTrayIcon::ActivationReason reason) {
 void MainWindow::checkAvailable(bool notSaved) {
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->checkAvailable(false);
+        (*i)->_checkAvailable(false);
     }
     if(!notSaved) for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        (*i)->checkAvailable(true);//restore all possible not safe (saved) bets
+        (*i)->_checkAvailable(true);//restore all possible not safe (saved) bets
     }
 }
 
@@ -640,8 +640,8 @@ void MainWindow::newFile() {
         setCurrentFile(QString());
         QList<AViewWidget *>::iterator i;
         for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-            (*i)->recycle();
-            (*i)->clear();
+            (*i)->_recycle();
+            (*i)->_clear();
         }
     }
 }
@@ -1151,7 +1151,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
                 break;
             }
         }
-        me->cacheLoad(loaded);
+        me->_cacheLoad(loaded);
         textEdit->setPlainText(me->regenerate());
         QStringList count = me->getExtension().split(".");
         QStringList nameBits = name.split(".");
@@ -1167,7 +1167,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
     if(loadModified) setModified();
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        if((*i)->canCache() && (*i) != me) {
+        if((*i)->_canCache() && (*i) != me) {
             QFile file(name + "." + (*i)->getExtension());
             if(!file.open(QFile::ReadOnly)) {
                 /* QMessageBox::warning(this, tr("File Error"),
@@ -1180,7 +1180,7 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
             }
             QTextStream in(&file);
             in.setCodec("UTF-8");
-            (*i)->cacheLoad(in.readAll());//load file
+            (*i)->_cacheLoad(in.readAll());//load file
         }
     }
     hasRepo();
@@ -1243,7 +1243,7 @@ void MainWindow::saveFile(const QString &fileName) {
     }
     QList<AViewWidget *>::iterator i;
     for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
-        if((*i)->needsSave()) {
+        if((*i)->_needsSave()) {
             QFile file(name + "." + (*i)->getExtension());
             if (!file.open(QFile::WriteOnly)) {
                 QMessageBox::critical(this, tr("File Write Error"),
@@ -1255,7 +1255,7 @@ void MainWindow::saveFile(const QString &fileName) {
             }
             QTextStream out(&file);
             out.setCodec("UTF-8");
-            out << (*i)->blockingSave();//save file
+            out << (*i)->_blockingSave();//save file
         }
     }
     hasRepo();

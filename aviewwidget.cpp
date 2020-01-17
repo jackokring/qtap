@@ -27,12 +27,70 @@ QString AViewWidget::getToolTipHelp() {
 }
 
 //===================================================
-// STATE
+// INTERNAL STATE
 //===================================================
-void AViewWidget::checkAvailable(bool saved) {
-    setAvailable(saved);//pass through (when saved)
+void AViewWidget::_checkAvailable(bool saved) {
+    if(saved) {
+        setAvailable(true);
+    } else {
+        if(kind != complexReadOnly && kind != complexReadWrite) {
+            setAvailable(true);
+        } else {
+            //must be saved to appear for complex view
+            setAvailable(false);
+        }
+    }
 }
 
+void AViewWidget::_recycle() {
+    setState(processing);
+    recycle();
+    setState(empty);
+}
+
+void AViewWidget::_clear() {
+    setState(processing);
+    clear();
+    setState(blank);
+}
+
+void AViewWidget::_create() {
+    setState(processing);
+    create();
+    setState(complete);
+}
+
+bool AViewWidget::_needsSave() {
+    if(kind != simpleReadWrite && kind != complexReadWrite) {
+        return false;
+    }
+    return (state != saved);//no save needed
+}
+
+bool AViewWidget::_canCache() {
+    if(kind != simpleReadWrite && kind != complexReadWrite) {
+        return false;
+    }
+    return true;
+}
+
+QString AViewWidget::_blockingSave() {
+    setState(processing);
+    QString output = blockingSave();
+    setState(saved);
+    return output;
+}
+
+void AViewWidget::_cacheLoad(QString input) {
+    setState(processing);
+    cacheLoad(input);
+    create();
+    setState(complete);
+}
+
+//===================================================
+// STATE
+//===================================================
 void AViewWidget::recycle() {
     //no action
 }
@@ -43,14 +101,6 @@ void AViewWidget::clear() {
 
 void AViewWidget::create() {
     //this is the on show call
-}
-
-bool AViewWidget::needsSave() {
-    return false;//no save needed
-}
-
-bool AViewWidget::canCache() {
-    return false;//save a cache
 }
 
 QString AViewWidget::getExtension() {
@@ -74,11 +124,6 @@ void AViewWidget::readSettings(QSettings *settings) {
     //read used settings
     Q_UNUSED(settings)
 }
-
-/* void AViewWidget::writeSettings(QSettings *settings) {
-    //write used settings
-    Q_UNUSED(settings)
-} */
 
 bool AViewWidget::hasRegenerate() {
     return false;//can make the .txt file back again
@@ -164,15 +209,23 @@ QMainWindow *AViewWidget::getMain() {
     return main;
 }
 
+QString AViewWidget::getTextFromMain() {
+    return ((MainWindow *)main)->getText();
+}
+
+void AViewWidget::setKind(ViewKind kindOfView) {
+    kind = kindOfView;
+}
+
+void AViewWidget::setState(StateView newState) {
+    state = newState;
+}
+
 void AViewWidget::selectView() {
     if(main != nullptr) {
         create();
         ((MainWindow *)main)->setMain(this);
     }
-}
-
-QString AViewWidget::getTextFromMain() {
-    return ((MainWindow *)main)->getText();
 }
 
 template<class slotz>

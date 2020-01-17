@@ -18,17 +18,14 @@ public:
     QString getViewName() override;
     QString getIconName() override;
     QKeySequence getShortCut() override;
-    void checkAvailable(bool saved) override;//is view available
+    void recycle() override;//recycle before new document
     void clear() override;//clear on new document
     void create() override;//run on show
-    bool needsSave() override;//needs disk save (modified?)
-    bool canCache() override;//can load from disk
     QString getExtension() override;//what to extend as
     QString blockingSave() override;//save to disk this string
     void cacheLoad(QString input) override;//load from disk accept
     void setCommands() override;//install menu through addMenu()
     void readSettings(QSettings *settings) override;
-    //void writeSettings(QSettings *settings) override;
     bool hasRegenerate() override;//can regenerate .txt
     QString regenerate() override;//regenerate .txt
     bool canCut() override;//can currently cut

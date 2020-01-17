@@ -29,9 +29,8 @@ QKeySequence StatsView::getShortCut() {
 //===================================================
 // STATE
 //===================================================
-void StatsView::checkAvailable(bool saved) {
-    Q_UNUSED(saved)
-    setAvailable(true);//pass through
+void StatsView::recycle() {
+
 }
 
 void StatsView::clear() {
@@ -40,14 +39,6 @@ void StatsView::clear() {
 
 void StatsView::create() {
     //this is the on show call
-}
-
-bool StatsView::needsSave() {
-    return false;
-}
-
-bool StatsView::canCache() {
-    return false;
 }
 
 QString StatsView::getExtension() {
@@ -69,10 +60,6 @@ void StatsView::setCommands() {
 void StatsView::readSettings(QSettings *settings) {
 
 }
-
-/* void StatsView::writeSettings(QSettings *settings) {
-
-} */
 
 bool StatsView::hasRegenerate() {
     return false;
