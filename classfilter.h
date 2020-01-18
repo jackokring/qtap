@@ -23,9 +23,8 @@ public:
     long count = 0;//used for density
     QChar *hashMix;
 protected:
-    bool testBitFind(int bit, ClassFilter **last = nullptr);
-    bool testBitCount(int bit, ClassFilter **last = nullptr);
-    bool setBit(int bit, bool propergate = false);//return bit before set
+    bool testBit(int bit, ClassFilter **last = nullptr);
+    bool setBit(int bit, bool propergate = false);//return need propergate
     int hashThing(T thing, int count);
 };
 

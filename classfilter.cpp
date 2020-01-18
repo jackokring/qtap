@@ -22,38 +22,48 @@ ClassFilter<T>::~ClassFilter() {
 
 template<class T>
 void ClassFilter<T>::add(T thing) {
-
+    for(int i = 0; i != hashCount; ++i) {
+        setBit(hashThing(thing, i), i == 0);//fill in likely hood
+    }
 }
 
 template<class T>
 bool ClassFilter<T>::in(T thing) {
-
+    ClassFilter **last;
+    ClassFilter *current;
+    last = &current;//make an indirection
+    (*last) = nullptr;//sets current
+    ClassFilter *lastCurrent;
+    lastCurrent = current;
+    bool out = true;
+    for(int i = 0; i != hashCount; ++i) {
+        if(current != nullptr) {
+            out &= current->testBit(hashThing(thing, i), last);
+        } else {
+            out &= testBit(hashThing(thing, i), last);//fill in likely hood
+        }
+    }
+    if(out) return true;
+    if(current == nullptr) return false;
+    if(current->more == nullptr) return false;
+    return current->more->in(thing);//check for later finds of all keys
 }
 
 template<class T>
-bool ClassFilter<T>::testBitFind(int bit, ClassFilter **last) {
-    if(last != nullptr && (*last) != nullptr) {
-        int x = (bit / 32) % length;
-        uint32_t a = (*last)->array[x];
-        x = bit % 32;
-        a &= (1 << x);
-        return a != 0;
+bool ClassFilter<T>::testBit(int bit, ClassFilter **last) {
+    int x = (bit / 32) % length;
+    uint32_t a = array[x];
+    x = bit % 32;
+    a &= (1 << x);
+    bool out = a != 0;
+    if(out && last != nullptr && (*last) == nullptr) {//fill in this
+        (*last) = this;
     } else {
-
+        if(!out && more != nullptr) {
+            out = more->testBit(bit, last);
+        }
     }
-}
-
-template<class T>
-bool ClassFilter<T>::testBitCount(int bit, ClassFilter **last) {
-    if(last != nullptr && (*last) != nullptr) {
-        int x = (bit / 32) % length;
-        uint32_t a = (*last)->array[x];
-        x = bit % 32;
-        a &= (1 << x);
-        return a != 0;
-    } else {
-
-    }
+    return out;
 }
 
 template<class T>
@@ -64,7 +74,6 @@ bool ClassFilter<T>::setBit(int bit, bool propergate) {
         if((array[x] & (1 << y)) != 0) {
             count++;//if not set
             array[x] |= (1 << y);
-            return true;
         }
         return false;
     } else {
@@ -78,9 +87,8 @@ bool ClassFilter<T>::setBit(int bit, bool propergate) {
                 if((array[x] & (1 << y)) != 0) {
                     count++;//if not set
                     array[x] |= (1 << y);
-                    return true;
                 }
-                return false;
+                return true;
             }
         } else {
             return more->setBit(bit, propergate);
