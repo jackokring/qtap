@@ -5,6 +5,7 @@ HEADERS       = mainwindow.h \
     adialog.h \
     atextedit.h \
     aviewwidget.h \
+    classfilter.h \
     finddialog.h \
     settings.h \
     statsview.h \
@@ -13,6 +14,7 @@ SOURCES       = main.cpp \
                 adialog.cpp \
                 atextedit.cpp \
                 aviewwidget.cpp \
+                classfilter.cpp \
                 finddialog.cpp \
                 mainwindow.cpp \
                 settings.cpp \
