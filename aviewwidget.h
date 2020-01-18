@@ -41,7 +41,7 @@ public:
     void _checkAvailable(bool saved = false);//is view available
     void _recycle();//recycle before new document
     void _clear();//clear on new document
-    void _create();//run on show
+    void _create(bool modified);//run on show
     bool _needsSave();//needs disk save (modified?)
     bool _canCache();//can load from disk
     QString _blockingSave();//save to disk this string
@@ -53,6 +53,7 @@ public:
     virtual void recycle();//recycle before new document
     virtual void clear();//clear on new document
     virtual void create();//run on show
+    virtual void decreate();//run to undo a create (before again create)
     virtual QString getExtension();//what to extend as
     virtual QString blockingSave();//save to disk this string
     virtual void cacheLoad(QString input);//load from disk accept
@@ -100,6 +101,7 @@ protected:
     ViewKind kind = simpleReadOnly;
     StateView state = empty;
     bool saved = false;
+    bool created = false;
 
 signals:
     void setAvailable(bool isAvail);

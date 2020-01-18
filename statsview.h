@@ -21,6 +21,7 @@ public:
     void recycle() override;//recycle before new document
     void clear() override;//clear on new document
     void create() override;//run on show
+    void decreate() override;//run to undo a create (before again create)
     QString getExtension() override;//what to extend as
     QString blockingSave() override;//save to disk this string
     void cacheLoad(QString input) override;//load from disk accept

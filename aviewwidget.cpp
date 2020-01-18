@@ -45,19 +45,29 @@ void AViewWidget::_checkAvailable(bool saved) {
 void AViewWidget::_recycle() {
     setState(processing);
     recycle();
+    created = false;
     setState(empty);
 }
 
 void AViewWidget::_clear() {
     setState(processing);
-    saved = false;
     clear();
+    saved = false;
+    created = false;
     setState(blank);
 }
 
-void AViewWidget::_create() {
+void AViewWidget::_create(bool modified) {
     setState(processing);
-    create();
+    if(modified) {
+        if(created) {
+            decreate();
+            created = false;
+        }
+        create();
+        saved = false;
+    }
+    created = true;
     setState(complete);
 }
 
@@ -86,6 +96,7 @@ QString AViewWidget::_blockingSave() {
 void AViewWidget::_cacheLoad(QString input) {
     setState(processing);
     cacheLoad(input);
+    saved = true;//as just loaded
     create();
     setState(complete);
 }
@@ -103,6 +114,10 @@ void AViewWidget::clear() {
 
 void AViewWidget::create() {
     //this is the on show call
+}
+
+void AViewWidget::decreate() {
+    //this is the prepare for on show call
 }
 
 QString AViewWidget::getExtension() {
@@ -225,7 +240,7 @@ void AViewWidget::setState(StateView newState) {
 
 void AViewWidget::selectView() {
     if(main != nullptr) {
-        create();
+        _create(((MainWindow *)main)->isModified());
         ((MainWindow *)main)->setMain(this);
     }
 }

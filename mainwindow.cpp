@@ -135,7 +135,7 @@ void MainWindow::setMain(QWidget *widget, bool input) {
         (*j)->setVisible(false);
         if(textEdit == widget) (*j)->setVisible(true);//and for input
     }
-    checkSave(textEdit->document()->isModified());//test save avail?
+    checkSave(isModified());//test save avail?
     checkPaste();
     checkCopy(lastCopy);
     checkCut(lastCut);
@@ -355,6 +355,10 @@ void MainWindow::status(QString display) {
 
 void MainWindow::setModified() {
     textEdit->document()->setModified();
+}
+
+bool MainWindow::isModified() {
+    return textEdit->document()->isModified();
 }
 
 QList<AViewWidget *>::iterator MainWindow::begin() {
@@ -598,7 +602,7 @@ void MainWindow::subscribe() {
 
 bool MainWindow::hasRepo() {//and restore prohibits
     setDirectory(true);
-    checkSave(textEdit->document()->isModified());//test save
+    checkSave(isModified());//test save
     if(quietBash("git status") != 0) {
         if(quietBash("git --version") != 0) {
             //no git
@@ -687,6 +691,7 @@ void MainWindow::openBoth(bool fix) {
                 loadFile(dialog.selectedFiles().first(), true);//regenarate
             }
         }
+        setMain(textEdit);//show open view
     }
 }
 
@@ -1089,7 +1094,7 @@ void MainWindow::writeSettings() {
 // FILE IO
 //===================================================
 bool MainWindow::maybeSave(bool reload) {
-    if (!textEdit->document()->isModified() && !reload)
+    if (!isModified() && !reload)
         return true;
     const QMessageBox::StandardButton ret
         = QMessageBox::question(this, tr("Save Changes"),
@@ -1228,7 +1233,7 @@ void MainWindow::saveFile(const QString &fileName) {
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    if(textEdit->document()->isModified()) {
+    if(isModified()) {
         if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
             QMessageBox::critical(this, tr("File Write Error"),
                                  tr("Cannot write file %1:\n%2.")
@@ -1293,7 +1298,7 @@ void MainWindow::commitData(QSessionManager &manager) {
             manager.cancel();
     } else {
         // Non-interactive: save without asking
-        if (textEdit->document()->isModified())
+        if (isModified())
             save();
     }
 }

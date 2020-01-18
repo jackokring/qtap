@@ -41,6 +41,10 @@ void StatsView::create() {
     //this is the on show call
 }
 
+void StatsView::decreate() {
+    //this is the prepare for on show call
+}
+
 QString StatsView::getExtension() {
     return nullptr;//no save
 }

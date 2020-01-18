@@ -122,6 +122,7 @@ public:
     static QWidget *focused(QWidget *top);
     void status(QString display);
     void setModified();
+    bool isModified();
     QList<AViewWidget *>::iterator begin();
     QList<AViewWidget *>::iterator end();
 
