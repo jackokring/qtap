@@ -2,6 +2,7 @@
 #define CLASSFILTER_H
 
 #include <QtCore>
+#include "kringlicence.h"
 
 template<class T>
 class ClassFilter {
