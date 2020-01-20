@@ -29,4 +29,21 @@ protected:
     int hashThing(T thing, int count);
 };
 
+template<class T>
+class DoubleFilter {
+public:
+    DoubleFilter(double densityIn = 0.5, int hashCountIn = 5, int lengthIn = 4096);
+    ~DoubleFilter();
+
+    //===================================================
+    // INTERFACE
+    //===================================================
+    void add(T thing) override;
+    bool in(T thing) override;
+    virtual void subtract(T thing);
+
+    ClassFilter<T> *anti;
+    ClassFilter<T> *pro;
+};
+
 #endif // CLASSFILTER_H

@@ -17,7 +17,8 @@ ClassFilter<T>::ClassFilter(double densityIn, int hashCountIn, int lengthIn) {
 
 template<class T>
 ClassFilter<T>::~ClassFilter() {
-    delete array;
+    delete[] array;
+    if(more != nullptr) delete more;//mem fix
 }
 
 template<class T>
@@ -100,4 +101,48 @@ template<class T>
 int ClassFilter<T>::hashThing(T thing, int count) {
     QString n = thing.toString() + hashMix[count];
     return qHash(n);
+}
+
+template<class T>
+DoubleFilter<T>::DoubleFilter(double densityIn, int hashCountIn, int lengthIn) {
+    anti = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
+    pro = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
+}
+
+template<class T>
+DoubleFilter<T>::~DoubleFilter() {
+    delete anti;
+    delete pro;
+}
+
+template<class T>
+void DoubleFilter<T>::add(T thing) {
+    if(anti->in(thing)) {
+        pro->in(thing);
+    } else {
+        ClassFilter<T>::add(thing);
+    }
+}
+
+template<class T>
+bool DoubleFilter<T>::in(T thing) {
+    bool first = ClassFilter<T>::in(thing);
+    if(first) {
+        if(!anti->in(thing)) {
+            return true;
+        } else {
+            return pro->in(thing);
+        }
+    } else {
+        return pro->in(thing);
+    }
+}
+
+template<class T>
+void DoubleFilter<T>::subtract(T thing) {//can't always do it!
+    if(ClassFilter<T>::in(thing)) {
+        anti->in(thing);
+    } else {
+        //do nothing as can't subtract an added with this data structure
+    }
 }
