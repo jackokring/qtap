@@ -7,7 +7,7 @@
 template<class T>
 class ClassFilter {
 public:
-    ClassFilter(double densityIn = 0.5, int hashCountIn = 5, int lengthIn = 4096);
+    ClassFilter(double densityIn = 0.5, int hashCountIn = 5, uint64_t lengthIn = 4096);
     ~ClassFilter();
 
     //===================================================
@@ -17,22 +17,22 @@ public:
     virtual bool in(T thing);
 
     ClassFilter<T> *more = nullptr;
-    int density;
+    uint64_t density;
     int hashCount;
-    int length;
+    uint64_t length;
     uint32_t *array;
-    long count = 0;//used for density
-    QChar *hashMix;
+    uint64_t count = 0;//used for density
+    uint32_t *hashMix;
 protected:
-    bool testBit(int bit, ClassFilter **last = nullptr);
-    bool setBit(int bit, bool propergate = false);//return need propergate
-    int hashThing(T thing, int count);
+    bool testBit(uint64_t bit, ClassFilter **last = nullptr);
+    bool setBit(uint64_t bit, bool propergate = false);//return need propergate
+    uint64_t hashThing(T thing, int count);
 };
 
 template<class T>
 class DoubleFilter {
 public:
-    DoubleFilter(double densityIn = 0.5, int hashCountIn = 5, int lengthIn = 4096);
+    DoubleFilter(double densityIn = 0.5, int hashCountIn = 5, uint64_t lengthIn = 4096);
     ~DoubleFilter();
 
     //===================================================

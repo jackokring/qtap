@@ -1,7 +1,7 @@
 #include "classfilter.h"
 
 template<class T>
-ClassFilter<T>::ClassFilter(double densityIn, int hashCountIn, int lengthIn) {
+ClassFilter<T>::ClassFilter(double densityIn, int hashCountIn, uint64_t lengthIn) {
     density = densityIn * lengthIn * 32;//bits set for extend
     hashCount = hashCountIn;
     length = lengthIn;
@@ -9,15 +9,16 @@ ClassFilter<T>::ClassFilter(double densityIn, int hashCountIn, int lengthIn) {
     for(int i = 0; i != length; ++i) {
         array[i] = 0;//clear
     }
-    hashMix = new QChar[hashCount];
+    hashMix = new uint32_t[hashCount];
     for(int i = 0; i != hashCount; ++i) {
-        hashMix[i] = QChar(QRandomGenerator::global()->generate());//fill
+        hashMix[i] = QRandomGenerator::global()->generate();//fill
     }
 }
 
 template<class T>
 ClassFilter<T>::~ClassFilter() {
-    delete[] array;
+    delete [] array;
+    delete [] hashMix;
     if(more != nullptr) delete more;//mem fix
 }
 
@@ -51,8 +52,8 @@ bool ClassFilter<T>::in(T thing) {
 }
 
 template<class T>
-bool ClassFilter<T>::testBit(int bit, ClassFilter **last) {
-    int x = (bit / 32) % length;
+bool ClassFilter<T>::testBit(uint64_t bit, ClassFilter **last) {
+    uint64_t x = (bit / 32) % length;
     uint32_t a = array[x];
     x = bit % 32;
     a &= (1 << x);
@@ -68,9 +69,9 @@ bool ClassFilter<T>::testBit(int bit, ClassFilter **last) {
 }
 
 template<class T>
-bool ClassFilter<T>::setBit(int bit, bool propergate) {
+bool ClassFilter<T>::setBit(uint64_t bit, bool propergate) {
     if(count < density) {
-        int x = (bit / 32) % length;
+        uint64_t x = (bit / 32) % length;
         int y = bit % 32;
         if((array[x] & (1 << y)) != 0) {
             count++;//if not set
@@ -83,7 +84,7 @@ bool ClassFilter<T>::setBit(int bit, bool propergate) {
                 more = new ClassFilter(((double)length * 32.0) / ((double)density), hashCount, length);
                 return more->setBit(bit, propergate);
             } else {
-                int x = (bit / 32) % length;
+                uint64_t x = (bit / 32) % length;
                 int y = bit % 32;
                 if((array[x] & (1 << y)) != 0) {
                     count++;//if not set
@@ -98,13 +99,12 @@ bool ClassFilter<T>::setBit(int bit, bool propergate) {
 }
 
 template<class T>
-int ClassFilter<T>::hashThing(T thing, int count) {
-    QString n = thing.toString() + hashMix[count];
-    return qHash(n);
+uint64_t ClassFilter<T>::hashThing(T thing, int count) {
+    return qHash(thing) * qHash(hashMix[count]);
 }
 
 template<class T>
-DoubleFilter<T>::DoubleFilter(double densityIn, int hashCountIn, int lengthIn) {
+DoubleFilter<T>::DoubleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) {
     anti = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
     pro = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
 }
