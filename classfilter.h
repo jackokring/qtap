@@ -4,6 +4,18 @@
 #include <QtCore>
 #include "kringlicence.h"
 
+/*=============================================================================
+ * An extendable bloom filter with an extension to allow subtractive
+ * training on classification problems. If each class is represented
+ * by one of these filters, the query time maybe serially high, but
+ * accuracy and density for mutually exclusive sets would be high.
+ *
+ * It's not a neural deep net, and it has learning by counter example
+ * of set exclusion. It may actually forget things, and very rarely
+ * remember incorrect inclusives. The aim of the anti filter is to
+ * remember exceptions, and reduce the load on the 3rd exception filter.
+ * ==========================================================================*/
+
 template<class T>
 class ClassFilter {
 public:
@@ -40,7 +52,7 @@ public:
     //===================================================
     void add(T thing) override;
     bool in(T thing) override;
-    virtual void subtract(T thing);
+    virtual void subtract(T thing);//<- THIS IS NOT THE OPPOSITE OF add(T).
 
     ClassFilter<T> *anti;
     ClassFilter<T> *pro;
