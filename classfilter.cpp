@@ -146,3 +146,20 @@ void DoubleFilter<T>::subtract(T thing) {//can't always do it!
         //do nothing as can't subtract an added with this data structure
     }
 }
+
+QString vectorDecompose(double *input, uint size, uint divisions) {
+    QString output = QString();
+    double max = 0.0000000000001;
+    for(uint i = 0; i != size; ++i) {
+        if(input[i] > max) max = input[i];
+    }
+    double norm[size];
+    for(uint i = 0; i != size; ++i) {
+        norm[i] = input[i] / max;
+        if(norm[i] < 0) norm[i] = 0;
+    }
+    for(uint i = 0; i != size; ++i) {
+        output += QChar((uint)(norm[i] * divisions) + 32);
+    }
+    return output;
+}

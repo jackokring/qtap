@@ -58,4 +58,6 @@ public:
     ClassFilter<T> *pro;
 };
 
+QString vectorDecompose(double *input, uint size, uint divisions = 16);
+
 #endif // CLASSFILTER_H
