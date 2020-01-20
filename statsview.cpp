@@ -49,12 +49,14 @@ QString StatsView::getExtension() {
     return nullptr;//no save
 }
 
-QString StatsView::blockingSave() {
-    return nullptr;//file content to save
+void StatsView::blockingSave(QDataStream *output) {
+    //to do an auto save of some cached data if it exists
+    Q_UNUSED(output)
 }
 
-void StatsView::cacheLoad(QString input) {
+void StatsView::cacheLoad(QDataStream *input) {
     //to do an auto load of some cached data if it exists
+     Q_UNUSED(input)
 }
 
 void StatsView::setCommands() {

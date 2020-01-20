@@ -44,8 +44,8 @@ public:
     void _create(bool modified);//run on show
     bool _needsSave();//needs disk save (modified?)
     bool _canCache();//can load from disk
-    QString _blockingSave();//save to disk this string
-    void _cacheLoad(QString input);//load from disk accept
+    void _blockingSave(QDataStream *output);//save to disk this string
+    void _cacheLoad(QDataStream *input);//load from disk accept
 
     //===================================================
     // STATE
@@ -55,8 +55,8 @@ public:
     virtual void create();//run on show
     virtual void decreate();//run to undo a create (before again create)
     virtual QString getExtension();//what to extend as
-    virtual QString blockingSave();//save to disk this string
-    virtual void cacheLoad(QString input);//load from disk accept
+    virtual void blockingSave(QDataStream *output);//save to disk this string
+    virtual void cacheLoad(QDataStream *input);//load from disk accept
     virtual void setCommands();//install menu through addMenu()
     virtual void readSettings(QSettings *settings);
     virtual bool hasRegenerate();//can regenerate .txt base

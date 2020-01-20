@@ -85,15 +85,14 @@ bool AViewWidget::_canCache() {
     return true;
 }
 
-QString AViewWidget::_blockingSave() {
+void AViewWidget::_blockingSave(QDataStream *output) {
     setState(processing);
-    QString output = blockingSave();
+    blockingSave(output);
     setState(complete);
     saved = true;
-    return output;
 }
 
-void AViewWidget::_cacheLoad(QString input) {
+void AViewWidget::_cacheLoad(QDataStream *input) {
     setState(processing);
     cacheLoad(input);
     saved = true;//as just loaded
@@ -124,11 +123,12 @@ QString AViewWidget::getExtension() {
     return "no.dot.thing";
 }
 
-QString AViewWidget::blockingSave() {
-    return "";//file content to save
+void AViewWidget::blockingSave(QDataStream *output) {
+    //to do an auto save of some cached data if it exists
+    Q_UNUSED(output)
 }
 
-void AViewWidget::cacheLoad(QString input) {
+void AViewWidget::cacheLoad(QDataStream *input) {
     //to do an auto load of some cached data if it exists
     Q_UNUSED(input)
 }

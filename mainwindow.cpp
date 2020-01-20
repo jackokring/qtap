@@ -1133,21 +1133,10 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         return;
     }
     AViewWidget *me = nullptr;
-    QString loaded;
     loadModified = false;
-    if(fix & !regen) {//primary source fix, dependants more format based
-        loaded = loadAllErrors(&file);
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    } else {
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-        QTextStream in(&file);
-        in.setCodec("UTF-8");
-        loaded = in.readAll();
-    }
     if(regen) {
         QList<AViewWidget *>::iterator i;
         for(i = listOfViews.begin(); i != listOfViews.end(); ++i) {
@@ -1156,7 +1145,9 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
                 break;
             }
         }
-        me->_cacheLoad(loaded);
+        QDataStream din(&file);
+        din.setVersion(QDataStream::Qt_5_12);
+        me->_cacheLoad(&din);
         textEdit->setPlainText(me->regenerate());
         QStringList count = me->getExtension().split(".");
         QStringList nameBits = name.split(".");
@@ -1166,7 +1157,12 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
         }
         name = nameBits.join(".");//removed extension xtra
     } else {
-        textEdit->setPlainText(loaded);
+        if(!fix) {
+            QTextStream in(&file);
+            textEdit->setPlainText(in.readAll());
+        } else {
+            textEdit->setPlainText(loadAllErrors(&file));
+        }
     }
     setCurrentFile(name);
     if(loadModified) setModified();
@@ -1183,9 +1179,9 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
                 //hasRepo();
                 continue;
             }
-            QTextStream in(&file);
-            in.setCodec("UTF-8");
-            (*i)->_cacheLoad(in.readAll());//load file
+            QDataStream in(&file);
+            in.setVersion(QDataStream::Qt_5_12);
+            (*i)->_cacheLoad(&in);//load file
         }
     }
     hasRepo();
@@ -1258,9 +1254,9 @@ void MainWindow::saveFile(const QString &fileName) {
                 //hasRepo();
                 continue;
             }
-            QTextStream out(&file);
-            out.setCodec("UTF-8");
-            out << (*i)->_blockingSave();//save file
+            QDataStream out(&file);
+            out.setVersion(QDataStream::Qt_5_12);
+            (*i)->_blockingSave(&out);//save file
         }
     }
     hasRepo();
