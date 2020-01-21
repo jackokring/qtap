@@ -1196,7 +1196,7 @@ QString MainWindow::loadAllErrors(QFile *name) {
                     QTextCodec::ConvertInvalidToNull |
                     QTextCodec::IgnoreHeader);
 #ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::restoreOverrideCursor();
 #endif
     int size = name->size();
     QByteArray ba = name->read(size);
@@ -1204,7 +1204,7 @@ QString MainWindow::loadAllErrors(QFile *name) {
     utf.setModal(true);
     utf.setBytes(ba);
 #ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     if (utf.exec() == QDialog::Accepted) {
         return td.toUnicode(utf.bytes());
