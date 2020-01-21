@@ -1161,7 +1161,13 @@ void MainWindow::loadFile(const QString &fileName, bool regen, bool fix) {
             QTextStream in(&file);
             textEdit->setPlainText(in.readAll());
         } else {
+#ifndef QT_NO_CURSOR
+            QApplication::restoreOverrideCursor();
+#endif
             textEdit->setPlainText(loadAllErrors(&file));
+#ifndef QT_NO_CURSOR
+            QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
         }
     }
     setCurrentFile(name);
@@ -1196,7 +1202,7 @@ QString MainWindow::loadAllErrors(QFile *name) {
                     QTextCodec::ConvertInvalidToNull |
                     QTextCodec::IgnoreHeader);
 #ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
+    QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     int size = name->size();
     QByteArray ba = name->read(size);
@@ -1204,7 +1210,7 @@ QString MainWindow::loadAllErrors(QFile *name) {
     utf.setModal(true);
     utf.setBytes(ba);
 #ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    QApplication::restoreOverrideCursor();
 #endif
     if (utf.exec() == QDialog::Accepted) {
         return td.toUnicode(utf.bytes());
