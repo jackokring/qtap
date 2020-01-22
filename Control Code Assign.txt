@@ -1,31 +1,31 @@
-As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is app level plus SHFT. Things marked (C) are commands and context specific, and may have repeats for various actions.
+As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is app level plus SHFT. Things marked (C) are commands and context specific, and may have repeats for various actions. Brackets is in a dialog.
 
 
     CTRL+LTR        CTRL+SHFT+LTR
     ========        =============
-A   SELECT ALL      REPLACE ALL
+A   SELECT ALL      (REPLACE ALL)
 B
-C   COPY            SHOW CTRL
+C   COPY            (SHOW CTRL)
 D   DIRECTORY
-E                   ESC ANSI
-F   FIND            FONT
+E                   (ESC ANSI)
+F   FIND()          FONT
 G   SETTINGS
 H
-I                   ISO LATIN
+I                   (ISO LATIN)
 J
 K   DEL TO EOL
 L   CLONE
-M   MAIN TEXT(C)    MARK ERRORS
+M   MAIN TEXT(C)    (MARK ERRORS)
 N   NEW
 O   OPEN            OPEN FIX
 P   PUBLISH
 Q   QUIT
-R   READ            REPLACE
+R   READ            (REPLACE)
 S   SAVE            SAVE AS
 T   TEXT VIEW       TRAY
 U
 V   PASTE
-W   STAT VIEW       MARK WARN
+W   STAT VIEW       (MARK WARN)
 X   CUT
 Y   REDO
 Z   UNDO            REDO
