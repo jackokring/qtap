@@ -52,6 +52,11 @@ bool ClassFilter<T>::in(T thing) {
 }
 
 template<class T>
+ClassFilter<T> ClassFilter<T>::extend() {
+    return new ClassFilter<T>(((double)length * 32.0) / ((double)density), hashCount, length);
+}
+
+template<class T>
 bool ClassFilter<T>::testBit(uint64_t bit, ClassFilter **last) {
     uint64_t x = (bit / 32) % length;
     uint32_t a = array[x];
@@ -81,7 +86,7 @@ bool ClassFilter<T>::setBit(uint64_t bit, bool propergate) {
     } else {
         if(more == nullptr) {
             if(propergate) {
-                more = new ClassFilter(((double)length * 32.0) / ((double)density), hashCount, length);
+                more = extend();
                 return more->setBit(bit, propergate);
             } else {
                 uint64_t x = (bit / 32) % length;
@@ -104,9 +109,10 @@ uint64_t ClassFilter<T>::hashThing(T thing, int count) {
 }
 
 template<class T>
-DoubleFilter<T>::DoubleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) {
-    anti = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
-    pro = new ClassFilter<T>(densityIn, hashCountIn, lengthIn);
+DoubleFilter<T>::DoubleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) :
+    ClassFilter<T>(densityIn, hashCountIn, lengthIn) {//bane number 1 C++
+    anti = extend();
+    pro = extend();
 }
 
 template<class T>
@@ -139,6 +145,13 @@ bool DoubleFilter<T>::in(T thing) {
 }
 
 template<class T>
+ClassFilter<T> DoubleFilter<T>::extend() {
+    return new ClassFilter<T>(((double)ClassFilter<T>::length * 32.0) /
+                                  ((double)ClassFilter<T>::density),
+                                  ClassFilter<T>::hashCount, ClassFilter<T>::length);
+}
+
+template<class T>
 void DoubleFilter<T>::subtract(T thing) {//can't always do it!
     if(ClassFilter<T>::in(thing)) {
         anti->in(thing);
@@ -162,4 +175,20 @@ QString vectorDecompose(double *input, uint size, uint divisions) {
         output += QChar((uint)(norm[i] * divisions) + 32);
     }
     return output;
+}
+
+template<class T>
+TripleFilter<T>::TripleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) :
+    DoubleFilter<T>(densityIn, hashCountIn, lengthIn) {//bane number 1 C++
+    delete DoubleFilter<T>::pro;
+    delete DoubleFilter<T>::anti;
+    DoubleFilter<T>::anti = extend();
+    DoubleFilter<T>::pro = extend();
+}
+
+template<class T>
+ClassFilter<T> TripleFilter<T>::extend() {
+    return new DoubleFilter<T>(((double)ClassFilter<T>::length * 32.0) /
+                                  ((double)ClassFilter<T>::density),
+                                  ClassFilter<T>::hashCount, ClassFilter<T>::length);
 }
