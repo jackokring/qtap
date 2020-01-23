@@ -37,7 +37,7 @@ protected:
     uint32_t *array;
     uint64_t count = 0;//used for density
     uint32_t *hashMix;
-    bool nest;
+    //bool nest;
     bool testBit(uint64_t bit, ClassFilter **last = nullptr);
     bool setBit(uint64_t bit, bool propergate = false);//return need propergate
     uint64_t hashThing(T thing, int count);
