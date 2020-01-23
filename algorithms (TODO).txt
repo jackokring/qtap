@@ -22,4 +22,14 @@ Stats General
 Time sequence normalization after extraction of regression.
 Spread modeling for equal entropic likelyhood.
 
+Filtered Data Appliction
+========================
+Generation of associated context structures and control.
+
+General Mini Net
+================
+A simple neural config.
+Synchronization of registered feedback.
+Training open loop optimization.
+
 
