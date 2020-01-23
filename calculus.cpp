@@ -4,10 +4,11 @@ Calculus::Calculus() {
 
 }
 
-void Calculus::differential(double *input, double *output, int i, double h) {
+void Calculus::differential(double *input, double *output, double h) {
     //coefficients via http://web.media.mit.edu/~crtaylor/calculator.html
     //all done from prospective of sample input[0]
     double t = h;
+    output[0] = input[0];
     output[1] = (105 * input[i - 8] - 960 * input[i - 7] +
             3920 * input[i - 6] - 9408 * input[i - 5] +
             14700 * input[i - 4] - 15680 * input[i - 3] +

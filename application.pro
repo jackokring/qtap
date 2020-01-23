@@ -8,6 +8,7 @@ HEADERS       = mainwindow.h \
     calculus.h \
     classfilter.h \
     finddialog.h \
+    sais.h \
     settings.h \
     statsview.h \
     utfdialog.h
@@ -19,6 +20,7 @@ SOURCES       = main.cpp \
                 classfilter.cpp \
                 finddialog.cpp \
                 mainwindow.cpp \
+                sais.cpp \
                 settings.cpp \
                 statsview.cpp \
                 utfdialog.cpp
