@@ -1,10 +1,11 @@
 #include "calculus.h"
+#include <math.h>
 
-Calculus::Calculus() {
-
+Calculus::Calculus(double sampleStep) {
+    h = sampleStep;
 }
 
-void Calculus::differential(double *input, double *output, double h) {
+void Calculus::differential(double *input, double *output) {
     //coefficients via http://web.media.mit.edu/~crtaylor/calculator.html
     //all done from prospective of sample input[0]
     double t = h;
@@ -34,7 +35,7 @@ void Calculus::differential(double *input, double *output, double h) {
     output[8] = sum(co8, input - 8, input) / (1 * t);
 }
 
-double sum(double *coeff, double *inputBegin, double *inputEnd, int step) {
+double Calculus::sum(double *coeff, double *inputBegin, double *inputEnd, int step) {
     volatile double residual = 0.0;
     double add = 0.0;
     double temp;
@@ -45,4 +46,24 @@ double sum(double *coeff, double *inputBegin, double *inputEnd, int step) {
         add = test;
     }
     return add;
+}
+
+void Calculus::atTick(uint64_t now) {
+    tick = now;
+}
+
+void Calculus::setSigma(double sigmaValue) {
+    sigma = sigmaValue;
+}
+
+void Calculus::next() {
+    tick++;
+}
+
+void Calculus::expDecay(double *inputBegin, double *inputEnd, double *output, int step) {//from now
+    uint64_t tt = tick;
+    for(; inputBegin <= inputEnd; inputBegin += step, output += 1) {
+        *output = (*inputBegin) * expm1(-(sigma * h * tt)) + (*inputBegin);
+        tt += 1;
+    }
 }
