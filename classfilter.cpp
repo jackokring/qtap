@@ -218,3 +218,55 @@ void FoolMap<T, K>::remove(T key, K value) {//requires both
     map.remove(qHash(key), value);
 }
 
+template<class T, class K>
+MasterMap<T, K>::MasterMap() {
+
+}
+
+template<class T, class K>
+MasterMap<T, K>::~MasterMap() {
+
+}
+
+template<class T, class K>
+void MasterMap<T, K>::insert(T key, K value) {
+    uint32_t vh = qHash(value);
+    for(uint i = 0; i < 32; ++i) {
+        if((vh & (1 << i)) == 0) {
+            stimulusMap[i].subtract(key);
+        } else {
+            stimulusMap[i].add(key);
+        }
+    }
+    FoolMap<T, K>::map.insert(vh, value);
+}
+
+template<class T, class K>
+QList<K> MasterMap<T, K>::values(T key) {
+    uint32_t vh = 0;
+    for(uint i = 0; i < 32; ++i) {
+        if(stimulusMap[i].in(key)) vh |= (1 << i);
+    }
+    FoolMap<T, K>::map.values(vh);
+}
+
+template<class T, class K>
+void MasterMap<T, K>::remove(T key, K value) {//requires both
+    uint32_t vh = qHash(value);
+    for(uint i = 0; i < 32; ++i) {
+        keyHook(key, &stimulusMap[i], (vh & (1 << i)) == 0);
+    }
+    FoolMap<T, K>::map.remove(vh, value);//bad action
+}
+
+template<class T, class K>
+void MasterMap<T, K>::keyHook(T key, ClassFilter<T> *filter, bool keyBit) {
+    Q_UNUSED(key);
+    Q_UNUSED(filter);
+    Q_UNUSED(keyBit);
+}
+
+template<class T, class K>
+QList<K> MasterMap<T, K>::next(uint32_t index) {
+    FoolMap<T, K>::map.values(index);//for jump pointers and program counters
+}

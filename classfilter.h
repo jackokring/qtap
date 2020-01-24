@@ -106,4 +106,41 @@ protected:
     QMultiHash<uint32_t, K> map;
 };
 
+/*=============================================================================
+ * A compact QMultiHash with interesting properties for AI.
+ * --------------------------------------------------------
+ * The T key is stored in a bloom filter type structure to allow the QMultiHash
+ * to be keyed by the value class.
+ *
+ * This has implications for sequencing, when the K value class is considered
+ * to be some kind of microcode and needs placement of the values (action
+ * control) to be closely associated based on kind, for example when using
+ * a genetic algorithm population space within K.
+ *
+ * Further K can also be keyed into the K production map, to give more
+ * precise sequential execution and T stimulus tuning to a good K starter.
+ *
+ * Particular emphisis is placed on *types in the K class. As they become
+ * non K value variants, and so can place locality changes without K hash
+ * alteration on the &/sizeof() hash implementation expected.
+ * ==========================================================================*/
+template<class T, class K>
+class MasterMap {
+public:
+    MasterMap();
+    ~MasterMap();
+
+    //===================================================
+    // INTERFACE
+    //===================================================
+    void insert(T key, K value) override;
+    QList<K> values(T key) override;
+    void remove(T key, K value) override;//requires both
+    virtual QList<K> next(uint32_t index);//for jump pointers and program counters
+
+protected:
+    TripleFilter<T> stimulusMap[32];
+    virtual void keyHook(T key, ClassFilter<T> *filter, bool keyBit);
+};
+
 #endif // CLASSFILTER_H
