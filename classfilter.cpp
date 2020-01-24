@@ -160,6 +160,22 @@ void DoubleFilter<T>::subtract(T thing) {//can't always do it!
     }
 }
 
+template<class T>
+TripleFilter<T>::TripleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) :
+    DoubleFilter<T>(densityIn, hashCountIn, lengthIn) {//bane number 1 C++
+    delete DoubleFilter<T>::pro;
+    delete DoubleFilter<T>::anti;
+    DoubleFilter<T>::anti = extend();
+    DoubleFilter<T>::pro = extend();
+}
+
+template<class T>
+ClassFilter<T> TripleFilter<T>::extend() {
+    return new DoubleFilter<T>(((double)ClassFilter<T>::length * 32.0) /
+                                  ((double)ClassFilter<T>::density),
+                                  ClassFilter<T>::hashCount, ClassFilter<T>::length);
+}
+
 QString vectorDecompose(double *input, uint size, uint divisions) {
     QString output = QString();
     double max = 0.0000000000001;
@@ -177,18 +193,28 @@ QString vectorDecompose(double *input, uint size, uint divisions) {
     return output;
 }
 
-template<class T>
-TripleFilter<T>::TripleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) :
-    DoubleFilter<T>(densityIn, hashCountIn, lengthIn) {//bane number 1 C++
-    delete DoubleFilter<T>::pro;
-    delete DoubleFilter<T>::anti;
-    DoubleFilter<T>::anti = extend();
-    DoubleFilter<T>::pro = extend();
+template<class T, class K>
+FoolMap<T, K>::FoolMap() {
+
 }
 
-template<class T>
-ClassFilter<T> TripleFilter<T>::extend() {
-    return new DoubleFilter<T>(((double)ClassFilter<T>::length * 32.0) /
-                                  ((double)ClassFilter<T>::density),
-                                  ClassFilter<T>::hashCount, ClassFilter<T>::length);
+template<class T, class K>
+FoolMap<T, K>::~FoolMap() {
+
 }
+
+template<class T, class K>
+void FoolMap<T, K>::insert(T key, K value) {
+    map.insert(qHash(key), value);
+}
+
+template<class T, class K>
+QList<K> FoolMap<T, K>::values(T key) {
+    map.values(qHash(key));
+}
+
+template<class T, class K>
+void FoolMap<T, K>::remove(T key, K value) {//requires both
+    map.remove(qHash(key), value);
+}
+

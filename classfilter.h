@@ -75,7 +75,35 @@ public:
     ClassFilter<T> extend() override;
 };
 
-
 QString vectorDecompose(double *input, uint size, uint divisions = 16);
+
+/*=============================================================================
+ * A more compact QMultiHash with tradeoff of removal.
+ * ---------------------------------------------------
+ * As the T key is not stored in full within the structure a large saving in
+ * memory is achived as long as no iteration over included keys is required.
+ *
+ * Indirectly all keys become 32 bit ints, and this is feature compression.
+ * The memory requirement for keys still can be quite large for many keys.
+ *
+ * Reducing the values memory requirements is more difficult. The 'key'
+ * storage can however be improved upon, along with some more benefits.
+ * ==========================================================================*/
+template<class T, class K>
+class FoolMap {
+public:
+    FoolMap();
+    ~FoolMap();
+
+    //===================================================
+    // INTERFACE
+    //===================================================
+    virtual void insert(T key, K value);
+    virtual QList<K> values(T key);
+    virtual void remove(T key, K value);//requires both
+
+protected:
+    QMultiHash<uint32_t, K> map;
+};
 
 #endif // CLASSFILTER_H
