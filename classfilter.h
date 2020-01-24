@@ -56,6 +56,7 @@ public:
     bool in(T thing) override;
     ClassFilter<T> extend() override;
     void subtract(T thing);//<- THIS IS NOT THE OPPOSITE OF add(T).
+    void invert(T thing);
 
     ClassFilter<T> *anti;
     ClassFilter<T> *pro;
@@ -124,6 +125,8 @@ protected:
  * non K value variants, and so can place locality changes without K hash
  * alteration on the &/sizeof() hash implementation expected.
  * ==========================================================================*/
+#include "discussion.h"
+
 template<class T, class K>
 class MasterMap {
 public:
@@ -140,7 +143,8 @@ public:
 
 protected:
     TripleFilter<T> stimulusMap[32];
-    virtual void keyHook(T key, ClassFilter<T> *filter, bool keyBit);
+    virtual bool keyHook(T key, DoubleFilter<T> *filter,
+                                 QList<K> preValue, QList<K> postValue);
 };
 
 #endif // CLASSFILTER_H

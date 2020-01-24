@@ -7,6 +7,7 @@ HEADERS       = mainwindow.h \
     aviewwidget.h \
     calculus.h \
     classfilter.h \
+    discussion.h \
     finddialog.h \
     sais.h \
     settings.h \

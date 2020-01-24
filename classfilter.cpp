@@ -161,6 +161,15 @@ void DoubleFilter<T>::subtract(T thing) {//can't always do it!
 }
 
 template<class T>
+void DoubleFilter<T>::invert(T thing) {
+    if(in(thing)) {
+        subtract(thing);
+    } else {
+        add(thing);
+    }
+}
+
+template<class T>
 TripleFilter<T>::TripleFilter(double densityIn, int hashCountIn, uint64_t lengthIn) :
     DoubleFilter<T>(densityIn, hashCountIn, lengthIn) {//bane number 1 C++
     delete DoubleFilter<T>::pro;
@@ -253,17 +262,22 @@ QList<K> MasterMap<T, K>::values(T key) {
 template<class T, class K>
 void MasterMap<T, K>::remove(T key, K value) {//requires both
     uint32_t vh = qHash(value);
+    bool change = false;
     for(uint i = 0; i < 32; ++i) {
-        keyHook(key, &stimulusMap[i], (vh & (1 << i)) == 0);
+        change |= keyHook(key, &stimulusMap[i], FoolMap<T, K>::map.values(vh),
+                FoolMap<T, K>::map.values(vh ^= (1 << i)));//check on options of change
     }
-    FoolMap<T, K>::map.remove(vh, value);//bad action
+    if(change) FoolMap<T, K>::map.remove(vh, value);//bad action?
 }
 
 template<class T, class K>
-void MasterMap<T, K>::keyHook(T key, ClassFilter<T> *filter, bool keyBit) {
+bool MasterMap<T, K>::keyHook(T key, DoubleFilter<T> *filter,
+                              QList<K> preValue, QList<K> postValue) {
     Q_UNUSED(key);
     Q_UNUSED(filter);
-    Q_UNUSED(keyBit);
+    Q_UNUSED(preValue);
+    Q_UNUSED(postValue);
+    return false;//no change
 }
 
 template<class T, class K>
