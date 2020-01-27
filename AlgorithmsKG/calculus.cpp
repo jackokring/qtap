@@ -133,7 +133,8 @@ double Calculus::seriesAccelLim(double *inputBegin, double *inputEnd, int step) 
 double Calculus::seriesAccelLim2(double *inputBegin, double *inputEnd,
                                  int step, uint nest) {
     if(nest > 1) {
-        return seriesAccelLim2(inputEnd, inputBegin, step *= -2, --nest);
+        seriesAccelLim(inputEnd, inputBegin, step *= -2);
+        return seriesAccelLim2(inputEnd, inputBegin, step, --nest);
     }
     return seriesAccelLim(inputEnd, inputBegin, step *= -2);
 }
