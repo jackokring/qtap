@@ -85,13 +85,21 @@ void Calculus::cumSum(double *inputBegin, double *inputEnd, double *output, int 
 }
 
 bool Calculus::seriesAccel(double *inputBegin, double *inputEnd, double *output, int step) {
+    if(inputBegin == inputEnd) {
+        *output = *inputBegin;
+        return true;//convergence extra not possible
+    }
     ++inputBegin;
     --inputEnd;
     double temp;
     double nm1;
     double np1;
     double temp2;
-    if(inputBegin > inputEnd) return true;//convergence extra not possible
+    if(inputBegin > inputEnd) {
+        *output = (*(inputBegin - 1) + *inputBegin) / 2.0;
+        return true;//convergence extra not possible
+    }
+    bool cov = (inputBegin == inputEnd);
     for(; inputBegin <= inputEnd; inputBegin += step) {
         //Shank's method
         nm1 = *(inputBegin - 1);
@@ -106,5 +114,5 @@ bool Calculus::seriesAccel(double *inputBegin, double *inputEnd, double *output,
         }
         (*(output++)) = np1 - temp;
     }
-    return false;
+    return cov;
 }
