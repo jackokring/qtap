@@ -49,13 +49,13 @@
 ****************************************************************************/
 
 #include <QtWidgets>
-#include "aviewwidget.h"
+#include "JoineryTS/aviewwidget.h"
 #include "mainwindow.h"
 
 //VIEW INCLUDES
-#include "statsview.h"
-#include "finddialog.h"
-#include "utfdialog.h"
+#include "JoineryTS/statsview.h"
+#include "JoineryTS/finddialog.h"
+#include "JoineryTS/utfdialog.h"
 
 //FORMATTING
 #define para "</p><p>"

@@ -1,6 +1,6 @@
 #include "settings.h"
 #include "ui_settings.h"
-#include "mainwindow.h"
+#include "../mainwindow.h"
 
 Settings::Settings(QWidget *parent) :
     AViewWidget(parent),//stop stats UI render

@@ -56,10 +56,10 @@
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include <QProgressDialog>
-#include "atextedit.h"
+#include "JoineryTS/atextedit.h"
 #include "./libkqfn/libkqfn.h"
-#include "settings.h"
-#include "aviewwidget.h"
+#include "JoineryTS/settings.h"
+#include "JoineryTS/aviewwidget.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;

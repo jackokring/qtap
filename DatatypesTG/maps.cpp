@@ -1,4 +1,4 @@
-#include "classfilter.h"
+#include "maps.h"
 
 template<class T>
 ClassFilter<T>::ClassFilter(double densityIn, int hashCountIn, uint64_t lengthIn) {

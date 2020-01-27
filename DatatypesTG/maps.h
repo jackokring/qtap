@@ -2,7 +2,7 @@
 #define CLASSFILTER_H
 
 #include <QtCore>
-#include "kringlicence.h"
+#include "../kringlicence.h"
 
 /*=============================================================================
  * An extendable bloom filter with an extension to allow subtractive
@@ -125,7 +125,7 @@ protected:
  * non K value variants, and so can place locality changes without K hash
  * alteration on the &/sizeof() hash implementation expected.
  * ==========================================================================*/
-#include "discussion.h"
+#include "../discussion.h"
 
 template<class T, class K>
 class MasterMap {

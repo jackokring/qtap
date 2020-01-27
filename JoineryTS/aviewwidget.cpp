@@ -1,6 +1,6 @@
 #include "aviewwidget.h"
 #include <QAction>
-#include "mainwindow.h"
+#include "../mainwindow.h"
 
 AViewWidget::AViewWidget(QWidget *parent) :
     QWidget(parent) {

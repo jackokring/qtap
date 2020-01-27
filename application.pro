@@ -2,29 +2,28 @@ QT += core gui network webengine widgets webenginewidgets
 requires(qtConfig(filedialog))
 
 HEADERS       = mainwindow.h \
-    adialog.h \
-    atextedit.h \
-    aviewwidget.h \
-    calculus.h \
-    classfilter.h \
-    discussion.h \
-    finddialog.h \
-    sais.h \
-    settings.h \
-    statsview.h \
-    utfdialog.h
+    AlgorithmsKG/calculus.h \
+    AlgorithmsKG/sais.h \
+    DatatypesTG/maps.h \
+    JoineryTS/adialog.h \
+    JoineryTS/atextedit.h \
+    JoineryTS/aviewwidget.h \
+    JoineryTS/finddialog.h \
+    JoineryTS/settings.h \
+    JoineryTS/statsview.h \
+    JoineryTS/utfdialog.h
 SOURCES       = main.cpp \
-                adialog.cpp \
-                atextedit.cpp \
-                aviewwidget.cpp \
-                calculus.cpp \
-                classfilter.cpp \
-                finddialog.cpp \
-                mainwindow.cpp \
-                sais.cpp \
-                settings.cpp \
-                statsview.cpp \
-                utfdialog.cpp
+                AlgorithmsKG/calculus.cpp \
+                AlgorithmsKG/sais.cpp \
+                DatatypesTG/maps.cpp \
+                JoineryTS/adialog.cpp \
+                JoineryTS/atextedit.cpp \
+                JoineryTS/aviewwidget.cpp \
+                JoineryTS/finddialog.cpp \
+                JoineryTS/settings.cpp \
+                JoineryTS/statsview.cpp \
+                JoineryTS/utfdialog.cpp \
+                mainwindow.cpp
 #! [0]
 RESOURCES     = application.qrc
 #! [0]
@@ -34,10 +33,10 @@ target.path = $$[QT_INSTALL_EXAMPLES]/widgets/mainwindows/application
 INSTALLS += target
 
 FORMS += \
-    finddialog.ui \
-    settings.ui \
-    statsview.ui \
-    utfdialog.ui
+    JoineryTS/finddialog.ui \
+    JoineryTS/settings.ui \
+    JoineryTS/statsview.ui \
+    JoineryTS/utfdialog.ui
 
 DISTFILES += \
     Control Code Assign.txt \
@@ -57,5 +56,5 @@ TRANSLATIONS =  QtAp_de.ts \
                 QtAp_da.ts \
                 QtAp_fi.ts \
                 QtAp_ja.ts \
-                QtAp_zh.ts \
+                QtAp_zh.ts
 

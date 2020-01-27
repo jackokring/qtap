@@ -1,7 +1,7 @@
 #include "utfdialog.h"
 #include "ui_utfdialog.h"
 #include "adialog.h"
-#include "mainwindow.h"
+#include "../mainwindow.h"
 
 #define UNICODEMAX 0x10ffff
 #define SURRAMIN 0xd800

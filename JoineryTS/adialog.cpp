@@ -1,5 +1,5 @@
 #include "adialog.h"
-#include "mainwindow.h"
+#include "../mainwindow.h"
 
 ADialog::ADialog(QWidget *parent) :
     QDialog(parent) {

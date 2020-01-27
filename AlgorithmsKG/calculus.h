@@ -2,7 +2,7 @@
 #define CALCULUS_H
 
 #include <QtCore>
-#include "kringlicence.h"
+#include "../kringlicence.h"
 
 class Calculus {
 public:
