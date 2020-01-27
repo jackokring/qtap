@@ -1,6 +1,8 @@
 #include "calculus.h"
 #include <math.h>
 
+//WARNING WILL ROBINSON may contain traces of GB 1905339.6 Pat. Pending.
+
 Calculus::Calculus(double sampleStep) {
     h = sampleStep;
 }
@@ -70,7 +72,7 @@ void Calculus::expDecay(double *inputBegin, double *inputEnd, double *output,
     }
 }
 
-void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1) {
+void Calculus::cumSum(double *inputBegin, double *inputEnd, double *output, int step) {
     volatile double residual = 0.0;
     double add = 0.0;
     double temp;
@@ -80,4 +82,29 @@ void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1) 
         residual = (temp + residual) - (test - add);
         (*(output++)) = test;
     }
+}
+
+bool Calculus::seriesAccel(double *inputBegin, double *inputEnd, double *output, int step) {
+    ++inputBegin;
+    --inputEnd;
+    double temp;
+    double nm1;
+    double np1;
+    double temp2;
+    if(inputBegin > inputEnd) return true;//convergence extra not possible
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        //Shank's method
+        nm1 = *(inputBegin - 1);
+        np1 = *(inputBegin + 1);
+        temp = temp2 = (np1 - *inputBegin);
+        temp *= temp;
+        temp2 -= (*inputBegin - nm1);
+        if(temp2 == 0.0) {
+            temp = *inputBegin - np1;//pass through as no delta
+        } else {
+            temp /= temp2;
+        }
+        (*(output++)) = np1 - temp;
+    }
+    return false;
 }

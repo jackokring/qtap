@@ -7,6 +7,7 @@ HEADERS       = mainwindow.h \
     DatatypesTG/lists.h \
     DatatypesTG/maps.h \
     DatatypesTG/reducers.h \
+    GadgetsKS/babbler.h \
     JoineryTS/adialog.h \
     JoineryTS/atextedit.h \
     JoineryTS/aviewwidget.h \
@@ -28,6 +29,7 @@ SOURCES       = main.cpp \
                 DatatypesTG/lists.cpp \
                 DatatypesTG/maps.cpp \
                 DatatypesTG/reducers.cpp \
+                GadgetsKS/babbler.cpp \
                 JoineryTS/adialog.cpp \
                 JoineryTS/atextedit.cpp \
                 JoineryTS/aviewwidget.cpp \

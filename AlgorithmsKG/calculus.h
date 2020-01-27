@@ -23,6 +23,8 @@ public:
     void expDecay(double *inputBegin, double *inputEnd, double *output,
                   int step = 1, bool splitDistribute = false);//from now
     static void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1);
+    static bool seriesAccel(double *inputBegin, double *inputEnd,
+                            double *output, int step = 1);
 
 protected:
     double h;//sampleStep
