@@ -6,8 +6,6 @@ Multi form integral estimates.
 
 Categorization
 ==============
-Arrayed ClassFilter
-Bit pattern to object multi-map
 Output object hash to ArrayClassFilter store, producing hash gen recover.
 Output object vector ClassFilter "stimulation delta" hash follow sequences.
 Object list processing based on object and frequency of occurance.

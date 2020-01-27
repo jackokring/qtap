@@ -28,5 +28,11 @@
         <file>images/document-import.png</file>
         <file>images/convert-format.png</file>
         <file>images/edit-font.png</file>
+        <file>images/view-bloat.png</file>
+        <file>images/view-elements.png</file>
+        <file>images/view-hello.png</file>
+        <file>images/view-internut.png</file>
+        <file>images/view-jockey.png</file>
+        <file>images/view-turing.png</file>
     </qresource>
 </RCC>

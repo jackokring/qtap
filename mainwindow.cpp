@@ -54,6 +54,13 @@
 
 //VIEW INCLUDES
 #include "JoineryTS/statsview.h"
+#include "JoineryTS/bloat.h"
+#include "JoineryTS/elements.h"
+#include "JoineryTS/hello.h"
+#include "JoineryTS/internut.h"
+#include "JoineryTS/jockey.h"
+#include "JoineryTS/turing.h"
+
 #include "JoineryTS/finddialog.h"
 #include "JoineryTS/utfdialog.h"
 
@@ -178,6 +185,12 @@ MainWindow::MainWindow()
 
     //add in the extra output views
     listOfViews.append(new StatsView(this));
+    listOfViews.append(new Bloat(this));
+    listOfViews.append(new Elements(this));
+    listOfViews.append(new Hello(this));
+    listOfViews.append(new Internut(this));
+    listOfViews.append(new Jockey(this));
+    listOfViews.append(new Turing(this));
 
     //create menus
     createActions();

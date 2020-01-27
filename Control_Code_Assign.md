@@ -4,15 +4,15 @@ As the WIN key should be OS control, and ALT for OS/Window Manager, then CTRL is
     CTRL+LTR        CTRL+SHFT+LTR
     ========        =============
 A   SELECT ALL      (REPLACE ALL)
-B
+B   BLOAT VIEW
 C   COPY            (SHOW CTRL)
 D   DIRECTORY
-E                   (ESC ANSI)
+E   ELEM. VIEW      (ESC ANSI)
 F   FIND()          FONT
 G   SETTINGS
-H
-I                   (ISO LATIN)
-J
+H   HELLO VIEW
+I   INTER. VIEW     (ISO LATIN)
+J   JOCK. VIEW
 K   DEL TO EOL
 L   CLONE
 M   MAIN TEXT(C)    (MARK ERRORS)
@@ -23,7 +23,7 @@ Q   QUIT
 R   READ            (REPLACE)
 S   SAVE            SAVE AS
 T   TEXT VIEW       TRAY
-U
+U   TURING VIEW
 V   PASTE
 W   STAT VIEW       (MARK WARN)
 X   CUT
