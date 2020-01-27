@@ -2,6 +2,7 @@
 #define LISTS_H
 
 #include <QtCore>
+#include "../kringlicence.h"
 
 class List : QList<List> {
 public:

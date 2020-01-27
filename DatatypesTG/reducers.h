@@ -2,6 +2,7 @@
 #define REDUCERS_H
 
 #include <QtCore>
+#include "../kringlicence.h"
 
 template<class T, class K>
 class FoolReducer {

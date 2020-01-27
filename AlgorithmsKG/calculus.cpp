@@ -39,8 +39,8 @@ double Calculus::sum(double *coeff, double *inputBegin, double *inputEnd, int st
     volatile double residual = 0.0;
     double add = 0.0;
     double temp;
-    for(; inputBegin <= inputEnd; inputBegin += step, coeff += 1) {
-        temp = (*coeff) * (*inputBegin);
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        temp = (*(coeff++)) * (*inputBegin);
         double test = add + (temp + residual);
         residual = (temp + residual) - (test - add);
         add = test;
@@ -60,10 +60,24 @@ void Calculus::next() {
     tick++;
 }
 
-void Calculus::expDecay(double *inputBegin, double *inputEnd, double *output, int step) {//from now
+void Calculus::expDecay(double *inputBegin, double *inputEnd, double *output,
+                        int step, bool splitDistribute) {//from now
     uint64_t tt = tick;
-    for(; inputBegin <= inputEnd; inputBegin += step, output += 1) {
-        *output = (*inputBegin) * expm1(-(sigma * h * tt)) + (*inputBegin);
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        (*(output++)) = (*inputBegin) * expm1(-(sigma * h * tt)) +
+                (splitDistribute ? 0.0 :(*inputBegin));
         tt += 1;
+    }
+}
+
+void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1) {
+    volatile double residual = 0.0;
+    double add = 0.0;
+    double temp;
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        temp = (*inputBegin);
+        double test = add + (temp + residual);
+        residual = (temp + residual) - (test - add);
+        (*(output++)) = test;
     }
 }

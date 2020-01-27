@@ -20,8 +20,11 @@ public:
     void atTick(uint64_t now);
     void setSigma(double sigmaValue);
     void next();
-    void expDecay(double *inputBegin, double *inputEnd, double *output, int step = 1);//from now
+    void expDecay(double *inputBegin, double *inputEnd, double *output,
+                  int step = 1, bool splitDistribute = false);//from now
+    static void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1);
 
+protected:
     double h;//sampleStep
     double sigma = 0.0;
     uint64_t tick = 0;
