@@ -1,5 +1,5 @@
-#ifndef CLASSFILTER_H
-#define CLASSFILTER_H
+#ifndef MAPS_H
+#define MAPS_H
 
 #include <QtCore>
 #include "../kringlicence.h"
@@ -141,6 +141,7 @@ public:
     void remove(T key, K value) override;//requires both
     virtual QList<K> next(uint32_t index);//for jump pointers and program counters
     virtual QList<K> onEmpty(T key);
+    virtual uint32_t senseOf(T key);
 
 protected:
     TripleFilter<T> stimulusMap[32];
@@ -148,4 +149,4 @@ protected:
                                  QList<K> preValue, QList<K> postValue);
 };
 
-#endif // CLASSFILTER_H
+#endif // MAPS_H

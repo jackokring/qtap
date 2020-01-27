@@ -4,7 +4,9 @@ requires(qtConfig(filedialog))
 HEADERS       = mainwindow.h \
     AlgorithmsKG/calculus.h \
     AlgorithmsKG/sais.h \
+    DatatypesTG/lists.h \
     DatatypesTG/maps.h \
+    DatatypesTG/reducers.h \
     JoineryTS/adialog.h \
     JoineryTS/atextedit.h \
     JoineryTS/aviewwidget.h \
@@ -23,7 +25,9 @@ HEADERS       = mainwindow.h \
 SOURCES       = main.cpp \
                 AlgorithmsKG/calculus.cpp \
                 AlgorithmsKG/sais.cpp \
+                DatatypesTG/lists.cpp \
                 DatatypesTG/maps.cpp \
+                DatatypesTG/reducers.cpp \
                 JoineryTS/adialog.cpp \
                 JoineryTS/atextedit.cpp \
                 JoineryTS/aviewwidget.cpp \

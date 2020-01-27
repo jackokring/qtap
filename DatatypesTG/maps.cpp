@@ -252,10 +252,7 @@ void MasterMap<T, K>::insert(T key, K value) {
 
 template<class T, class K>
 QList<K> MasterMap<T, K>::values(T key) {
-    uint32_t vh = 0;
-    for(uint i = 0; i < 32; ++i) {
-        if(stimulusMap[i].in(key)) vh |= (1 << i);
-    }
+    uint32_t vh = senseOf(key);
     QList<K> ret = FoolMap<T, K>::map.values(vh);
     if(ret.isEmpty()) ret = onEmpty(key);
     QListIterator<K> i;//botch as generic prevents extraction of ::iterator
@@ -298,4 +295,13 @@ template<class T, class K>
 QList<K> MasterMap<T, K>::onEmpty(T key) {
     Q_UNUSED(key);
     return QList<K>();
+}
+
+template<class T, class K>
+uint32_t MasterMap<T, K>::senseOf(T key) {
+    uint32_t vh = 0;
+    for(uint i = 0; i < 32; ++i) {
+        if(stimulusMap[i].in(key)) vh |= (1 << i);
+    }
+    return vh;
 }
