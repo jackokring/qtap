@@ -24,7 +24,10 @@ public:
                   int step = 1, bool splitDistribute = false);//from now
     static void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1);
     static bool seriesAccel(double *inputBegin, double *inputEnd,
-                            double *output, int step = 1);
+                            double *output, int step = 1, bool outsToo = false);
+    static double seriesAccelLim(double *inputBegin, double *inputEnd, int step = 1);
+    static double seriesAccelLim2(double *inputBegin, double *inputEnd,
+                                  int step = 1, uint nest = 1);
 
 protected:
     double h;//sampleStep

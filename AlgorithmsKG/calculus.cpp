@@ -84,13 +84,17 @@ void Calculus::cumSum(double *inputBegin, double *inputEnd, double *output, int 
     }
 }
 
-bool Calculus::seriesAccel(double *inputBegin, double *inputEnd, double *output, int step) {
+/*===================================================================
+ * BOTH BELOW ACCELERATIONS WORK WITH CUMULATIVE SUMS OF SERIES
+ * ================================================================*/
+bool Calculus::seriesAccel(double *inputBegin, double *inputEnd,
+                           double *output, int step, bool outsToo) {
     if(inputBegin == inputEnd) {
         *output = *inputBegin;
         return true;//convergence extra not possible
     }
-    ++inputBegin;
-    --inputEnd;
+    inputBegin += step;
+    inputEnd -= step;
     double temp;
     double nm1;
     double np1;
@@ -112,7 +116,24 @@ bool Calculus::seriesAccel(double *inputBegin, double *inputEnd, double *output,
         } else {
             temp /= temp2;
         }
-        (*(output++)) = np1 - temp;
+        *output = np1 - temp;
+        output += outsToo ? step : 1;//step outs for replacements
     }
     return cov;
+}
+
+double Calculus::seriesAccelLim(double *inputBegin, double *inputEnd, int step) {
+    while(!seriesAccel(inputBegin, inputEnd, inputBegin, step, true)) {//overwrite
+        inputEnd -= 2;//two off end
+    }
+    return *inputBegin;
+}
+
+//for an application test on sets of convergents as a series which has same limit?
+double Calculus::seriesAccelLim2(double *inputBegin, double *inputEnd,
+                                 int step, uint nest) {
+    if(nest > 1) {
+        return seriesAccelLim2(inputEnd, inputBegin, step *= -2, --nest);
+    }
+    return seriesAccelLim(inputEnd, inputBegin, step *= -2);
 }
