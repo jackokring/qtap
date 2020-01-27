@@ -140,6 +140,7 @@ public:
     QList<K> values(T key) override;
     void remove(T key, K value) override;//requires both
     virtual QList<K> next(uint32_t index);//for jump pointers and program counters
+    virtual QList<K> onEmpty(T key);
 
 protected:
     TripleFilter<T> stimulusMap[32];

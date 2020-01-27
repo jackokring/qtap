@@ -219,7 +219,7 @@ void FoolMap<T, K>::insert(T key, K value) {
 
 template<class T, class K>
 QList<K> FoolMap<T, K>::values(T key) {
-    map.values(qHash(key));
+    return map.values(qHash(key));
 }
 
 template<class T, class K>
@@ -256,7 +256,16 @@ QList<K> MasterMap<T, K>::values(T key) {
     for(uint i = 0; i < 32; ++i) {
         if(stimulusMap[i].in(key)) vh |= (1 << i);
     }
-    FoolMap<T, K>::map.values(vh);
+    QList<K> ret = FoolMap<T, K>::map.values(vh);
+    if(ret.isEmpty()) ret = onEmpty(key);
+    QListIterator<K> i;//botch as generic prevents extraction of ::iterator
+    for(i = ret.begin(); i != ret.end(); ++i) {
+        if(qHash(*i) != vh) {
+            //rad hard exception
+            throw new QException();
+        }
+    }
+    return ret;
 }
 
 template<class T, class K>
@@ -282,5 +291,11 @@ bool MasterMap<T, K>::keyHook(T key, DoubleFilter<T> *filter,
 
 template<class T, class K>
 QList<K> MasterMap<T, K>::next(uint32_t index) {
-    FoolMap<T, K>::map.values(index);//for jump pointers and program counters
+    return FoolMap<T, K>::map.values(index);//for jump pointers and program counters
+}
+
+template<class T, class K>
+QList<K> MasterMap<T, K>::onEmpty(T key) {
+    Q_UNUSED(key);
+    return QList<K>();
 }
