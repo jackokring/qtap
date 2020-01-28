@@ -128,18 +128,26 @@ void MainWindow::setMain(QWidget *widget, bool input) {
         }
         center->setCurrentWidget(widget);
     }
+    //flicker fix by delete all before adding again
     AViewWidget *k = (AViewWidget *)widget;
     QMap<AViewWidget *, QList<QAction *>>::iterator i;
     for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
         QList<QAction *>::iterator j;
         for(j = (*i).begin(); j != (*i).end(); ++j) {
             (*j)->setVisible(false);
+        }
+    }
+    for(i = inViewActions.begin(); i != inViewActions.end(); ++i) {
+        QList<QAction *>::iterator j;
+        for(j = (*i).begin(); j != (*i).end(); ++j) {
             if(k == i.key()) (*j)->setVisible(true);//and for view
         }
     }
     QList<QAction *>::iterator j;
     for(j = inInputActions.begin(); j != inInputActions.end(); ++j) {
         (*j)->setVisible(false);
+    }
+    for(j = inInputActions.begin(); j != inInputActions.end(); ++j) {
         if(textEdit == widget) (*j)->setVisible(true);//and for input
     }
     checkSave(isModified());//test save avail?

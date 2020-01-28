@@ -1,5 +1,6 @@
 #include "calculus.h"
 #include <math.h>
+#include "minblep.cpp"
 
 //WARNING WILL ROBINSON may contain traces of GB 1905339.6 Pat. Pending.
 
@@ -64,7 +65,7 @@ void Calculus::next() {
 
 void Calculus::expDecay(double *inputBegin, double *inputEnd, double *output,
                         int step, bool splitDistribute) {//from now
-    uint64_t tt = tick;
+    uint64_t tt = tick - (inputEnd - inputBegin) / step;//work out sampled start time
     for(; inputBegin <= inputEnd; inputBegin += step) {
         (*(output++)) = (*inputBegin) * expm1(-(sigma * h * tt)) +
                 (splitDistribute ? 0.0 :(*inputBegin));
@@ -85,7 +86,7 @@ void Calculus::cumSum(double *inputBegin, double *inputEnd, double *output, int 
 }
 
 /*===================================================================
- * BOTH BELOW ACCELERATIONS WORK WITH CUMULATIVE SUMS OF SERIES
+ * THREE BELOW ACCELERATIONS WORK WITH CUMULATIVE SUMS OF SERIES
  * ================================================================*/
 bool Calculus::seriesAccel(double *inputBegin, double *inputEnd,
                            double *output, int step, bool outsToo) {
@@ -106,13 +107,13 @@ bool Calculus::seriesAccel(double *inputBegin, double *inputEnd,
     bool cov = (inputBegin == inputEnd);
     for(; inputBegin <= inputEnd; inputBegin += step) {
         //Shank's method
-        nm1 = *(inputBegin - 1);
-        np1 = *(inputBegin + 1);
+        nm1 = *(inputBegin - step);
+        np1 = *(inputBegin + step);
         temp = temp2 = (np1 - *inputBegin);
         temp *= temp;
         temp2 -= (*inputBegin - nm1);
         if(temp2 == 0.0) {
-            temp = *inputBegin - np1;//pass through as no delta
+            temp = 0.0;//pass through as no delta
         } else {
             temp /= temp2;
         }
@@ -137,4 +138,40 @@ double Calculus::seriesAccelLim2(double *inputBegin, double *inputEnd,
         return seriesAccelLim2(inputEnd, inputBegin, step, --nest);
     }
     return seriesAccelLim(inputEnd, inputBegin, step *= -2);
+}
+
+void Calculus::preMul(double *coeff, double *inputBegin, double *inputEnd, double *output, int step) {
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        (*(output++)) = *inputBegin * *(coeff++);//pre multiply by coeeficients
+    }
+}
+
+Blep::Blep(uint zeros, uint oversample) {
+    scales = GenerateMinBLEP(zeros, oversample);
+    max = (zeros * 2 * oversample) + 1;
+    array = new double[max]{};
+    residual = new double[max]{};
+}
+
+Blep::~Blep() {
+    delete [] residual;
+    delete [] array;
+}
+
+double Blep::out(uint sampleInc) {//allows undersampling
+    double val = array[index];
+    array[index] = 0.0;//reset
+    index += sampleInc;
+    index %= max;//limit
+    return val;
+}
+
+void Blep::in(double value) {
+    value += residual[indexw];
+    for(uint i = 0; i < max - 1 /* the left */; ++i) {
+        array[(i + indexw) % max] += value * scales[i];
+    }
+    residual[(15 + indexw) % max] = value * scales[max - 1];//last
+    ++indexw;
+    indexw %= max;
 }

@@ -28,11 +28,29 @@ public:
     static double seriesAccelLim(double *inputBegin, double *inputEnd, int step = 1);
     static double seriesAccelLim2(double *inputBegin, double *inputEnd,
                                   int step = 1, uint nest = 1);
+    static void preMul(double *coeff, double *inputBegin, double *inputEnd, double *output, int step = 1);
 
 protected:
     double h;//sampleStep
     double sigma = 0.0;
     uint64_t tick = 0;
+};
+
+class Blep {
+public:
+    Blep(uint zeros = 1, uint oversample = 8);//length
+    ~Blep();
+
+    double out(uint sampleInc = 1);
+    void in(double value);
+
+protected:
+    double *array;
+    double *residual;
+    uint index = 0;
+    uint indexw = 0;
+    uint max;
+    double *scales;
 };
 
 #endif // CALCULUS_H

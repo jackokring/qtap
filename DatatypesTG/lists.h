@@ -13,7 +13,7 @@ public:
     // INTERFACE
     //===================================================
     virtual QString name();
-    virtual void setName();
+    virtual void setName(QString name);
 
 protected:
     QString named;

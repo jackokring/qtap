@@ -25,6 +25,7 @@ HEADERS       = mainwindow.h \
     kringlicence.h
 SOURCES       = main.cpp \
                 AlgorithmsKG/calculus.cpp \
+                AlgorithmsKG/minblep.cpp \
                 AlgorithmsKG/sais.cpp \
                 DatatypesTG/lists.cpp \
                 DatatypesTG/maps.cpp \
