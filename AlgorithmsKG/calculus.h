@@ -4,6 +4,8 @@
 #include <QtCore>
 #include "../kringlicence.h"
 
+double entropic(double x);
+
 class Calculus {
 public:
     Calculus(double sampleStep = 1.0);
@@ -29,6 +31,8 @@ public:
     static double seriesAccelLim2(double *inputBegin, double *inputEnd,
                                   int step = 1, uint nest = 1);
     static void preMul(double *coeff, double *inputBegin, double *inputEnd, double *output, int step = 1);
+    static void map(double fn(double), double *inputBegin, double *inputEnd, double *output, int step = 1);
+    static void entropy(double *inputBegin, double *inputEnd, double *output, int step = 1);
 
 protected:
     double h;//sampleStep

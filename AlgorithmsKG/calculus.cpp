@@ -146,6 +146,20 @@ void Calculus::preMul(double *coeff, double *inputBegin, double *inputEnd, doubl
     }
 }
 
+void Calculus::map(double fn(double), double *inputBegin, double *inputEnd, double *output, int step) {
+    for(; inputBegin <= inputEnd; inputBegin += step) {
+        (*(output++)) = fn(*inputBegin);
+    }
+}
+
+double entropic(double x) {
+    return -x * log2(x);
+}
+
+void Calculus::entropy(double *inputBegin, double *inputEnd, double *output, int step) {
+    map(entropic, inputBegin, inputEnd, output, step);
+}
+
 Blep::Blep(uint zeros, uint oversample) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;
@@ -215,4 +229,5 @@ void DBuffer::fixBuffer(int step) {
 double *DBuffer::useAddress(double *address, int step) {
     double *addr = outAddress(address, step);
     if(addr != address) fixBuffer(step);
+    return addr;
 }
