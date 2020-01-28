@@ -53,4 +53,19 @@ protected:
     double *scales;
 };
 
+class DBuffer {//Saves a lot of % operations
+public:
+    DBuffer(uint size = 16, uint over = 16);//length
+    ~DBuffer();
+
+    double *outAddress(double *address, int step = 1);
+    void fixBuffer(int step = 1);//positive motion
+    double *useAddress(double *address, int step = 1);
+
+protected:
+    double *array;
+    uint max;
+    uint limit;
+};
+
 #endif // CALCULUS_H

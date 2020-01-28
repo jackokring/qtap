@@ -176,3 +176,43 @@ void Blep::in(double value) {
     ++indexw;
     indexw %= max;
 }
+
+DBuffer::DBuffer(uint size, uint over) {
+    max = size + over;
+    array = new double[max]{};
+    limit = size;
+}
+
+DBuffer::~DBuffer() {
+    delete [] array;
+}
+
+double *DBuffer::outAddress(double *address, int step) {
+    if(step > 0) {
+        //data was inserted positive
+        if(address > &array[limit]) {
+            return &array[address - array - limit];
+        }
+    } else {
+        if(address < &array[max - limit]) {
+            return &array[limit + address - array];
+        }
+    }
+    return address;
+}
+
+void DBuffer::fixBuffer(int step) {
+    for(uint i = 0; i < max - limit; ++i) {
+        if(step > 0) {
+            //data was inserted positive
+            array[i] = array[limit + i];
+        } else {
+            array[limit + i] = array[i];
+        }
+    }
+}
+
+double *DBuffer::useAddress(double *address, int step) {
+    double *addr = outAddress(address, step);
+    if(addr != address) fixBuffer(step);
+}
