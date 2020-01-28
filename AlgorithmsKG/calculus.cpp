@@ -160,8 +160,9 @@ Blep::~Blep() {
 
 double Blep::out(uint sampleInc) {//allows undersampling
     double val = array[index];
-    array[index] = 0.0;//reset
-    index += sampleInc;
+    for(uint i = 0; i < sampleInc; ++i) {
+        array[index++] = 0.0;//reset
+    }
     index %= max;//limit
     return val;
 }
