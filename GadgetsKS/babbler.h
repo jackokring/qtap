@@ -7,6 +7,7 @@
 class Babbler {
 public:
     Babbler();
+    ~Babbler();
 };
 
 #endif // BABBLER_H

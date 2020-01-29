@@ -16,32 +16,32 @@ public:
     //outputs to output[0] to output[8]
     //so in effect can use a ring buffers
     void differential(double *input, double *output);
-    //the 0th differential one step in the future from input[-8] to input[0]
+    //The 0th differential one step in the future from input[-8] to input[0]
     //can then store it in input[1] and ...
     double future(double *input);
-    //a sum using the residual to gain higher precision
+    //A sum using the residual to gain higher precision
     static double sum(double *coeff, double *inputBegin, double *inputEnd, int step = 1);
-    //setting some important timing factors
+    //Setting some important timing factors
     void atTick(uint64_t now);
     void setSigma(double sigmaValue);
     void next();
-    //apply an exponetial decay of -sigma*t to the input history
+    //Apply an exponetial decay of -sigma*t to the input history
     //splitDistribute uses expm1 for x.expm1 + x = x.exp
     void expDecay(double *inputBegin, double *inputEnd, double *output,
                   int step = 1, bool splitDistribute = false);
-    //a cumulative sum for series acceleration input
+    //A cumulative sum for series acceleration input
     static void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1);
-    //some series acceleration routines
+    //Some series acceleration routines
     static bool seriesAccel(double *inputBegin, double *inputEnd,
                             double *output, int step = 1, bool outsToo = false);
     static double seriesAccelLim(double *inputBegin, double *inputEnd, int step = 1);
     static double seriesAccelLim2(double *inputBegin, double *inputEnd,
                                   int step = 1, uint nest = 1);
-    //premultiplication by a coefficient set
+    //Premultiplication by a coefficient set
     static void preMul(double *coeff, double *inputBegin, double *inputEnd, double *output, int step = 1);
-    //map a simple function over an input (with step stride)
+    //Map a simple function over an input (with step stride)
     static void map(double fn(double), double *inputBegin, double *inputEnd, double *output, int step = 1);
-    //entropy self information for example, and the a sum gives total entropy
+    //Entropy self information for example, and the a sum gives total entropy
     static void entropy(double *inputBegin, double *inputEnd, double *output, int step = 1);
     //integral pre-multiply input[0] to input[8] GB 1905339.6 Pat. Pending.
     //A device for doing integral estimation ...
@@ -60,6 +60,16 @@ public:
     //Then fact and xacc variables must be updated before (*input++)
     //There is a very complicated one involving logs and is best seen
     //as a linear part and an entropic part but needs many series accelerations
+
+    //Calculates inline differentials for the future predicted sample
+    //The returned value is the difference in the predicted 8th order differential
+    //estimated based on the 'new' sample as extra knowledge minus the
+    //sample as part of a moving window, and such represents the change
+    //in the 8th differential by 'excluding information from the past'
+    //This then is a stability measure as integration of differentials
+    //leads to offset errors becoming offset drifts and offset accelerations etc ...
+    //How much memory does a time series sequence need?
+    double differential9(double *input);
 
 protected:
     double h;//sampleStep

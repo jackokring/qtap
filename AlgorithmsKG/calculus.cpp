@@ -176,6 +176,17 @@ void Calculus::integralPreMul(double *input) {
     }
 }
 
+double Calculus::differential9(double *input) {
+    input[1] = future(input);//create estimate
+    differential(input + 1, input + 1);//future differential estimates
+    double co9[] = { -4, 37, -152, 364, -560, 574, -392, 172, -44, 5 };//an extra term
+    double t = h;
+    t *= t;
+    t *= t;
+    t *= t;
+    return sum(co9, input - 8, input + 1) / (1 * t) - *(input + 9);//8th derivative difference for stability of prediction
+}
+
 Blep::Blep(uint zeros, uint oversample, uint trunc) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;
