@@ -44,15 +44,22 @@ public:
     //entropy self information for example, and the a sum gives total entropy
     static void entropy(double *inputBegin, double *inputEnd, double *output, int step = 1);
     //integral pre-multiply input[0] to input[8] GB 1905339.6 Pat. Pending.
-    //a device for doing integral estimation ...
-    //so applying this to the output of 'differential(double *input, double *output)'
+    //A device for doing integral estimation ...
+    //So applying this to the output of 'differential(double *input, double *output)'
     //and then doing a series acceleration provides an integral estimate
     //with no constant integration error offset
-    //this makes it particularly suited to feed forward systems and
+    //This makes it particularly suited to feed forward systems and
     //estimations where the whole function is not known but just the differential series
-    //the 'end point' integral maybe bianry searched on end point for solution fits
-    //this would not be possible as with something like the Simpson's rule
+    //The 'end point' integral maybe bianry searched on end point for solution fits
+    //This would not be possible as with something like the Simpson's rule
+    //N.B. An offset in the Y axis is a rectangle to unsigned integrals
     void integralPreMul(double *input);
+    //There are other forms of this as many series for 'end points' exist
+    //There is the pole form, where before differential, the function is
+    //divided by time (x)
+    //Then fact and xacc variables must be updated before (*input++)
+    //There is a very complicated one involving logs and is best seen
+    //as a linear part and an entropic part but needs many series accelerations
 
 protected:
     double h;//sampleStep
