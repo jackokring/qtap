@@ -43,6 +43,16 @@ public:
     static void map(double fn(double), double *inputBegin, double *inputEnd, double *output, int step = 1);
     //entropy self information for example, and the a sum gives total entropy
     static void entropy(double *inputBegin, double *inputEnd, double *output, int step = 1);
+    //integral pre-multiply input[0] to input[8] GB 1905339.6 Pat. Pending.
+    //a device for doing integral estimation ...
+    //so applying this to the output of 'differential(double *input, double *output)'
+    //and then doing a series acceleration provides an integral estimate
+    //with no constant integration error offset
+    //this makes it particularly suited to feed forward systems and
+    //estimations where the whole function is not known but just the differential series
+    //the 'end point' integral maybe bianry searched on end point for solution fits
+    //this would not be possible as with something like the Simpson's rule
+    void integralPreMul(double *input);
 
 protected:
     double h;//sampleStep

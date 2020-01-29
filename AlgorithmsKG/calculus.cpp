@@ -165,6 +165,17 @@ void Calculus::entropy(double *inputBegin, double *inputEnd, double *output, int
     map(entropic, inputBegin, inputEnd, output, step);
 }
 
+void Calculus::integralPreMul(double *input) {
+    double fact = 1.0;//and sign
+    double time = (double)tick * h;
+    double xacc = time;
+    for(uint i = 0; i < 9; ++i) {
+        *input++ *= xacc * fact;
+        fact /= -(double)i;
+        xacc *= time;
+    }
+}
+
 Blep::Blep(uint zeros, uint oversample, uint trunc) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;
