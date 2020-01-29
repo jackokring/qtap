@@ -20,7 +20,7 @@ void FoolReducer<T, K>::insert(QList<K> values) {
 
 template<class T, class K>
 T FoolReducer<T, K>::value() {
-
+    return todo;//a full internal list as a singular
 }
 
 template<class T, class K>

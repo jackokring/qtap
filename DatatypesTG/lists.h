@@ -19,34 +19,6 @@ protected:
     QString named;
 };
 
-class TList : List {
-public:
-    TList();
-    ~TList();
-
-    //===================================================
-    // INTERFACE
-    //===================================================
-
-
-protected:
-
-};
-
-class KList : List {
-public:
-    KList();
-    ~KList();
-
-    //===================================================
-    // INTERFACE
-    //===================================================
-
-
-protected:
-
-};
-
 template<class T, class K>
 class NOP {
 public:
@@ -56,11 +28,11 @@ public:
     //===================================================
     // INTERFACE
     //===================================================
-    virtual void inset(K add);
-    virtual void remove(K sub);
+    virtual void push(K add);
+    virtual K pop();
     virtual T evaluate();
-    virtual KList recall();
-    virtual KList hold();
+    virtual K recall();
+    virtual K hold();
 
 protected:
     QList<K> inside;
@@ -75,11 +47,11 @@ public:
     //===================================================
     // INTERFACE
     //===================================================
-    virtual void inset(K add) override;
-    virtual void remove(K sub) override;
-    virtual T evaluate() override;
-    virtual KList recall() override;
-    virtual KList hold() override;
+    //void inset(K add) override;
+    //void remove(K sub) override;
+    T evaluate() override;
+    //QList<K> recall() override;
+    //K hold() override;
 
 protected:
 
