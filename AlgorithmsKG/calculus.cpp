@@ -38,6 +38,11 @@ void Calculus::differential(double *input, double *output) {
     output[8] = sum(co8, input - 8, input) / (1 * t);
 }
 
+double Calculus::future(double *input) {
+    double co1[] = { 1, -9, 36, -84, 126, -126, 84, -36, 9 };//0th differential in the future
+    return sum(co1, input - 8, input);
+}
+
 double Calculus::sum(double *coeff, double *inputBegin, double *inputEnd, int step) {
     volatile double residual = 0.0;
     double add = 0.0;
@@ -160,9 +165,10 @@ void Calculus::entropy(double *inputBegin, double *inputEnd, double *output, int
     map(entropic, inputBegin, inputEnd, output, step);
 }
 
-Blep::Blep(uint zeros, uint oversample) {
+Blep::Blep(uint zeros, uint oversample, uint trunc) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;
+    max /= trunc;//by parts for speed tradeoff
     array = new double[max]{};
     residual = new double[max]{};
 }
@@ -186,8 +192,7 @@ void Blep::in(double value) {
     for(uint i = 0; i < max - 1 /* the left */; ++i) {
         array[(i + indexw) % max] += value * scales[i];
     }
-    residual[(15 + indexw) % max] = value * scales[max - 1];//last
-    ++indexw;
+    residual[indexw++] = value * (scales[max - 1] - 1.0);//last residual from actual
     indexw %= max;
 }
 

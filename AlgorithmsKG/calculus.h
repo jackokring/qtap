@@ -16,22 +16,32 @@ public:
     //outputs to output[0] to output[8]
     //so in effect can use a ring buffers
     void differential(double *input, double *output);
+    //the 0th differential one step in the future from input[-8] to input[0]
+    //can then store it in input[1] and ...
+    double future(double *input);
     //a sum using the residual to gain higher precision
     static double sum(double *coeff, double *inputBegin, double *inputEnd, int step = 1);
     //setting some important timing factors
     void atTick(uint64_t now);
     void setSigma(double sigmaValue);
     void next();
+    //apply an exponetial decay of -sigma*t to the input history
+    //splitDistribute uses expm1 for x.expm1 + x = x.exp
     void expDecay(double *inputBegin, double *inputEnd, double *output,
-                  int step = 1, bool splitDistribute = false);//from now
+                  int step = 1, bool splitDistribute = false);
+    //a cumulative sum for series acceleration input
     static void cumSum(double *inputBegin, double *inputEnd, double *output, int step = 1);
+    //some series acceleration routines
     static bool seriesAccel(double *inputBegin, double *inputEnd,
                             double *output, int step = 1, bool outsToo = false);
     static double seriesAccelLim(double *inputBegin, double *inputEnd, int step = 1);
     static double seriesAccelLim2(double *inputBegin, double *inputEnd,
                                   int step = 1, uint nest = 1);
+    //premultiplication by a coefficient set
     static void preMul(double *coeff, double *inputBegin, double *inputEnd, double *output, int step = 1);
+    //map a simple function over an input (with step stride)
     static void map(double fn(double), double *inputBegin, double *inputEnd, double *output, int step = 1);
+    //entropy self information for example, and the a sum gives total entropy
     static void entropy(double *inputBegin, double *inputEnd, double *output, int step = 1);
 
 protected:
@@ -41,8 +51,9 @@ protected:
 };
 
 class Blep {
+    //a MinBLEP unit step band limiter for spectrum alias reduction
 public:
-    Blep(uint zeros = 1, uint oversample = 8);//length
+    Blep(uint zeros = 1, uint oversample = 8, uint trunc = 1);//length
     ~Blep();
 
     double out(uint sampleInc = 1);
@@ -58,6 +69,7 @@ protected:
 };
 
 class DBuffer {//Saves a lot of % operations
+    //exactly^^
 public:
     DBuffer(uint size = 16, uint over = 16);//length
     ~DBuffer();
