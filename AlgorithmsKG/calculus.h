@@ -70,6 +70,8 @@ public:
     //leads to offset errors becoming offset drifts and offset accelerations etc ...
     //How much memory does a time series sequence need?
     double differential9(double *input);
+    //and an integral
+    void integral(double *input, double *output);
 
 protected:
     double h;//sampleStep

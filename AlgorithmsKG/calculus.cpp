@@ -187,6 +187,13 @@ double Calculus::differential9(double *input) {
     return sum(co9, input - 8, input + 1) / (1 * t) - *(input + 9);//8th derivative difference for stability of prediction
 }
 
+void Calculus::integral(double *input, double *output) {//input[-8] to input[0]
+    differential(input, output);
+    integralPreMul(output);
+    cumSum(output, output + 8, output);
+    seriesAccelLim(output, output + 8);//eventually output[0] plus some buffered junk upto output[8]
+}
+
 Blep::Blep(uint zeros, uint oversample, uint trunc) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;
