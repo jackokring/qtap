@@ -35,6 +35,7 @@ public:
     void loadCorpus(QString text);
     uint32_t mapUniform(uint32_t input);
     uint32_t mapInformational(uint32_t input);
+    uint32_t currentIndex();
 
 protected:
 
