@@ -194,6 +194,15 @@ void Calculus::integral(double *input, double *output) {//input[-8] to input[0]
     seriesAccelLim(output, output + 8);//eventually output[0] plus some buffered junk upto output[8]
 }
 
+void Calculus::sparseLaplace(double *input, double *output) {
+    integral(input, output);
+    double buff[9];
+    expDecay(input - 8, input, buff + 8, 1, true);//do as easy part
+    double clobber = output[0];
+    integral(buff + 8, output);
+    output[0] += clobber;
+}
+
 Blep::Blep(uint zeros, uint oversample, uint trunc) {
     scales = GenerateMinBLEP(zeros, oversample);
     max = (zeros * 2 * oversample) + 1;

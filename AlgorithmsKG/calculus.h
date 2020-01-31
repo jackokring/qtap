@@ -72,6 +72,10 @@ public:
     double differential9(double *input);
     //and an integral
     void integral(double *input, double *output);
+    //and this for evaluation of sparse points on a Laplace operator
+    //this could also be binary searched and for large time series sets
+    //be quite a time saver
+    void sparseLaplace(double *input, double *output);
 
 protected:
     double h;//sampleStep
